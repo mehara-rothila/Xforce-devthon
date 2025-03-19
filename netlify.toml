@@ -3,5 +3,7 @@
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "20.17.0"
+  NODE_VERSION = "18.18.0"
   NPM_VERSION = "10.2.0"
+  # Explicitly disable Go
+  GO_VERSION = "none"

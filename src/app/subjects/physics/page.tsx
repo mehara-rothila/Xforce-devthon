@@ -160,7 +160,7 @@ export default function PhysicsPage() {
   ];
 
   // Difficulty badge color
-  const getDifficultyColor = (difficulty) => {
+  const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case 'easy':
         return 'bg-green-100 text-green-800';
@@ -178,7 +178,7 @@ export default function PhysicsPage() {
   };
 
   // Mastery level badge color
-  const getMasteryColor = (mastery) => {
+  const getMasteryColor = (mastery: string) => {
     switch (mastery.toLowerCase()) {
       case 'high':
         return 'bg-green-100 text-green-800';
@@ -192,7 +192,7 @@ export default function PhysicsPage() {
   };
 
   // Resource type icon
-  const getResourceTypeIcon = (type) => {
+  const getResourceTypeIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'notes':
         return '📝';

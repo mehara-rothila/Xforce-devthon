@@ -14,6 +14,11 @@ export default function RootLayout({
 }>) {
   const [isOpen, setIsOpen] = useState(false);
   
+  // Add this useEffect to set the document title directly
+  useEffect(() => {
+    document.title = "XForce Learning Platform | DEV{thon} 2.0";
+  }, []);
+  
   // Close menu when resizing to desktop
   useEffect(() => {
     const handleResize = () => {

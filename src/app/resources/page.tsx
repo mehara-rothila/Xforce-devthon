@@ -3,13 +3,38 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function ResourcesPage() {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [activeSubjects, setActiveSubjects] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('downloads');
+// Define TypeScript interfaces for proper type safety
+interface Resource {
+  id: number;
+  title: string;
+  category: string;
+  subject: string;
+  type: string;
+  size: string;
+  downloads: number;
+  premium: boolean;
+  date: string;
+}
 
-  const categories = [
+interface Category {
+  id: string;
+  name: string;
+  count: number;
+}
+
+interface Subject {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export default function ResourcesPage() {
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [activeSubjects, setActiveSubjects] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortOption, setSortOption] = useState<string>('downloads');
+
+  const categories: Category[] = [
     { id: 'all', name: 'All Resources', count: 532 },
     { id: 'past-papers', name: 'Past Papers', count: 45 },
     { id: 'model-papers', name: 'Model Papers', count: 32 },
@@ -18,13 +43,13 @@ export default function ResourcesPage() {
     { id: 'videos', name: 'Video Lessons', count: 85 },
   ];
 
-  const subjects = [
+  const subjects: Subject[] = [
     { id: 'physics', name: 'Physics', color: 'blue' },
     { id: 'chemistry', name: 'Chemistry', color: 'green' },
     { id: 'math', name: 'Combined Math', color: 'yellow' },
   ];
 
-  const resources = [
+  const resources: Resource[] = [
     {
       id: 1,
       title: '2023 Physics Past Paper with Marking Scheme',
@@ -93,8 +118,8 @@ export default function ResourcesPage() {
     },
   ];
 
-  // Toggle subject filter
-  const toggleSubject = (subjectId) => {
+  // Toggle subject filter with proper type annotation
+  const toggleSubject = (subjectId: string) => {
     if (activeSubjects.includes(subjectId)) {
       setActiveSubjects(activeSubjects.filter(id => id !== subjectId));
     } else {
@@ -103,7 +128,7 @@ export default function ResourcesPage() {
   };
 
   // Filter resources based on active category, subjects, and search query
-  const filteredResources = resources.filter(resource => {
+  const filteredResources = resources.filter((resource: Resource) => {
     const matchesCategory = activeCategory === 'all' || 
       resource.category.toLowerCase().includes(activeCategory.replace('-', ' '));
     
@@ -119,14 +144,14 @@ export default function ResourcesPage() {
   });
 
   // Sort resources
-  const sortedResources = [...filteredResources].sort((a, b) => {
+  const sortedResources = [...filteredResources].sort((a: Resource, b: Resource) => {
     switch (sortOption) {
       case 'downloads':
         return b.downloads - a.downloads;
       case 'newest':
-        return new Date(b.date) - new Date(a.date);
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
       case 'oldest':
-        return new Date(a.date) - new Date(b.date);
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
       case 'az':
         return a.title.localeCompare(b.title);
       default:

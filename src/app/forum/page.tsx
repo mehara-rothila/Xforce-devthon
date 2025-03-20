@@ -5,9 +5,9 @@ import { useState, useEffect } from 'react';
 
 export default function Forum() {
   // State for hover effects
-  const [hoveredCategory, setHoveredCategory] = useState(null);
-  const [hoveredDiscussion, setHoveredDiscussion] = useState(null);
-  
+  const [hoveredCategory, setHoveredCategory] = useState<number | null>(null); // Explicitly type hoveredCategory as number | null
+  const [hoveredDiscussion, setHoveredDiscussion] = useState<number | null>(null); // Explicitly type hoveredDiscussion as number | null
+
   // Mock data for forum categories
   const categories = [
     {
@@ -178,8 +178,8 @@ export default function Forum() {
               Connect with peers, ask questions, and collaborate on topics to enhance your learning journey
             </p>
             <div className="mt-6 flex justify-center gap-4 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
-              <Link 
-                href="/forum/new" 
+              <Link
+                href="/forum/new"
                 className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center group"
               >
                 <span>Start a Discussion</span>
@@ -187,8 +187,8 @@ export default function Forum() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </Link>
-              <Link 
-                href="/forum/trending" 
+              <Link
+                href="/forum/trending"
                 className="px-6 py-3 bg-white text-purple-700 rounded-lg font-medium shadow-md hover:shadow-lg border border-purple-200 hover:border-purple-300 transition-all duration-300"
               >
                 Trending Topics
@@ -206,8 +206,8 @@ export default function Forum() {
               </div>
               <div className="divide-y divide-gray-100">
                 {categories.map((category) => (
-                  <div 
-                    key={category.id} 
+                  <div
+                    key={category.id}
                     className={`p-6 transition-all duration-300 ${hoveredCategory === category.id ? 'bg-gray-50' : ''}`}
                     onMouseEnter={() => setHoveredCategory(category.id)}
                     onMouseLeave={() => setHoveredCategory(null)}
@@ -215,7 +215,7 @@ export default function Forum() {
                     <Link href={`/forum/category/${category.id}`} className="block">
                       <div className="flex items-start">
                         <div className="flex-shrink-0 mr-5">
-                          <div 
+                          <div
                             className={`w-16 h-16 rounded-lg flex items-center justify-center transition-all duration-300 transform ${hoveredCategory === category.id ? 'scale-110' : ''} bg-gradient-to-br ${hoveredCategory === category.id ? category.hoverGradientFrom + ' ' + category.hoverGradientTo : category.gradientFrom + ' ' + category.gradientTo}`}
                             style={{ boxShadow: hoveredCategory === category.id ? `0 10px 15px -3px ${category.shadowColor}` : 'none' }}
                           >
@@ -249,8 +249,8 @@ export default function Forum() {
             <div className="bg-white rounded-xl shadow-xl overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
               <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
                 <h2 className="text-2xl font-bold text-gray-900">Recent Discussions</h2>
-                <Link 
-                  href="/forum/new" 
+                <Link
+                  href="/forum/new"
                   className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center group"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -261,8 +261,8 @@ export default function Forum() {
               </div>
               <div className="divide-y divide-gray-100">
                 {recentDiscussions.map((discussion) => (
-                  <div 
-                    key={discussion.id} 
+                  <div
+                    key={discussion.id}
                     className={`p-6 transition-all duration-300 ${hoveredDiscussion === discussion.id ? 'bg-gray-50' : ''}`}
                     onMouseEnter={() => setHoveredDiscussion(discussion.id)}
                     onMouseLeave={() => setHoveredDiscussion(null)}
@@ -472,8 +472,8 @@ export default function Forum() {
                   ))}
                 </ul>
                 <div className="mt-6 pt-4 border-t border-gray-100">
-                  <Link 
-                    href="/forum/guidelines" 
+                  <Link
+                    href="/forum/guidelines"
                     className="inline-flex items-center text-purple-600 font-medium hover:text-purple-800 transition-colors duration-200 group"
                   >
                     <span>Read full guidelines</span>
@@ -484,7 +484,7 @@ export default function Forum() {
                 </div>
               </div>
             </div>
-            
+
             {/* New component: Top Contributors */}
             <div className="bg-white rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
               <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-white">
@@ -514,8 +514,8 @@ export default function Forum() {
                   ))}
                 </div>
                 <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-                  <Link 
-                    href="/forum/leaderboard" 
+                  <Link
+                    href="/forum/leaderboard"
                     className="inline-flex items-center text-purple-600 font-medium hover:text-purple-800 transition-colors duration-200 group"
                   >
                     <span>View leaderboard</span>

@@ -3,7 +3,19 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-const quizzes = [
+// Define the Quiz interface to properly type our data
+interface Quiz {
+  id: number;
+  title: string;
+  subject: string;
+  difficulty: string;
+  questions: number;
+  duration: string;
+  attempts: number;
+  rating: number;
+}
+
+const quizzes: Quiz[] = [
   {
     id: 1,
     title: 'Mechanics - Forces and Motion',
@@ -72,14 +84,14 @@ export default function Quizzes() {
   const [sortBy, setSortBy] = useState('popular');
 
   // Filter quizzes based on selected subject and difficulty
-  const filteredQuizzes = quizzes.filter(quiz => {
+  const filteredQuizzes = quizzes.filter((quiz: Quiz) => {
     const matchesSubject = activeSubject === 'all' || quiz.subject.toLowerCase().replace(' ', '-') === activeSubject;
     const matchesDifficulty = activeDifficulty === 'all' || quiz.difficulty.toLowerCase() === activeDifficulty;
     return matchesSubject && matchesDifficulty;
   });
 
   // Sort quizzes based on selected sort option
-  const sortedQuizzes = [...filteredQuizzes].sort((a, b) => {
+  const sortedQuizzes = [...filteredQuizzes].sort((a: Quiz, b: Quiz) => {
     switch (sortBy) {
       case 'popular':
         return b.attempts - a.attempts;
@@ -88,10 +100,10 @@ export default function Quizzes() {
       case 'rating':
         return b.rating - a.rating;
       case 'easy-to-hard':
-        const difficultyOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+        const difficultyOrder: Record<string, number> = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
         return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
       case 'hard-to-easy':
-        const difficultyOrderReverse = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
+        const difficultyOrderReverse: Record<string, number> = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
         return difficultyOrderReverse[b.difficulty] - difficultyOrderReverse[a.difficulty];
       default:
         return b.attempts - a.attempts;
@@ -256,7 +268,7 @@ export default function Quizzes() {
 
         {/* Quiz Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {sortedQuizzes.map((quiz) => (
+          {sortedQuizzes.map((quiz: Quiz) => (
             <div 
               key={quiz.id} 
               className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
@@ -331,13 +343,16 @@ export default function Quizzes() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </Link>
-                  <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-sm font-medium hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md transform hover:scale-105 flex items-center">
+                  <Link 
+                    href={`/quiz/take?id=${quiz.id.toString()}`}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-sm font-medium hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md transform hover:scale-105 flex items-center"
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Start Quiz
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -438,7 +453,7 @@ export default function Quizzes() {
                   🏆
                 </div>
                 <div className="ml-3">
-                  <h4 className="text-sm font-medium text-gray-900">Quiz Master</h4>
+                <h4 className="text-sm font-medium text-gray-900">Quiz Master</h4>
                   <p className="text-xs text-gray-500">Completed 20+ quizzes</p>
                 </div>
               </div>

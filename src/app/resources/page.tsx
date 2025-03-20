@@ -1,12 +1,27 @@
+"use client";
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function Resources() {
+export default function ResourcesPage() {
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeSubjects, setActiveSubjects] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState('downloads');
+
   const categories = [
-    { name: 'Past Papers', count: 45 },
-    { name: 'Model Papers', count: 32 },
-    { name: 'Notes', count: 120 },
-    { name: 'Practice Questions', count: 250 },
-    { name: 'Video Lessons', count: 85 },
+    { id: 'all', name: 'All Resources', count: 532 },
+    { id: 'past-papers', name: 'Past Papers', count: 45 },
+    { id: 'model-papers', name: 'Model Papers', count: 32 },
+    { id: 'notes', name: 'Notes', count: 120 },
+    { id: 'practice', name: 'Practice Questions', count: 250 },
+    { id: 'videos', name: 'Video Lessons', count: 85 },
+  ];
+
+  const subjects = [
+    { id: 'physics', name: 'Physics', color: 'blue' },
+    { id: 'chemistry', name: 'Chemistry', color: 'green' },
+    { id: 'math', name: 'Combined Math', color: 'yellow' },
   ];
 
   const resources = [
@@ -19,6 +34,7 @@ export default function Resources() {
       size: '2.4 MB',
       downloads: 1250,
       premium: false,
+      date: '2023-09-15'
     },
     {
       id: 2,
@@ -29,6 +45,7 @@ export default function Resources() {
       size: '3.1 MB',
       downloads: 875,
       premium: true,
+      date: '2024-01-10'
     },
     {
       id: 3,
@@ -39,6 +56,7 @@ export default function Resources() {
       size: '5.7 MB',
       downloads: 2100,
       premium: false,
+      date: '2023-11-27'
     },
     {
       id: 4,
@@ -49,6 +67,7 @@ export default function Resources() {
       size: '1.8 MB',
       downloads: 950,
       premium: false,
+      date: '2023-12-05'
     },
     {
       id: 5,
@@ -59,6 +78,7 @@ export default function Resources() {
       size: '4.2 MB',
       downloads: 1800,
       premium: false,
+      date: '2023-08-20'
     },
     {
       id: 6,
@@ -69,206 +89,433 @@ export default function Resources() {
       size: '450 MB',
       downloads: 780,
       premium: true,
+      date: '2024-02-18'
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Resource Library</h1>
-          <p className="mt-3 text-xl text-gray-700">Access study materials and past papers</p>
-        </div>
+  // Toggle subject filter
+  const toggleSubject = (subjectId) => {
+    if (activeSubjects.includes(subjectId)) {
+      setActiveSubjects(activeSubjects.filter(id => id !== subjectId));
+    } else {
+      setActiveSubjects([...activeSubjects, subjectId]);
+    }
+  };
 
+  // Filter resources based on active category, subjects, and search query
+  const filteredResources = resources.filter(resource => {
+    const matchesCategory = activeCategory === 'all' || 
+      resource.category.toLowerCase().includes(activeCategory.replace('-', ' '));
+    
+    const matchesSubject = activeSubjects.length === 0 || 
+      activeSubjects.includes(resource.subject.replace(' ', '-').toLowerCase());
+    
+    const matchesSearch = searchQuery === '' || 
+      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      resource.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      resource.subject.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesSubject && matchesSearch;
+  });
+
+  // Sort resources
+  const sortedResources = [...filteredResources].sort((a, b) => {
+    switch (sortOption) {
+      case 'downloads':
+        return b.downloads - a.downloads;
+      case 'newest':
+        return new Date(b.date) - new Date(a.date);
+      case 'oldest':
+        return new Date(a.date) - new Date(b.date);
+      case 'az':
+        return a.title.localeCompare(b.title);
+      default:
+        return b.downloads - a.downloads;
+    }
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* Hero Header */}
+      <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 pt-16 pb-32 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden opacity-20">
+          <div className="absolute top-[10%] right-[15%] text-white text-2xl animate-float" style={{ animationDuration: '8s' }}>📚</div>
+          <div className="absolute top-[30%] left-[10%] text-white text-xl animate-pulse-slow" style={{ animationDuration: '7s' }}>📝</div>
+          <div className="absolute top-[65%] right-[18%] text-white text-xl animate-float" style={{ animationDuration: '10s' }}>📖</div>
+          <div className="absolute top-[25%] left-[30%] text-white text-3xl animate-pulse-slow" style={{ animationDuration: '15s' }}>🧪</div>
+          <div className="absolute bottom-[20%] right-[25%] text-white text-3xl animate-pulse-slow" style={{ animationDuration: '14s' }}>🔬</div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="sm:flex sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+                Resource Library
+              </h1>
+              <p className="mt-2 text-lg text-purple-100">
+                Access study materials, past papers, and learning resources
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" clipRule="evenodd" />
+                </svg>
+                Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 pb-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <div className="lg:w-1/4">
-            <div className="bg-white p-6 rounded-lg shadow mb-6">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900">Search</h2>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search resources..."
-                  className="w-full p-2 pl-8 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400 absolute left-2 top-2.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            {/* Search Box */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+              <div className="p-6">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Search Resources
+                </h2>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by title, subject..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
                   />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 absolute left-3 top-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow mb-6">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900">Categories</h2>
-              <ul className="space-y-2">
-                {categories.map((category) => (
-                  <li key={category.name} className="flex justify-between items-center">
-                    <Link href="#" className="text-gray-700 hover:text-purple-600">
-                      {category.name}
-                    </Link>
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                      {category.count}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+            {/* Categories */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+              <div className="p-6">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  Categories
+                </h2>
+                <ul className="space-y-3">
+                  {categories.map((category) => (
+                    <li 
+                      key={category.id} 
+                      className="flex justify-between items-center group cursor-pointer"
+                      onClick={() => setActiveCategory(category.id)}
+                    >
+                      <span className={`text-gray-700 ${activeCategory === category.id ? 'text-purple-700 font-medium' : 'group-hover:text-purple-600'} transition-colors duration-200`}>
+                        {category.name}
+                      </span>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        activeCategory === category.id
+                          ? 'bg-purple-100 text-purple-800' 
+                          : 'bg-gray-100 text-gray-600 group-hover:bg-purple-50 group-hover:text-purple-700'
+                      } transition-colors duration-200`}>
+                        {category.count}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900">Subjects</h2>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <input
-                    id="physics"
-                    name="subject"
-                    type="checkbox"
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="physics" className="ml-2 block text-sm text-gray-900">
-                    Physics
-                  </label>
+            {/* Subjects */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+              <div className="p-6">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  Subjects
+                </h2>
+                <div className="space-y-3">
+                  {subjects.map((subject) => (
+                    <div 
+                      key={subject.id} 
+                      className="flex items-center cursor-pointer group"
+                      onClick={() => toggleSubject(subject.id)}
+                    >
+                      <div className={`h-5 w-5 rounded border flex items-center justify-center mr-3 transition-colors duration-200 ${
+                        activeSubjects.includes(subject.id)
+                          ? `bg-${subject.color}-500 border-${subject.color}-500 text-white`
+                          : 'border-gray-300 group-hover:border-gray-400'
+                      }`}>
+                        {activeSubjects.includes(subject.id) && (
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <label className={`block text-base ${
+                        activeSubjects.includes(subject.id) ? 'text-gray-900 font-medium' : 'text-gray-700'
+                      } cursor-pointer group-hover:text-gray-900 transition-colors duration-200`}>
+                        {subject.name}
+                      </label>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center">
-                  <input
-                    id="chemistry"
-                    name="subject"
-                    type="checkbox"
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="chemistry" className="ml-2 block text-sm text-gray-900">
-                    Chemistry
-                  </label>
+              </div>
+            </div>
+
+            {/* Premium Banner */}
+            <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-[1.02]">
+              <div className="p-6">
+                <div className="flex items-center mb-4">
+                  <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl mr-4">
+                    ✨
+                  </div>
+                  <h2 className="text-xl font-bold text-white">Premium Access</h2>
                 </div>
-                <div className="flex items-center">
-                  <input
-                    id="math"
-                    name="subject"
-                    type="checkbox"
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="math" className="ml-2 block text-sm text-gray-900">
-                    Combined Math
-                  </label>
-                </div>
+                <p className="text-purple-100 mb-4">Unlock all premium resources and exclusive content with a premium subscription.</p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-start text-white">
+                    <div className="bg-white/20 rounded-full p-1 mr-3 mt-0.5">
+                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm">All past papers with solutions</span>
+                  </li>
+                  <li className="flex items-start text-white">
+                    <div className="bg-white/20 rounded-full p-1 mr-3 mt-0.5">
+                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm">Video lessons and tutorials</span>
+                  </li>
+                  <li className="flex items-start text-white">
+                    <div className="bg-white/20 rounded-full p-1 mr-3 mt-0.5">
+                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-sm">Advanced practice materials</span>
+                  </li>
+                </ul>
+                <button className="w-full py-2 px-4 bg-white rounded-lg text-center font-medium text-purple-700 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  Upgrade Now
+                </button>
               </div>
             </div>
           </div>
 
           {/* Main Content */}
           <div className="lg:w-3/4">
-            <div className="bg-white p-6 rounded-lg shadow mb-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-semibold mb-4 sm:mb-0 text-gray-900">All Resources</h2>
-                <div>
-                  <select
-                    className="bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    <option>Sort by: Most Downloaded</option>
-                    <option>Sort by: Newest</option>
-                    <option>Sort by: Oldest</option>
-                    <option>Sort by: A-Z</option>
-                  </select>
+            {/* Sorting and Filters Bar */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+              <div className="p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <h2 className="text-xl font-bold mb-4 sm:mb-0 text-gray-900 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    {activeCategory === 'all' ? 'All Resources' : categories.find(c => c.id === activeCategory)?.name}
+                    <span className="ml-2 text-sm text-gray-500">({sortedResources.length} items)</span>
+                  </h2>
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm text-gray-600 mr-2">Sort by:</label>
+                    <select 
+                      value={sortOption}
+                      onChange={(e) => setSortOption(e.target.value)}
+                      className="border-gray-300 rounded-lg shadow-sm py-2 pl-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 cursor-pointer"
+                    >
+                      <option value="downloads">Most Downloaded</option>
+                      <option value="newest">Newest</option>
+                      <option value="oldest">Oldest</option>
+                      <option value="az">A-Z</option>
+                    </select>
+                  </div>
                 </div>
+                {(activeSubjects.length > 0 || searchQuery) && (
+                  <div className="mt-4 flex flex-wrap items-center pt-4 border-t border-gray-100">
+                    <span className="text-sm text-gray-500 mr-2">Filters:</span>
+                    {activeSubjects.map((subjectId) => (
+                      <span 
+                        key={subjectId}
+                        className={`m-1 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-${
+                          subjects.find(s => s.id === subjectId)?.color
+                        }-100 text-${
+                          subjects.find(s => s.id === subjectId)?.color
+                        }-800 cursor-pointer hover:bg-${
+                          subjects.find(s => s.id === subjectId)?.color
+                        }-200 transition-colors duration-200`}
+                        onClick={() => toggleSubject(subjectId)}
+                      >
+                        {subjects.find(s => s.id === subjectId)?.name}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="ml-1.5 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </span>
+                    ))}
+                    {searchQuery && (
+                      <span 
+                        className="m-1 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                        onClick={() => setSearchQuery('')}
+                      >
+                        Search: {searchQuery}
+                        <svg xmlns="http://www.w3.org/2000/svg" className="ml-1.5 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </span>
+                    )}
+                    <button 
+                      className="ml-auto text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200"
+                      onClick={() => {
+                        setActiveCategory('all');
+                        setActiveSubjects([]);
+                        setSearchQuery('');
+                      }}
+                    >
+                      Clear all filters
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Resource Listings */}
             <div className="space-y-4">
-              {resources.map((resource) => (
-                <div
-                  key={resource.id}
-                  className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <div className="mb-4 sm:mb-0">
-                      <div className="flex items-center mb-2">
-                        <span
-                          className={`inline-block mr-2 px-2 py-1 text-xs font-semibold rounded-full ${
-                            resource.subject === 'Physics'
-                              ? 'bg-blue-100 text-blue-800'
-                              : resource.subject === 'Chemistry'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                        >
-                          {resource.subject}
-                        </span>
-                        <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                          {resource.category}
-                        </span>
-                        {resource.premium && (
-                          <span className="inline-block ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            Premium
-                          </span>
-                        )}
+              {sortedResources.length > 0 ? (
+                sortedResources.map((resource) => (
+                  <div
+                    key={resource.id}
+                    className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  >
+                    <div className="p-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mb-4 sm:mb-0">
+                          <div className="flex items-center flex-wrap mb-2 gap-2">
+                            <span
+                              className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${
+                                resource.subject === 'Physics'
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  : resource.subject === 'Chemistry'
+                                  ? 'bg-green-100 text-green-800 border border-green-200'
+                                  : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                              }`}
+                            >
+                              {resource.subject}
+                            </span>
+                            <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                              {resource.category}
+                            </span>
+                            {resource.premium && (
+                              <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                Premium
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900">{resource.title}</h3>
+                          <div className="flex items-center text-sm text-gray-600 mt-2">
+                            <span className="flex items-center mr-4">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              {resource.type} • {resource.size}
+                            </span>
+                            <span className="flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              {resource.downloads.toLocaleString()} downloads
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <button
+                            className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center shadow-md ${
+                              resource.premium
+                                ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105'
+                            }`}
+                          >
+                            {resource.premium ? (
+                              <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Premium Access
+                              </>
+                            ) : (
+                              <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Download
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900">{resource.title}</h3>
-                      <div className="flex items-center text-sm text-gray-700 mt-1">
-                        <span className="mr-4">
-                          {resource.type} • {resource.size}
-                        </span>
-                        <span>{resource.downloads} downloads</span>
-                      </div>
-                    </div>
-                    <div>
-                      <button
-                        className={`px-4 py-2 rounded-md text-sm font-medium ${
-                          resource.premium
-                            ? 'bg-gray-200 text-gray-700'
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
-                        }`}
-                      >
-                        {resource.premium ? 'Premium Access' : 'Download'}
-                      </button>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No resources found</h3>
+                  <p className="text-gray-600 mb-6">Try adjusting your filters or search query</p>
+                  <button 
+                    className="px-5 py-2.5 bg-purple-100 text-purple-700 rounded-lg font-medium hover:bg-purple-200 transition-colors duration-200"
+                    onClick={() => {
+                      setActiveCategory('all');
+                      setActiveSubjects([]);
+                      setSearchQuery('');
+                    }}
+                  >
+                    Clear all filters
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
 
-            <div className="mt-8 flex justify-center">
-              <nav className="inline-flex rounded-md shadow">
-                <Link 
-                  href="#" 
-                  className="px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  Previous
-                </Link>
-                <Link 
-                  href="#" 
-                  className="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  1
-                </Link>
-                <Link 
-                  href="#" 
-                  className="px-4 py-2 border border-gray-300 bg-purple-600 text-sm font-medium text-white"
-                >
-                  2
-                </Link>
-                <Link 
-                  href="#" 
-                  className="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  3
-                </Link>
-                <Link 
-                  href="#" 
-                  className="px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  Next
-                </Link>
-              </nav>
-            </div>
+            {/* Pagination */}
+            {sortedResources.length > 0 && (
+              <div className="mt-8 flex justify-center">
+                <nav className="inline-flex rounded-lg shadow-sm">
+                  <button className="px-4 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    Previous
+                  </button>
+                  <button className="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    1
+                  </button>
+                  <button className="px-4 py-2 border border-gray-300 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium text-white transition-colors duration-200">
+                    2
+                  </button>
+                  <button className="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    3
+                  </button>
+                  <button className="px-4 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    Next
+                  </button>
+                </nav>
+              </div>
+            )}
           </div>
         </div>
       </div>

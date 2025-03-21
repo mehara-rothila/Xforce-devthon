@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,13 +6,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --primary-light: #ddd6fe;
+  --hero-bg-start: #6d28d9;
+  --hero-bg-end: #4c1d95;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card-bg: #1a1a1a;
+  --card-border: #2d2d2d;
+  --primary-light: #4c1d95;
+  --hero-bg-start: #4c1d95;
+  --hero-bg-end: #2e1065;
 }
 
 body {
@@ -54,4 +63,34 @@ body {
 
 .animate-pulse-slow {
   animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Dark mode specific styles */
+.dark-card {
+  @apply bg-gray-800 border-gray-700 shadow-lg hover:shadow-gray-800/30;
+}
+
+.light-card {
+  @apply bg-white border-gray-100 shadow-md hover:shadow-lg;
+}
+
+/* Dark mode toggle styles */
+.dark-mode-toggle {
+  @apply relative inline-flex items-center cursor-pointer;
+}
+
+.dark-mode-toggle-track {
+  @apply w-11 h-6 bg-gray-700 rounded-full transition-colors duration-300;
+}
+
+.dark-mode-toggle-track.active {
+  @apply bg-purple-600;
+}
+
+.dark-mode-toggle-thumb {
+  @apply absolute w-5 h-5 bg-white rounded-full transform transition-transform duration-300 flex items-center justify-center left-0.5 top-0.5;
+}
+
+.dark-mode-toggle-thumb.active {
+  @apply translate-x-5;
 }

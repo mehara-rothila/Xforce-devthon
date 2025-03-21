@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react'; // Import React from 'react'
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
@@ -14,22 +15,22 @@ export default function RootLayout({
 }>) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
-  
+
   // Add this useEffect to set the document title directly
   useEffect(() => {
     document.title = "XForce Learning Platform | DEV{thon} 2.0";
   }, []);
-  
+
   // Initialize dark mode
   useEffect(() => {
     // Apply dark mode by default
     document.documentElement.setAttribute('data-theme', 'dark');
     document.documentElement.classList.add('dark');
-    
+
     // Save preference to localStorage
     localStorage.setItem('theme', 'dark');
   }, []);
-  
+
   // Close menu when resizing to desktop
   useEffect(() => {
     const handleResize = () => {
@@ -37,38 +38,38 @@ export default function RootLayout({
         setIsOpen(false);
       }
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
+
   function handleToggle() {
     setIsOpen(!isOpen);
   }
-  
+
   function toggleDarkMode() {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    
+
     // Apply theme to html element
     document.documentElement.setAttribute('data-theme', newMode ? 'dark' : 'light');
-    
+
     // Add/remove dark class for Tailwind
     if (newMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-    
+
     // Save preference to localStorage
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
   }
 
   // Navigation handler - improved to ensure clicks work properly
-  const handleNavigation = (e) => {
+  const handleNavigation = (e: React.MouseEvent) => { // Explicitly type 'e' as React.MouseEvent
     // Make sure navigation works correctly
     e.stopPropagation();
-    
+
     // Close the mobile menu if it's open
     if (isOpen) {
       setIsOpen(false);
@@ -82,8 +83,8 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-purple-600"
                 onClick={handleNavigation}
               >
@@ -91,41 +92,41 @@ export default function RootLayout({
                 <span className="text-sm align-top text-purple-800 dark:text-purple-400">2.0</span>
               </Link>
             </div>
-            
+
             {/* Desktop menu */}
             <div className="hidden md:flex items-center space-x-6">
-              <Link 
-                href="/subjects" 
+              <Link
+                href="/subjects"
                 className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
                 onClick={handleNavigation}
               >
                 Subjects
               </Link>
-              <Link 
-                href="/quiz" 
+              <Link
+                href="/quiz"
                 className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
                 onClick={handleNavigation}
               >
                 Quizzes
               </Link>
-              <Link 
-                href="/forum" 
+              <Link
+                href="/forum"
                 className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
                 onClick={handleNavigation}
               >
                 Forum
               </Link>
-              <Link 
-                href="/resources" 
+              <Link
+                href="/resources"
                 className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
                 onClick={handleNavigation}
               >
                 Resources
               </Link>
-              
+
               {/* Dark Mode Toggle */}
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={toggleDarkMode}
                 className="dark-mode-toggle"
                 aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
@@ -143,21 +144,21 @@ export default function RootLayout({
                   )}
                 </span>
               </button>
-              
-              <Link 
-                href="/login" 
+
+              <Link
+                href="/login"
                 className="text-white bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-800 hover:to-purple-700 px-5 py-2 rounded-md transition-all duration-200 shadow-md hover:shadow-lg dark:shadow-purple-900/20"
                 onClick={handleNavigation}
               >
                 Login
               </Link>
             </div>
-            
+
             {/* Hamburger button */}
             <div className="md:hidden flex items-center space-x-3">
               {/* Dark Mode Toggle for Mobile */}
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={toggleDarkMode}
                 className="dark-mode-toggle mr-2"
                 aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
@@ -175,38 +176,38 @@ export default function RootLayout({
                   )}
                 </span>
               </button>
-              
-              <button 
+
+              <button
                 type="button"
                 aria-label={isOpen ? "Close menu" : "Open menu"}
                 className={`md:hidden p-2 rounded-md flex items-center transition-all duration-200 ${
-                  isOpen 
-                    ? 'bg-purple-900/20 text-purple-400' 
+                  isOpen
+                    ? 'bg-purple-900/20 text-purple-400'
                     : 'bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700'
                 }`}
                 onClick={handleToggle}
                 style={{ cursor: 'pointer', zIndex: 50 }}
               >
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  className="h-6 w-6 mr-1.5" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 mr-1.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
                   {isOpen ? (
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M6 18L18 6M6 6l12 12" 
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
                     />
                   ) : (
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M4 6h16M4 12h16M4 18h16" 
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
                     />
                   )}
                 </svg>
@@ -214,19 +215,19 @@ export default function RootLayout({
               </button>
             </div>
           </div>
-          
+
           {/* Mobile menu with transitions */}
-          <div 
+          <div
             className={`md:hidden bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 absolute w-full transform transition-all duration-300 ease-in-out ${
-              isOpen 
-                ? 'opacity-100 translate-y-0' 
+              isOpen
+                ? 'opacity-100 translate-y-0'
                 : 'opacity-0 -translate-y-4 pointer-events-none'
             }`}
             style={{ maxHeight: isOpen ? '1000px' : '0px', overflow: 'hidden', transitionProperty: 'transform, opacity, max-height' }}
           >
             <div className="p-5 space-y-3 border-t border-gray-100 dark:border-gray-700">
-              <Link 
-                href="/subjects" 
+              <Link
+                href="/subjects"
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 onClick={handleNavigation}
               >
@@ -237,8 +238,8 @@ export default function RootLayout({
                   Subjects
                 </div>
               </Link>
-              <Link 
-                href="/quiz" 
+              <Link
+                href="/quiz"
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 onClick={handleNavigation}
               >
@@ -249,8 +250,8 @@ export default function RootLayout({
                   Quizzes
                 </div>
               </Link>
-              <Link 
-                href="/forum" 
+              <Link
+                href="/forum"
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 onClick={handleNavigation}
               >
@@ -261,8 +262,8 @@ export default function RootLayout({
                   Forum
                 </div>
               </Link>
-              <Link 
-                href="/resources" 
+              <Link
+                href="/resources"
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 onClick={handleNavigation}
               >
@@ -274,8 +275,8 @@ export default function RootLayout({
                 </div>
               </Link>
               <div className="pt-3">
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="block w-full text-center text-white bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-800 hover:to-purple-700 px-4 py-3 rounded-lg shadow-md hover:shadow-lg dark:shadow-purple-900/20 transition-all duration-200"
                   onClick={handleNavigation}
                 >

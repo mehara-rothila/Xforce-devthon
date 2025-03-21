@@ -184,8 +184,8 @@ export default function TakeQuiz() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 pb-12">
-        {isSubmitted ? (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 lg:mt-8 pb-12">
+                {isSubmitted ? (
           // Results screen
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-500 transform">
             <div className="px-6 sm:px-8 py-10">

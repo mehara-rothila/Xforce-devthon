@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 export default function Forum() {
   // State for hover effects
-  const [hoveredCategory, setHoveredCategory] = useState<number | null>(null); // Explicitly type hoveredCategory as number | null
-  const [hoveredDiscussion, setHoveredDiscussion] = useState<number | null>(null); // Explicitly type hoveredDiscussion as number | null
+  const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
+  const [hoveredDiscussion, setHoveredDiscussion] = useState<number | null>(null);
 
   // Mock data for forum categories
   const categories = [
@@ -158,45 +158,46 @@ export default function Forum() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Decorative background elements */}
-      <div id="forum-page-background" className="absolute inset-0 z-0 opacity-40 pointer-events-none">
-        <div className="absolute top-20 left-1/4 w-64 h-64 bg-purple-300 rounded-full filter blur-3xl opacity-20 animate-pulse-slow"></div>
-        <div className="absolute top-40 right-1/4 w-96 h-96 bg-blue-300 rounded-full filter blur-3xl opacity-20 animate-float"></div>
-        <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-green-300 rounded-full filter blur-3xl opacity-20 animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* Hero Header - MODIFIED SECTION */}
+      <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 pt-16 pb-32 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden opacity-20">
+          <div className="absolute top-[10%] right-[15%] text-white text-2xl animate-float" style={{ animationDuration: '8s' }}>💬</div>
+          <div className="absolute top-[30%] left-[10%] text-white text-xl animate-pulse-slow" style={{ animationDuration: '7s' }}>🗣️</div>
+          <div className="absolute top-[65%] right-[18%] text-white text-xl animate-float" style={{ animationDuration: '10s' }}>🤝</div>
+          <div className="absolute top-[25%] left-[30%] text-white text-3xl animate-pulse-slow" style={{ animationDuration: '15s' }}>💡</div>
+          <div className="absolute bottom-[20%] right-[25%] text-white text-3xl animate-pulse-slow" style={{ animationDuration: '14s' }}>📚</div>
+        </div>
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header with animated gradient */}
-        <div className="text-center mb-16 relative">
-          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-purple-200 via-purple-100 to-purple-200 opacity-50 rounded-xl transform rotate-1"></div>
-          <div className="py-10 px-6 rounded-xl bg-white bg-opacity-80 backdrop-filter backdrop-blur-sm shadow-xl">
-            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-purple-600 sm:text-5xl tracking-tight animate-fadeIn">
-              Discussion Forum
-            </h1>
-            <p className="mt-4 text-xl text-gray-700 max-w-3xl mx-auto animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-              Connect with peers, ask questions, and collaborate on topics to enhance your learning journey
-            </p>
-            <div className="mt-6 flex justify-center gap-4 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="sm:flex sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+                Discussion Forum
+              </h1>
+              <p className="mt-2 text-lg text-purple-100">
+                Connect with peers, ask questions, and collaborate on topics
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0">
               <Link
-                href="/forum/new"
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center group"
+                href="/dashboard"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105"
               >
-                <span>Start a Discussion</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" clipRule="evenodd" />
                 </svg>
-              </Link>
-              <Link
-                href="/forum/trending"
-                className="px-6 py-3 bg-white text-purple-700 rounded-lg font-medium shadow-md hover:shadow-lg border border-purple-200 hover:border-purple-300 transition-all duration-300"
-              >
-                Trending Topics
+                Dashboard
               </Link>
             </div>
           </div>
         </div>
+      </div>
+      {/* End Hero Header - MODIFIED SECTION */}
 
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:mt-8 pb-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
           <div className="lg:w-3/4">

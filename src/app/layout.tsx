@@ -64,6 +64,17 @@ export default function RootLayout({
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
   }
 
+  // Navigation handler - improved to ensure clicks work properly
+  const handleNavigation = (e) => {
+    // Make sure navigation works correctly
+    e.stopPropagation();
+    
+    // Close the mobile menu if it's open
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  };
+
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} dark:bg-gray-900 transition-colors duration-300`}>
@@ -74,6 +85,7 @@ export default function RootLayout({
               <Link 
                 href="/" 
                 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-purple-600"
+                onClick={handleNavigation}
               >
                 DEV<span className="text-purple-800 dark:text-purple-400">{"{thon}"}</span>
                 <span className="text-sm align-top text-purple-800 dark:text-purple-400">2.0</span>
@@ -82,10 +94,34 @@ export default function RootLayout({
             
             {/* Desktop menu */}
             <div className="hidden md:flex items-center space-x-6">
-              <Link href="/subjects" className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200">Subjects</Link>
-              <Link href="/quiz" className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200">Quizzes</Link>
-              <Link href="/forum" className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200">Forum</Link>
-              <Link href="/resources" className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200">Resources</Link>
+              <Link 
+                href="/subjects" 
+                className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
+                onClick={handleNavigation}
+              >
+                Subjects
+              </Link>
+              <Link 
+                href="/quiz" 
+                className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
+                onClick={handleNavigation}
+              >
+                Quizzes
+              </Link>
+              <Link 
+                href="/forum" 
+                className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
+                onClick={handleNavigation}
+              >
+                Forum
+              </Link>
+              <Link 
+                href="/resources" 
+                className="text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200"
+                onClick={handleNavigation}
+              >
+                Resources
+              </Link>
               
               {/* Dark Mode Toggle */}
               <button 
@@ -111,6 +147,7 @@ export default function RootLayout({
               <Link 
                 href="/login" 
                 className="text-white bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-800 hover:to-purple-700 px-5 py-2 rounded-md transition-all duration-200 shadow-md hover:shadow-lg dark:shadow-purple-900/20"
+                onClick={handleNavigation}
               >
                 Login
               </Link>
@@ -191,7 +228,7 @@ export default function RootLayout({
               <Link 
                 href="/subjects" 
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                onClick={() => setIsOpen(false)}
+                onClick={handleNavigation}
               >
                 <div className="flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -203,7 +240,7 @@ export default function RootLayout({
               <Link 
                 href="/quiz" 
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                onClick={() => setIsOpen(false)}
+                onClick={handleNavigation}
               >
                 <div className="flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -215,7 +252,7 @@ export default function RootLayout({
               <Link 
                 href="/forum" 
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                onClick={() => setIsOpen(false)}
+                onClick={handleNavigation}
               >
                 <div className="flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -227,7 +264,7 @@ export default function RootLayout({
               <Link 
                 href="/resources" 
                 className="block py-2.5 px-4 rounded-lg text-purple-800 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200"
-                onClick={() => setIsOpen(false)}
+                onClick={handleNavigation}
               >
                 <div className="flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -240,7 +277,7 @@ export default function RootLayout({
                 <Link 
                   href="/login" 
                   className="block w-full text-center text-white bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-800 hover:to-purple-700 px-4 py-3 rounded-lg shadow-md hover:shadow-lg dark:shadow-purple-900/20 transition-all duration-200"
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleNavigation}
                 >
                   Login
                 </Link>

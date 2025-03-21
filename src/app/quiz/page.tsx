@@ -148,8 +148,9 @@ export default function Quizzes() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 pb-12">
-        {/* Filters Card */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:mt-8 pb-12">        
+        
+             {/* Filters Card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
           <div className="p-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

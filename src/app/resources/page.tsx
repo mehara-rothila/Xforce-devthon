@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useDarkMode } from '../DarkModeContext'; // Import the dark mode context
 
 // Define TypeScript interfaces for proper type safety
 interface Resource {
@@ -29,6 +30,9 @@ interface Subject {
 }
 
 export default function ResourcesPage() {
+  // Get dark mode context
+  const { isDarkMode } = useDarkMode();
+  
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeSubjects, setActiveSubjects] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -160,9 +164,9 @@ export default function ResourcesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Hero Header */}
-      <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 pt-16 pb-32 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-900 pt-16 pb-32 overflow-hidden transition-colors duration-300">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <div className="absolute top-[10%] right-[15%] text-white text-2xl animate-float" style={{ animationDuration: '8s' }}>📚</div>
@@ -185,7 +189,7 @@ export default function ResourcesPage() {
             <div className="mt-4 sm:mt-0">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 dark:text-purple-200 dark:bg-gray-800 dark:border dark:border-gray-700 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" clipRule="evenodd" />
@@ -202,10 +206,10 @@ export default function ResourcesPage() {
           {/* Sidebar */}
           <div className="lg:w-1/4">
             {/* Search Box */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden mb-6 transition-colors duration-300 dark:shadow-lg dark:shadow-gray-900/30">
               <div className="p-6">
-                <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                   Search Resources
@@ -216,11 +220,11 @@ export default function ResourcesPage() {
                     placeholder="Search by title, subject..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full p-3 pl-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                    className="w-full p-3 pl-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 dark:text-gray-100 dark:placeholder-gray-400"
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 absolute left-3 top-3.5"
+                    className="h-5 w-5 text-gray-400 dark:text-gray-500 absolute left-3 top-3.5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -237,10 +241,10 @@ export default function ResourcesPage() {
             </div>
 
             {/* Categories */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden mb-6 transition-colors duration-300 dark:shadow-lg dark:shadow-gray-900/30">
               <div className="p-6">
-                <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                   Categories
@@ -252,13 +256,13 @@ export default function ResourcesPage() {
                       className="flex justify-between items-center group cursor-pointer"
                       onClick={() => setActiveCategory(category.id)}
                     >
-                      <span className={`text-gray-700 ${activeCategory === category.id ? 'text-purple-700 font-medium' : 'group-hover:text-purple-600'} transition-colors duration-200`}>
+                      <span className={`text-gray-700 dark:text-gray-300 ${activeCategory === category.id ? 'text-purple-700 dark:text-purple-400 font-medium' : 'group-hover:text-purple-600 dark:group-hover:text-purple-400'} transition-colors duration-200`}>
                         {category.name}
                       </span>
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         activeCategory === category.id
-                          ? 'bg-purple-100 text-purple-800' 
-                          : 'bg-gray-100 text-gray-600 group-hover:bg-purple-50 group-hover:text-purple-700'
+                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20 group-hover:text-purple-700 dark:group-hover:text-purple-400'
                       } transition-colors duration-200`}>
                         {category.count}
                       </span>
@@ -269,10 +273,10 @@ export default function ResourcesPage() {
             </div>
 
             {/* Subjects */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden mb-6 transition-colors duration-300 dark:shadow-lg dark:shadow-gray-900/30">
               <div className="p-6">
-                <h2 className="text-lg font-semibold mb-4 text-gray-900 flex items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100 flex items-center transition-colors duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                   Subjects
@@ -286,8 +290,8 @@ export default function ResourcesPage() {
                     >
                       <div className={`h-5 w-5 rounded border flex items-center justify-center mr-3 transition-colors duration-200 ${
                         activeSubjects.includes(subject.id)
-                          ? `bg-${subject.color}-500 border-${subject.color}-500 text-white`
-                          : 'border-gray-300 group-hover:border-gray-400'
+                          ? `bg-${subject.color}-500 dark:bg-${subject.color}-600 border-${subject.color}-500 dark:border-${subject.color}-600 text-white`
+                          : 'border-gray-300 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-500'
                       }`}>
                         {activeSubjects.includes(subject.id) && (
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -296,8 +300,8 @@ export default function ResourcesPage() {
                         )}
                       </div>
                       <label className={`block text-base ${
-                        activeSubjects.includes(subject.id) ? 'text-gray-900 font-medium' : 'text-gray-700'
-                      } cursor-pointer group-hover:text-gray-900 transition-colors duration-200`}>
+                        activeSubjects.includes(subject.id) ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-700 dark:text-gray-300'
+                      } cursor-pointer group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200`}>
                         {subject.name}
                       </label>
                     </div>
@@ -307,7 +311,7 @@ export default function ResourcesPage() {
             </div>
 
             {/* Premium Banner */}
-            <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-[1.02]">
+            <div className="bg-gradient-to-br from-purple-500 to-indigo-600 dark:from-purple-600 dark:to-indigo-700 rounded-2xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] dark:shadow-lg dark:shadow-gray-900/30">
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl mr-4">
@@ -342,7 +346,7 @@ export default function ResourcesPage() {
                     <span className="text-sm">Advanced practice materials</span>
                   </li>
                 </ul>
-                <button className="w-full py-2 px-4 bg-white rounded-lg text-center font-medium text-purple-700 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                <button className="w-full py-2 px-4 bg-white dark:bg-gray-100 rounded-lg text-center font-medium text-purple-700 hover:bg-purple-50 dark:hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg">
                   Upgrade Now
                 </button>
               </div>
@@ -352,22 +356,22 @@ export default function ResourcesPage() {
           {/* Main Content */}
           <div className="lg:w-3/4">
             {/* Sorting and Filters Bar */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden mb-6 transition-colors duration-300 dark:shadow-lg dark:shadow-gray-900/30">
               <div className="p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <h2 className="text-xl font-bold mb-4 sm:mb-0 text-gray-900 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <h2 className="text-xl font-bold mb-4 sm:mb-0 text-gray-900 dark:text-gray-100 flex items-center transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                     {activeCategory === 'all' ? 'All Resources' : categories.find(c => c.id === activeCategory)?.name}
-                    <span className="ml-2 text-sm text-gray-500">({sortedResources.length} items)</span>
+                    <span className="ml-2 text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">({sortedResources.length} items)</span>
                   </h2>
                   <div className="flex items-center space-x-2">
-                    <label className="text-sm text-gray-600 mr-2">Sort by:</label>
+                    <label className="text-sm text-gray-600 dark:text-gray-400 mr-2 transition-colors duration-300">Sort by:</label>
                     <select 
                       value={sortOption}
                       onChange={(e) => setSortOption(e.target.value)}
-                      className="border-gray-300 rounded-lg shadow-sm py-2 pl-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 cursor-pointer"
+                      className="border-gray-300 dark:border-gray-600 rounded-lg shadow-sm py-2 pl-3 pr-10 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 cursor-pointer"
                     >
                       <option value="downloads">Most Downloaded</option>
                       <option value="newest">Newest</option>
@@ -377,18 +381,24 @@ export default function ResourcesPage() {
                   </div>
                 </div>
                 {(activeSubjects.length > 0 || searchQuery) && (
-                  <div className="mt-4 flex flex-wrap items-center pt-4 border-t border-gray-100">
-                    <span className="text-sm text-gray-500 mr-2">Filters:</span>
+                  <div className="mt-4 flex flex-wrap items-center pt-4 border-t border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 mr-2 transition-colors duration-300">Filters:</span>
                     {activeSubjects.map((subjectId) => (
                       <span 
                         key={subjectId}
                         className={`m-1 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-${
                           subjects.find(s => s.id === subjectId)?.color
-                        }-100 text-${
+                        }-100 dark:bg-${
                           subjects.find(s => s.id === subjectId)?.color
-                        }-800 cursor-pointer hover:bg-${
+                        }-900/30 text-${
                           subjects.find(s => s.id === subjectId)?.color
-                        }-200 transition-colors duration-200`}
+                        }-800 dark:text-${
+                          subjects.find(s => s.id === subjectId)?.color
+                        }-400 cursor-pointer hover:bg-${
+                          subjects.find(s => s.id === subjectId)?.color
+                        }-200 dark:hover:bg-${
+                          subjects.find(s => s.id === subjectId)?.color
+                        }-800/30 transition-colors duration-200`}
                         onClick={() => toggleSubject(subjectId)}
                       >
                         {subjects.find(s => s.id === subjectId)?.name}
@@ -399,7 +409,7 @@ export default function ResourcesPage() {
                     ))}
                     {searchQuery && (
                       <span 
-                        className="m-1 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+                        className="m-1 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
                         onClick={() => setSearchQuery('')}
                       >
                         Search: {searchQuery}
@@ -409,7 +419,7 @@ export default function ResourcesPage() {
                       </span>
                     )}
                     <button 
-                      className="ml-auto text-xs text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200"
+                      className="ml-auto text-xs text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium transition-colors duration-200"
                       onClick={() => {
                         setActiveCategory('all');
                         setActiveSubjects([]);
@@ -429,7 +439,7 @@ export default function ResourcesPage() {
                 sortedResources.map((resource) => (
                   <div
                     key={resource.id}
-                    className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 dark:shadow-lg dark:shadow-gray-900/30"
                   >
                     <div className="p-6">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -438,33 +448,33 @@ export default function ResourcesPage() {
                             <span
                               className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${
                                 resource.subject === 'Physics'
-                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border border-blue-200 dark:border-blue-800'
                                   : resource.subject === 'Chemistry'
-                                  ? 'bg-green-100 text-green-800 border border-green-200'
-                                  : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                              }`}
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border border-green-200 dark:border-green-800'
+                                  : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'
+                              } transition-colors duration-300`}
                             >
                               {resource.subject}
                             </span>
-                            <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                            <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 border border-purple-200 dark:border-purple-700 transition-colors duration-300">
                               {resource.category}
                             </span>
                             {resource.premium && (
-                              <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                              <span className="inline-block px-2.5 py-1 text-xs font-medium rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 transition-colors duration-300">
                                 Premium
                               </span>
                             )}
                           </div>
-                          <h3 className="text-lg font-semibold text-gray-900">{resource.title}</h3>
-                          <div className="flex items-center text-sm text-gray-600 mt-2">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 transition-colors duration-300">{resource.title}</h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-2 transition-colors duration-300">
                             <span className="flex items-center mr-4">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                               </svg>
                               {resource.type} • {resource.size}
                             </span>
                             <span className="flex items-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                               </svg>
                               {resource.downloads.toLocaleString()} downloads
@@ -475,8 +485,8 @@ export default function ResourcesPage() {
                           <button
                             className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center shadow-md ${
                               resource.premium
-                                ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105'
+                                ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 text-white hover:from-purple-700 hover:to-indigo-700 dark:hover:from-purple-800 dark:hover:to-indigo-800 transform hover:scale-105'
                             }`}
                           >
                             {resource.premium ? (
@@ -501,12 +511,12 @@ export default function ResourcesPage() {
                   </div>
                 ))
               ) : (
-                <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center transition-colors duration-300 dark:shadow-lg dark:shadow-gray-900/30">
                   <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No resources found</h3>
-                  <p className="text-gray-600 mb-6">Try adjusting your filters or search query</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 transition-colors duration-300">No resources found</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors duration-300">Try adjusting your filters or search query</p>
                   <button 
-                    className="px-5 py-2.5 bg-purple-100 text-purple-700 rounded-lg font-medium hover:bg-purple-200 transition-colors duration-200"
+                    className="px-5 py-2.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-lg font-medium hover:bg-purple-200 dark:hover:bg-purple-800/30 transition-colors duration-200"
                     onClick={() => {
                       setActiveCategory('all');
                       setActiveSubjects([]);
@@ -523,19 +533,19 @@ export default function ResourcesPage() {
             {sortedResources.length > 0 && (
               <div className="mt-8 flex justify-center">
                 <nav className="inline-flex rounded-lg shadow-sm">
-                  <button className="px-4 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                  <button className="px-4 py-2 rounded-l-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                     Previous
                   </button>
-                  <button className="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                  <button className="px-4 py-2 border-t border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                     1
                   </button>
-                  <button className="px-4 py-2 border border-gray-300 bg-gradient-to-r from-purple-600 to-indigo-600 text-sm font-medium text-white transition-colors duration-200">
+                  <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-700 dark:to-indigo-700 text-sm font-medium text-white transition-colors duration-200">
                     2
                   </button>
-                  <button className="px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                  <button className="px-4 py-2 border-t border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                     3
                   </button>
-                  <button className="px-4 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                  <button className="px-4 py-2 rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                     Next
                   </button>
                 </nav>

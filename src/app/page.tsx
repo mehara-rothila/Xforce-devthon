@@ -46,7 +46,7 @@ const MobileNavbar = () => {
   }
 
   // Navigation handler
-  const handleNavigation = (e) => {
+  const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Make sure navigation works correctly
     e.stopPropagation();
 

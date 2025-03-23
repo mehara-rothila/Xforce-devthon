@@ -54,6 +54,7 @@ export default function Home() {
       }
 
       draw() {
+        if (!ctx) return; // Add this null check
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);

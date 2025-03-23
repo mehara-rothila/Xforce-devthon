@@ -52,7 +52,6 @@ export default function Home() {
         if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
         if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
       }
-
       draw() {
         if (!ctx) return; // Add this null check
         ctx.fillStyle = this.color;
@@ -68,16 +67,16 @@ export default function Home() {
         particlesArray.push(new Particle());
       }
     }
-
-    // Animation loop
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
-      }
-      requestAnimationFrame(animate);
-    }
+// Animation loop
+function animate() {
+  if (!ctx) return; // Add this null check
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < particlesArray.length; i++) {
+    particlesArray[i].update();
+    particlesArray[i].draw();
+  }
+  requestAnimationFrame(animate);
+}
 
     // Handle window resize
     function handleResize() {

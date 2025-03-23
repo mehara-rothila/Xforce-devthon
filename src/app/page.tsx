@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(true);
   
   // Toggle mobile menu
   const toggleMobileMenu = () => {
@@ -33,6 +33,27 @@ export default function Home() {
       }
     }
   };
+  
+  // Set mobile view by default on page load
+  useEffect(() => {
+    if (isMobileView) {
+      document.body.classList.add('mobile-view-active');
+      // Set viewport meta tag for mobile view
+      const viewport = document.querySelector('meta[name=viewport]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=375, initial-scale=1');
+      }
+    }
+    
+    // Cleanup function
+    return () => {
+      document.body.classList.remove('mobile-view-active');
+      const viewport = document.querySelector('meta[name=viewport]');
+      if (viewport) {
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1');
+      }
+    };
+  }, []);
 
   // Navigation Items
   const navItems = [

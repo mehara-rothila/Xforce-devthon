@@ -94,3 +94,152 @@ body {
 .dark-mode-toggle-thumb.active {
   @apply translate-x-5;
 }
+
+/* Add these additional animations and styles to your globals.css file */
+
+/* Additional keyframes */
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes appear {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Additional animation classes */
+.animate-rotate-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.animate-appear {
+  animation: appear 0.6s ease-out forwards;
+}
+
+/* Enhanced dark/light mode toggle */
+.dark-mode-toggle {
+  @apply relative inline-flex items-center cursor-pointer;
+}
+
+.dark-mode-toggle-track {
+  @apply w-11 h-6 bg-gray-300 dark:bg-gray-700 rounded-full transition-colors duration-300;
+}
+
+.dark-mode-toggle-track.active {
+  @apply bg-purple-500 dark:bg-purple-600;
+}
+
+.dark-mode-toggle-thumb {
+  @apply absolute w-5 h-5 bg-white rounded-full transform transition-transform duration-300 flex items-center justify-center left-0.5 top-0.5 shadow-md;
+}
+
+.dark-mode-toggle-thumb.active {
+  @apply translate-x-5;
+}
+
+/* Hero section enhancements */
+.hero-title {
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Card hover effects */
+.feature-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(107, 70, 193, 0.1), 0 10px 10px -5px rgba(107, 70, 193, 0.1);
+}
+
+.dark .feature-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.1), 0 10px 10px -5px rgba(139, 92, 246, 0.1);
+}
+
+/* Button effects */
+.btn-glow:hover {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+/* Enhanced scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4b5fd;
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6d28d9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a78bfa;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}
+
+/* Fancy link underline animation */
+.animated-link {
+  position: relative;
+  display: inline-block;
+}
+
+.animated-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: theme('colors.purple.500');
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+
+.animated-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400;
+}
+
+/* Responsive typography size */
+@media (max-width: 640px) {
+  .responsive-heading {
+    font-size: 2.5rem !important;
+  }
+  
+  .responsive-subheading {
+    font-size: 1.25rem !important;
+  }
+}

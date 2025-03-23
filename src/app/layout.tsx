@@ -14,21 +14,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
+  const [isDarkMode, setIsDarkMode] = useState(false); // Default to light mode
 
   // Add this useEffect to set the document title directly
   useEffect(() => {
     document.title = "XForce Learning Platform | DEV{thon} 2.0";
   }, []);
 
-  // Initialize dark mode
+  // Initialize light mode
   useEffect(() => {
-    // Apply dark mode by default
-    document.documentElement.setAttribute('data-theme', 'dark');
-    document.documentElement.classList.add('dark');
+    // Apply light mode by default
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.classList.remove('dark');
 
     // Save preference to localStorage
-    localStorage.setItem('theme', 'dark');
+    localStorage.setItem('theme', 'light');
   }, []);
 
   // Close menu when resizing to desktop
@@ -77,8 +77,8 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} dark:bg-gray-900 transition-colors duration-300`}>
+    <html lang="en">
+      <body className={`${inter.className} transition-colors duration-300`}>
         <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700/10 relative z-30 transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
             {/* Logo */}

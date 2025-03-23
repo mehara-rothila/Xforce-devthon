@@ -7,21 +7,23 @@ import { useEffect, useRef } from 'react';
 
 export default function Home() {
   // Reference for the animated background canvas
-  const canvasRef = useRef(null);
-  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   // Animation for the particle background
   useEffect(() => {
     if (!canvasRef.current) return;
-    
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return; // Add this check
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    
+
     // Particles array
     const particlesArray = [];
     const numberOfParticles = 100;
-    
+
     // Create particle class
     class Particle {
       constructor() {
@@ -32,18 +34,18 @@ export default function Home() {
         this.speedY = Math.random() * 1 - 0.5;
         this.color = `rgba(255, 255, 255, ${Math.random() * 0.2})`;
       }
-      
+
       update() {
         this.x += this.speedX;
         this.y += this.speedY;
-        
+
         if (this.size > 0.2) this.size -= 0.01;
-        
+
         // Boundary checks
         if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
         if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
       }
-      
+
       draw() {
         ctx.fillStyle = this.color;
         ctx.beginPath();
@@ -51,14 +53,14 @@ export default function Home() {
         ctx.fill();
       }
     }
-    
+
     // Initialize particles
     function init() {
       for (let i = 0; i < numberOfParticles; i++) {
         particlesArray.push(new Particle());
       }
     }
-    
+
     // Animation loop
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -68,18 +70,18 @@ export default function Home() {
       }
       requestAnimationFrame(animate);
     }
-    
+
     // Handle window resize
     function handleResize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    
+
     window.addEventListener('resize', handleResize);
-    
+
     init();
     animate();
-    
+
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -110,14 +112,14 @@ export default function Home() {
       <section className="relative overflow-hidden py-20 md:py-32 px-6 min-h-[100vh] flex items-center justify-center">
         {/* Animated gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950"></div>
-        
+
         {/* Canvas for animated particles */}
-        <canvas 
-          ref={canvasRef} 
+        <canvas
+          ref={canvasRef}
           className="absolute inset-0 z-0"
           style={{ opacity: 0.7 }}
         ></canvas>
-        
+
         {/* Math equations with enhanced animations */}
         <div className="absolute inset-0 overflow-hidden">
           {/* More equations with varied animation styles */}
@@ -133,7 +135,7 @@ export default function Home() {
           <div className="absolute bottom-[30%] left-[40%] text-white text-4xl opacity-10 animate-float" style={{ animationDuration: '16s', animationDelay: '1.2s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>∞</div>
           <div className="absolute top-[45%] left-[60%] text-white text-4xl opacity-10 animate-pulse-slow" style={{ animationDuration: '13s', animationDelay: '2s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>π</div>
         </div>
-        
+
         {/* Floating geometric shapes */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[15%] left-[15%] w-32 h-32 border-2 border-white/10 rounded-lg animate-rotate-slow" style={{ animationDuration: '20s' }}></div>
@@ -151,7 +153,7 @@ export default function Home() {
                   DEV<span className="text-white">{"{thon}"}</span>
                 </div>
                 <span className="absolute" style={{ top: '-12px', right: '-40px', fontSize: '1.8rem', fontWeight: 'bold', color: 'white' }}>2.0</span>
-                
+
                 {/* Glowing effect */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-400 rounded-lg blur-lg opacity-20 animate-pulse-slow"></div>
               </div>
@@ -199,14 +201,14 @@ export default function Home() {
                 </span>
                 <span className="absolute right-0 -mt-12 h-32 w-8 bg-white opacity-20 transform rotate-12 transition-all duration-1000 ease-out group-hover:translate-x-12"></span>
               </Link>
-              
+
               <Link href="/login" className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-transparent border-2 border-white text-white rounded-full overflow-hidden hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
                 Login
               </Link>
-              
+
               <Link href="/dashboard" className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full overflow-hidden shadow-lg hover:shadow-purple-500/30 hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
@@ -215,7 +217,7 @@ export default function Home() {
                 <span className="absolute top-0 right-0 px-2 py-1 text-xs font-bold uppercase rounded-bl-lg bg-purple-800">Beta</span>
               </Link>
             </div>
-            
+
             {/* Scroll indicator */}
             <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -232,7 +234,7 @@ export default function Home() {
         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-purple-900/5 to-transparent dark:from-purple-900/10"></div>
         <div className="absolute left-0 top-1/4 w-64 h-64 bg-purple-300/10 dark:bg-purple-900/10 rounded-full filter blur-3xl"></div>
         <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-indigo-300/10 dark:bg-indigo-900/10 rounded-full filter blur-3xl"></div>
-        
+
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-20">
             <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">Engaging Features</h2>
@@ -291,7 +293,7 @@ export default function Home() {
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
               <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
               <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -328,12 +330,12 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           {/* Additional Feature Section - Premium Features */}
           <div className="mt-24 text-center">
             <h3 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Premium Features</h3>
             <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 mb-12">Enhance your learning experience with these advanced tools and resources.</p>
-            
+
             <div className="grid md:grid-cols-3 gap-8 mt-12">
               {/* Premium Feature 1 */}
               <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0">
@@ -346,7 +348,7 @@ export default function Home() {
                 <p className="text-gray-700 dark:text-gray-300 mb-4">Access high-quality video explanations for complex topics with step-by-step walkthroughs.</p>
                 <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
               </div>
-              
+
               {/* Premium Feature 2 */}
               <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0">
                 <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -358,7 +360,7 @@ export default function Home() {
                 <p className="text-gray-700 dark:text-gray-300 mb-4">Interactive simulations for physics and chemistry experiments to enhance practical understanding.</p>
                 <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
               </div>
-              
+
               {/* Premium Feature 3 */}
               <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0">
                 <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
@@ -381,7 +383,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-white dark:from-gray-900 to-gray-50 dark:to-gray-800"></div>
         <div className="absolute left-0 top-1/3 w-72 h-72 bg-blue-200/20 dark:bg-blue-900/10 rounded-full filter blur-3xl"></div>
         <div className="absolute right-0 bottom-1/3 w-72 h-72 bg-green-200/20 dark:bg-green-900/10 rounded-full filter blur-3xl"></div>
-        
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">Explore Subjects</h2>
@@ -433,7 +435,7 @@ export default function Home() {
                     <span>Waves & Oscillations</span>
                   </div>
                 </div>
-                
+
                 {/* Progress Bar */}
                 <div className="mb-6">
                   <div className="flex justify-between text-xs mb-1">
@@ -444,7 +446,7 @@ export default function Home() {
                     <div className="bg-blue-600 dark:bg-blue-500 h-full rounded-full w-[73%] transform origin-left transition-transform duration-1000 group-hover:scale-x-110"></div>
                   </div>
                 </div>
-                
+
                 <Link href="/subjects/physics" className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-300 group">
                   <span className="border-b border-blue-300 dark:border-blue-700 group-hover:border-blue-600 dark:group-hover:border-blue-500 pb-0.5 transition-colors duration-300">Explore Physics</span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -495,7 +497,7 @@ export default function Home() {
                     <span>Physical Chemistry</span>
                   </div>
                 </div>
-              
+
                 {/* Progress Bar */}
                 <div className="mb-6">
                   <div className="flex justify-between text-xs mb-1">
@@ -506,7 +508,7 @@ export default function Home() {
                     <div className="bg-green-600 dark:bg-green-500 h-full rounded-full w-[68%] transform origin-left transition-transform duration-1000 group-hover:scale-x-110"></div>
                   </div>
                 </div>
-                
+
                 <Link href="/subjects/chemistry" className="inline-flex items-center text-green-600 dark:text-green-400 font-medium hover:text-green-800 dark:hover:text-green-300 transition-colors duration-300 group">
                   <span className="border-b border-green-300 dark:border-green-700 group-hover:border-green-600 dark:group-hover:border-green-500 pb-0.5 transition-colors duration-300">Explore Chemistry</span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -557,7 +559,7 @@ export default function Home() {
                     <span>Statistics & Probability</span>
                   </div>
                 </div>
-                
+
                 {/* Progress Bar */}
                 <div className="mb-6">
                   <div className="flex justify-between text-xs mb-1">
@@ -568,7 +570,7 @@ export default function Home() {
                     <div className="bg-yellow-600 dark:bg-yellow-500 h-full rounded-full w-[82%] transform origin-left transition-transform duration-1000 group-hover:scale-x-110"></div>
                   </div>
                 </div>
-                
+
                 <Link href="/subjects/math" className="inline-flex items-center text-yellow-600 dark:text-yellow-400 font-medium hover:text-yellow-800 dark:hover:text-yellow-300 transition-colors duration-300 group">
                   <span className="border-b border-yellow-300 dark:border-yellow-700 group-hover:border-yellow-600 dark:group-hover:border-yellow-500 pb-0.5 transition-colors duration-300">Explore Combined Math</span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -578,7 +580,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           {/* View All Subjects Button */}
           <div className="text-center mt-12">
             <Link href="/subjects" className="inline-flex items-center justify-center px-8 py-3 font-medium bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-full shadow-lg hover:shadow-purple-500/20 transition-all duration-300 transform hover:scale-105 text-lg">
@@ -598,7 +600,7 @@ export default function Home() {
           <div className="absolute -top-32 -left-32 w-64 h-64 bg-purple-100 dark:bg-purple-900/20 rounded-full filter blur-3xl opacity-70"></div>
           <div className="absolute top-1/2 right-0 transform -translate-y-1/2 w-64 h-64 bg-purple-100 dark:bg-purple-900/20 rounded-full filter blur-3xl opacity-70"></div>
         </div>
-        
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">What Students Say</h2>
@@ -748,7 +750,7 @@ export default function Home() {
         {/* Background elements */}
         <div className="absolute inset-0 bg-dots-pattern opacity-5 mix-blend-overlay"></div>
         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white/10 to-transparent"></div>
-        
+
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6">Our Success in Numbers</h2>
@@ -757,7 +759,7 @@ export default function Home() {
               Our platform has helped thousands of students improve their performance and reach their academic goals.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="bg-white/10 rounded-xl p-8 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 animate-on-scroll opacity-0">
               <div className="text-4xl md:text-5xl font-bold mb-2 counter" data-target="5000">5,000+</div>
@@ -787,14 +789,14 @@ export default function Home() {
           <div className="absolute top-0 left-0 w-96 h-96 bg-purple-800 rounded-full filter blur-3xl opacity-30"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-800 rounded-full filter blur-3xl opacity-30"></div>
         </div>
-        
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="md:pr-6">
               <span className="bg-purple-700/50 text-purple-100 text-sm font-medium px-4 py-1.5 rounded-full mb-5 inline-block">Limited Time Offer</span>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">Ready to Transform Your A/L Exam Preparation?</h2>
               <p className="text-xl text-purple-100 mb-8 leading-relaxed">Join thousands of students who are already experiencing the benefits of gamified learning. Sign up today and get 30 days of premium features for free!</p>
-              
+
               <div className="space-y-8">
                 <div className="flex items-start">
                   <div className="bg-purple-700/50 rounded-full p-2 mr-4 flex-shrink-0">
@@ -807,7 +809,7 @@ export default function Home() {
                     <p className="text-purple-100">Get a customized study plan tailored to your strengths and weaknesses.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
                   <div className="bg-purple-700/50 rounded-full p-2 mr-4 flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -819,7 +821,7 @@ export default function Home() {
                     <p className="text-purple-100">Monitor your improvement with detailed analytics and performance insights.</p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
                   <div className="bg-purple-700/50 rounded-full p-2 mr-4 flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -833,7 +835,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-2xl border border-white/20">
               <h3 className="text-2xl font-bold mb-6 text-center">Get Started For Free</h3>
               <form className="space-y-4">
@@ -888,29 +890,29 @@ export default function Home() {
               Find answers to common questions about our platform.
             </p>
           </div>
-          
+
           <div className="space-y-6">
           <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0">
   <p className="text-gray-600 dark:text-gray-300">DEV{"{thon}"} offers a free tier with access to basic features including quizzes, forums, and study materials. Premium features like personalized AI recommendations, video lessons, and expert Q&A sessions are available with a subscription.</p>
 
   <p className="text-gray-600 dark:text-gray-300">DEV{"{thon}"} offers a free tier with access to basic features including quizzes, forums, and study materials. Premium features like personalized AI recommendations, video lessons, and expert Q&A sessions are available with a subscription.</p>
 </div>
-            
+
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">How do the gamified quizzes work?</h3>
               <p className="text-gray-600 dark:text-gray-300">Our gamified quizzes combine learning with game elements like points, badges, leaderboards, and levels. As you answer questions correctly, you earn points and unlock achievements. This approach makes learning more engaging and motivates consistent practice.</p>
             </div>
-            
+
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">How up-to-date are the study materials?</h3>
               <p className="text-gray-600 dark:text-gray-300">All study materials are regularly updated to align with the latest Sri Lankan A/L curriculum. Our team of educators reviews and refreshes content to ensure it remains current and relevant to your exams.</p>
             </div>
-            
+
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Can I access the platform on mobile devices?</h3>
               <p className="text-gray-600 dark:text-gray-300">Yes, DEV{"{thon}"} is fully responsive and can be accessed on smartphones, tablets, and computers. We recommend using the latest version of Chrome, Firefox, Safari, or Edge for the best experience.</p>
             </div>
-            
+
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">How does the AI recommendation system work?</h3>
               <p className="text-gray-600 dark:text-gray-300">Our AI system analyzes your quiz performance, studying patterns, and learning history to identify strengths and weaknesses. Based on this analysis, it suggests specific topics to focus on, recommends relevant resources, and creates a personalized learning path to help you improve efficiently.</p>
@@ -919,14 +921,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Enhanced Footer */}
-      <footer className="bg-gray-900 dark:bg-gray-950 text-white py-24 px-6 relative overflow-hidden">
+            {/* Enhanced Footer */}
+            <footer className="bg-gray-900 dark:bg-gray-950 text-white py-24 px-6 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
           <div className="absolute -top-40 -left-40 w-80 h-80 bg-purple-900 rounded-full filter blur-3xl"></div>
           <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-indigo-900 rounded-full filter blur-3xl"></div>
         </div>
-        
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
             <div className="md:col-span-1">
@@ -958,7 +960,7 @@ export default function Home() {
                 </a>
                 <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">
                   <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
+                    <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-.1363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
                   </svg>
                 </a>
                 <a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">
@@ -1064,7 +1066,7 @@ export default function Home() {
                   <span>Sri Lanka</span>
                 </li>
               </ul>
-              
+
               {/* Newsletter Signup */}
               <div className="mt-8">
                 <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-200 mb-3">Subscribe to our newsletter</h4>
@@ -1088,10 +1090,10 @@ export default function Home() {
               </div>
             </div>
             <p className="mt-6 text-sm">Designed for DEV{"{thon}"} 2.0 | <a href="https://mehara.io" className="text-purple-400 hover:text-purple-300 transition-colors duration-300">mehara.io</a></p>
-                     </div>
+          </div>
         </div>
       </footer>
-      
+
       {/* JavaScript for animations - this would be best in a separate file, but included here for completeness */}
       <script dangerouslySetInnerHTML={{
         __html: `
@@ -1115,14 +1117,14 @@ export default function Home() {
               el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
               observer.observe(el);
             });
-            
+
             // Counter animation for statistics
             const counters = document.querySelectorAll('.counter');
             counters.forEach(counter => {
               const target = parseInt(counter.getAttribute('data-target').replace(/,/g, ''));
               const duration = 2000; // Animation duration in milliseconds
               const step = target / (duration / 16); // 60fps
-              
+
               let current = 0;
               const updateCounter = () => {
                 current += step;
@@ -1133,7 +1135,7 @@ export default function Home() {
                   counter.textContent = target.toLocaleString();
                 }
               };
-              
+
               const counterObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                   if (entry.isIntersecting) {
@@ -1142,7 +1144,7 @@ export default function Home() {
                   }
                 });
               }, { threshold: 0.5 });
-              
+
               counterObserver.observe(counter);
             });
           });

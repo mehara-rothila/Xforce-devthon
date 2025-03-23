@@ -127,29 +127,29 @@ function animate() {
           style={{ opacity: 0.7 }}
         ></canvas>
 
-        {/* Math equations with enhanced animations */}
-        <div className="absolute inset-0 overflow-hidden">
-          {/* More equations with varied animation styles */}
-          <div className="absolute top-[5%] right-[15%] text-white text-3xl opacity-10 animate-float" style={{ animationDuration: '8s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>a² + b² = c²</div>
-          <div className="absolute top-[12%] left-[10%] text-white text-3xl opacity-10 animate-float" style={{ animationDuration: '9s', animationDelay: '1s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>E = mc²</div>
-          <div className="absolute top-[20%] right-[30%] text-white text-2xl opacity-10 animate-float" style={{ animationDuration: '10s', animationDelay: '0.5s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>Δx·Δp ≥ ℏ/2</div>
-          <div className="absolute top-[35%] left-[8%] text-white text-2xl opacity-10 animate-pulse-slow" style={{ animationDuration: '7s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>F = ma</div>
-          <div className="absolute top-[40%] right-[10%] text-white text-2xl opacity-10 animate-pulse-slow" style={{ animationDuration: '10s', animationDelay: '2s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>PV = nRT</div>
-          <div className="absolute top-[60%] left-[15%] text-white text-2xl opacity-10 animate-float" style={{ animationDuration: '11s', animationDelay: '1.5s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>∇ × E = -∂B/∂t</div>
-          <div className="absolute top-[70%] right-[20%] text-white text-2xl opacity-10 animate-float" style={{ animationDuration: '12s', animationDelay: '0.8s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>f(x) = ∫ g(t) dt</div>
-          <div className="absolute top-[25%] left-[30%] text-white text-4xl opacity-10 animate-pulse-slow" style={{ animationDuration: '15s', animationDelay: '1.5s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>∫</div>
-          <div className="absolute bottom-[20%] right-[25%] text-white text-4xl opacity-10 animate-pulse-slow" style={{ animationDuration: '14s', animationDelay: '0.7s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>∑</div>
-          <div className="absolute bottom-[30%] left-[40%] text-white text-4xl opacity-10 animate-float" style={{ animationDuration: '16s', animationDelay: '1.2s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>∞</div>
-          <div className="absolute top-[45%] left-[60%] text-white text-4xl opacity-10 animate-pulse-slow" style={{ animationDuration: '13s', animationDelay: '2s', textShadow: '0 0 15px rgba(255,255,255,0.5)' }}>π</div>
-        </div>
+        {/* Math equations with enhanced animations - UPDATED */}
+<div className="absolute inset-0 overflow-hidden pointer-events-none">
+  {/* More equations with reduced opacity for better text visibility */}
+  <div className="absolute top-[5%] right-[15%] text-white text-3xl opacity-5 animate-float" style={{ animationDuration: '8s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>a² + b² = c²</div>
+  <div className="absolute top-[12%] left-[10%] text-white text-3xl opacity-5 animate-float" style={{ animationDuration: '9s', animationDelay: '1s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>E = mc²</div>
+  <div className="absolute top-[20%] right-[30%] text-white text-2xl opacity-5 animate-float" style={{ animationDuration: '10s', animationDelay: '0.5s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>Δx·Δp ≥ ℏ/2</div>
+  <div className="absolute top-[35%] left-[8%] text-white text-2xl opacity-5 animate-pulse-slow" style={{ animationDuration: '7s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>F = ma</div>
+  <div className="absolute top-[40%] right-[10%] text-white text-2xl opacity-5 animate-pulse-slow" style={{ animationDuration: '10s', animationDelay: '2s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>PV = nRT</div>
+  <div className="absolute top-[60%] left-[15%] text-white text-2xl opacity-5 animate-float" style={{ animationDuration: '11s', animationDelay: '1.5s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∇ × E = -∂B/∂t</div>
+  <div className="absolute top-[70%] right-[20%] text-white text-2xl opacity-5 animate-float" style={{ animationDuration: '12s', animationDelay: '0.8s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>f(x) = ∫ g(t) dt</div>
+  <div className="absolute top-[25%] left-[30%] text-white text-4xl opacity-5 animate-pulse-slow" style={{ animationDuration: '15s', animationDelay: '1.5s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∫</div>
+  <div className="absolute bottom-[20%] right-[25%] text-white text-4xl opacity-5 animate-pulse-slow" style={{ animationDuration: '14s', animationDelay: '0.7s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∑</div>
+  <div className="absolute bottom-[30%] left-[40%] text-white text-4xl opacity-5 animate-float" style={{ animationDuration: '16s', animationDelay: '1.2s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∞</div>
+  <div className="absolute top-[45%] left-[60%] text-white text-4xl opacity-5 animate-pulse-slow" style={{ animationDuration: '13s', animationDelay: '2s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>π</div>
+</div>
 
-        {/* Floating geometric shapes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[15%] left-[15%] w-32 h-32 border-2 border-white/10 rounded-lg animate-rotate-slow" style={{ animationDuration: '20s' }}></div>
-          <div className="absolute bottom-[20%] right-[15%] w-40 h-40 border-2 border-white/10 rounded-full animate-rotate-slow" style={{ animationDuration: '25s', animationDirection: 'reverse' }}></div>
-          <div className="absolute top-[60%] left-[25%] w-24 h-24 border-2 border-white/10 transform rotate-45 animate-float" style={{ animationDuration: '15s' }}></div>
-          <div className="absolute top-[30%] right-[25%] w-20 h-20 border-2 border-white/5 rounded-full animate-pulse-slow" style={{ animationDuration: '10s' }}></div>
-        </div>
+{/* Floating geometric shapes - UPDATED */}
+<div className="absolute inset-0 overflow-hidden pointer-events-none">
+  <div className="absolute top-[15%] left-[15%] w-32 h-32 border-2 border-white/5 rounded-lg animate-rotate-slow" style={{ animationDuration: '20s' }}></div>
+  <div className="absolute bottom-[20%] right-[15%] w-40 h-40 border-2 border-white/5 rounded-full animate-rotate-slow" style={{ animationDuration: '25s', animationDirection: 'reverse' }}></div>
+  <div className="absolute top-[60%] left-[25%] w-24 h-24 border-2 border-white/5 transform rotate-45 animate-float" style={{ animationDuration: '15s' }}></div>
+  <div className="absolute top-[30%] right-[25%] w-20 h-20 border-2 border-white/3 rounded-full animate-pulse-slow" style={{ animationDuration: '10s' }}></div>
+</div>
 
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center">

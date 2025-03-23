@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(true); // Start with menu open by default
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
+  // Remove all toggle state - navbar will ALWAYS be visible
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Initialize dark mode and set initial menu state based on screen size
+  // Initialize dark mode
   useEffect(() => {
     // Apply dark mode by default
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -15,17 +15,7 @@ export default function Home() {
 
     // Save preference to localStorage
     localStorage.setItem('theme', 'dark');
-    
-    // Check if we're on mobile and set menu state accordingly
-    // This ensures the menu is only open by default on mobile devices
-    if (window.innerWidth >= 768) {
-      setIsOpen(false);
-    }
   }, []);
-
-  function handleToggle() {
-    setIsOpen(!isOpen);
-  }
 
   function toggleDarkMode() {
     const newMode = !isDarkMode;
@@ -45,15 +35,10 @@ export default function Home() {
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
   }
 
-  // Navigation handler
+  // Navigation handler - just for handling clicks
   const handleNavigation = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Make sure navigation works correctly
     e.stopPropagation();
-
-    // Close the mobile menu if it's open
-    if (isOpen) {
-      setIsOpen(false);
-    }
   };
 
   return (
@@ -72,9 +57,8 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Hamburger button and dark mode toggle */}
-          <div className="flex items-center space-x-3">
-            {/* Dark Mode Toggle for Mobile */}
+          {/* Only Dark Mode Toggle */}
+          <div className="flex items-center">
             <button
               type="button"
               onClick={toggleDarkMode}
@@ -94,17 +78,12 @@ export default function Home() {
                 )}
               </span>
             </button>
-
+            
+            {/* Menu text label - always shows "Menu" */}
             <button
               type="button"
-              aria-label={isOpen ? "Close menu" : "Open menu"}
-              className={`p-2 rounded-md flex items-center transition-all duration-200 ${
-                isOpen
-                  ? 'bg-purple-900/20 text-purple-400'
-                  : 'bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-gray-700'
-              }`}
-              onClick={handleToggle}
-              style={{ cursor: 'pointer', zIndex: 50 }}
+              className="p-2 rounded-md flex items-center text-purple-700 dark:text-purple-400"
+              style={{ cursor: 'pointer' }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -113,36 +92,20 @@ export default function Home() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                {isOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                )}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
-              <span className="text-sm font-medium">{isOpen ? "Close" : "Menu"}</span>
+              <span className="text-sm font-medium">Menu</span>
             </button>
           </div>
         </div>
 
-        {/* Mobile menu with transitions */}
-        <div
-          className={`bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 absolute w-full transform transition-all duration-300 ease-in-out ${
-            isOpen
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 -translate-y-4 pointer-events-none'
-          }`}
-          style={{ maxHeight: isOpen ? '1000px' : '0px', overflow: 'hidden', transitionProperty: 'transform, opacity, max-height' }}
-        >
+        {/* Permanent Menu - Always Visible */}
+        <div className="bg-white dark:bg-gray-800 shadow-lg dark:shadow-gray-900/30 w-full">
           <div className="p-5 space-y-3 border-t border-gray-100 dark:border-gray-700">
             <Link
               href="/subjects"
@@ -204,11 +167,6 @@ export default function Home() {
           </div>
         </div>
       </header>
-      
-      {/* Page content */}
-      <div className="flex-1 p-4">
-        {/* Add your content here if needed */}
-      </div>
     </main>
   );
 }

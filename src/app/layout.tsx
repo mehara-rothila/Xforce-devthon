@@ -13,8 +13,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Change initial state to true so the mobile menu is open by default
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
 
   // Add this useEffect to set the document title directly

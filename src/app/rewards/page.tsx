@@ -3,8 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useDarkMode } from '../DarkModeContext'; // Import the dark mode context
 
 export default function RewardsPage() {
+  // Get dark mode context
+  const { isDarkMode } = useDarkMode();
+
   // State for active category
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -153,16 +157,16 @@ export default function RewardsPage() {
   // Filter rewards based on active category and search query
   const filteredRewards = rewards.filter(reward => {
     const matchesCategory = activeCategory === 'all' || reward.category === activeCategory;
-    const matchesSearch = searchQuery === '' || 
-      reward.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = searchQuery === '' ||
+      reward.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       reward.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 relative">
       {/* Hero Header with Animated Background */}
-      <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 pt-16 pb-32 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 dark:from-purple-800 dark:via-purple-700 dark:to-indigo-800 pt-16 pb-32 overflow-hidden transition-colors duration-300">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <div className="absolute top-[10%] right-[15%] text-white text-2xl animate-float" style={{ animationDuration: '8s' }}>🏆</div>
@@ -171,7 +175,7 @@ export default function RewardsPage() {
           <div className="absolute top-[25%] left-[30%] text-white text-3xl animate-pulse-slow" style={{ animationDuration: '15s' }}>⭐</div>
           <div className="absolute bottom-[20%] right-[25%] text-white text-3xl animate-pulse-slow" style={{ animationDuration: '14s' }}>🏅</div>
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="sm:flex sm:items-center sm:justify-between">
             <div>
@@ -185,7 +189,7 @@ export default function RewardsPage() {
             <div className="mt-4 sm:mt-0">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-purple-700 dark:text-purple-200 bg-white dark:bg-gray-800 hover:bg-purple-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" clipRule="evenodd" />
@@ -197,35 +201,35 @@ export default function RewardsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 pb-12 relative z-20">
         {/* Points Card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl dark:shadow-gray-900/10 overflow-hidden mb-8 transition-colors duration-300">
           <div className="p-6 sm:p-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center mb-6 sm:mb-0">
                 <div className="h-16 w-16 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 p-0.5 shadow-lg">
-                  <div className="h-full w-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                  <div className="h-full w-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden transition-colors duration-300">
                     <span className="text-3xl">💰</span>
                   </div>
                 </div>
                 <div className="ml-6">
-                  <div className="text-sm font-medium text-gray-500">Your current balance</div>
-                  <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300">Your current balance</div>
+                  <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400 transition-colors duration-300">
                     {user.points} points
                   </div>
                 </div>
               </div>
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-3">
-                  <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                  <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center transition-colors duration-300">
                     <span className="text-xl">🏆</span>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-500">Level</div>
-                    <div className="text-xl font-semibold text-gray-900">{user.level}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">Level</div>
+                    <div className="text-xl font-semibold text-gray-900 dark:text-gray-100 transition-colors duration-300">{user.level}</div>
                   </div>
                 </div>
-                <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium bg-purple-100 text-purple-700 hover:bg-purple-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300">
+                <button className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
                   </svg>
@@ -237,7 +241,7 @@ export default function RewardsPage() {
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden mb-8 transition-colors duration-300 relative z-10">
           <div className="p-6">
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
@@ -245,16 +249,16 @@ export default function RewardsPage() {
                   key={category.id}
                   onClick={() => setActiveCategory(category.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                    category.id === activeCategory 
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md transform scale-105' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    category.id === activeCategory
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-500 dark:to-indigo-500 text-white shadow-md transform scale-105'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   {category.name}
                 </button>
               ))}
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 transition-colors duration-300">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="relative flex-1">
                   <input
@@ -262,17 +266,17 @@ export default function RewardsPage() {
                     placeholder="Search rewards..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
                   />
                   <div className="absolute left-3 top-2.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-sm text-gray-500 mr-2">Sort by:</span>
-                  <select className="border border-gray-300 rounded-lg shadow-sm py-2 pl-3 pr-10 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 mr-2 transition-colors duration-300">Sort by:</span>
+                  <select className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg shadow-sm py-2 pl-3 pr-10 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200">
                     <option>Popular</option>
                     <option>Points: Low to High</option>
                     <option>Points: High to Low</option>
@@ -285,47 +289,47 @@ export default function RewardsPage() {
         </div>
 
         {/* Rewards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 relative z-10">
           {filteredRewards.map((reward) => (
-            <div 
-              key={reward.id} 
-              className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-full border border-gray-100 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+            <div
+              key={reward.id}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden flex flex-col h-full border border-gray-100 dark:border-gray-700 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-gray-900/20"
             >
               <div className="p-6">
                 <div className="flex justify-between items-start">
-                  <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center text-3xl shadow-inner">
+                  <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40 flex items-center justify-center text-3xl shadow-inner transition-colors duration-300">
                     {reward.image}
                   </div>
                   <div className="flex items-center space-x-2">
                     {reward.isNew && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 border border-blue-200 dark:border-blue-800 transition-colors duration-300">
                         New
                       </span>
                     )}
                     {reward.isPopular && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800 transition-colors duration-300">
                         Popular
                       </span>
                     )}
                   </div>
                 </div>
-                <h3 className="mt-4 text-xl font-bold text-gray-900">{reward.name}</h3>
-                <p className="mt-2 text-sm text-gray-600">{reward.description}</p>
-                
-                <div className="mt-6 pt-6 border-t border-gray-100 flex justify-between items-center">
+                <h3 className="mt-4 text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">{reward.name}</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 transition-colors duration-300">{reward.description}</p>
+
+                <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center transition-colors duration-300">
                   <div className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500 dark:text-purple-400 mr-1 transition-colors duration-300" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
                       <path d="M3 8v3c0 1.657 3.134 3 7 3s7-1.343 7-3V8c0 1.657-3.134 3-7 3S3 9.657 3 8z" />
                       <path d="M3 5v3c0 1.657 3.134 3 7 3s7-1.343 7-3V5c0 1.657-3.134 3-7 3S3 6.657 3 5z" />
                     </svg>
-                    <span className="font-bold text-purple-700">{reward.pointsCost}</span>
+                    <span className="font-bold text-purple-700 dark:text-purple-400 transition-colors duration-300">{reward.pointsCost}</span>
                   </div>
                   <button
                     className={`inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium transition-all duration-200 ${
-                      user.points >= reward.pointsCost 
-                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105' 
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      user.points >= reward.pointsCost
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-500 dark:to-indigo-500 text-white hover:from-purple-700 hover:to-indigo-700 dark:hover:from-purple-600 dark:hover:to-indigo-600 transform hover:scale-105'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                     }`}
                     disabled={user.points < reward.pointsCost}
                   >
@@ -343,10 +347,10 @@ export default function RewardsPage() {
             </div>
           ))}
         </div>
-        
+
         {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl shadow-xl overflow-hidden transform transition-transform duration-300 hover:scale-[1.02]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 relative z-10">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-600 dark:to-blue-800 rounded-2xl shadow-xl dark:shadow-gray-900/10 overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] transition-colors duration-300">
             <div className="p-8">
               <div className="flex items-center mb-4">
                 <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl mr-4">
@@ -403,8 +407,8 @@ export default function RewardsPage() {
               </ul>
             </div>
           </div>
-          
-          <div className="bg-gradient-to-br from-purple-500 to-indigo-700 rounded-2xl shadow-xl overflow-hidden transform transition-transform duration-300 hover:scale-[1.02]">
+
+          <div className="bg-gradient-to-br from-purple-500 to-indigo-700 dark:from-purple-600 dark:to-indigo-800 rounded-2xl shadow-xl dark:shadow-gray-900/10 overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] transition-colors duration-300">
             <div className="p-8">
               <div className="flex items-center mb-4">
                 <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl mr-4">
@@ -459,8 +463,8 @@ export default function RewardsPage() {
                   </div>
                 </li>
               </ul>
-              
-              <button className="mt-8 w-full py-3 px-4 bg-white rounded-xl text-center font-medium text-indigo-700 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-300 transform hover:scale-105 shadow-lg">
+
+              <button className="mt-8 w-full py-3 px-4 bg-white dark:bg-gray-200 rounded-xl text-center font-medium text-indigo-700 dark:text-indigo-800 hover:bg-indigo-50 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-300 transform hover:scale-105 shadow-lg">
                 Upgrade to Premium
               </button>
             </div>

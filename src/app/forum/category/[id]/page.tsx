@@ -5,8 +5,18 @@ import { useState, useEffect } from 'react';
 import { useDarkMode } from '../../../DarkModeContext';
 import axios from 'axios';
 
-// Define API base URL
-const API_URL = 'http://localhost:5000/api';
+// --- MODIFICATION START ---
+// Define API base URL from environment variable
+// It MUST be prefixed with NEXT_PUBLIC_ to be available on the client side
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+// Optional: Add a check to ensure the variable is set during development/build
+if (!API_URL) {
+  console.error("FATAL ERROR: NEXT_PUBLIC_API_URL environment variable is not defined.");
+  // You could throw an error here to prevent the app from starting without the URL
+  // throw new Error("FATAL ERROR: NEXT_PUBLIC_API_URL environment variable is not defined.");
+}
+// --- MODIFICATION END ---
 
 // Type definitions
 interface ForumCategory {

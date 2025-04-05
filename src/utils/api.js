@@ -1,4 +1,4 @@
-// api.js - Place this in your frontend project's utils folder
+// utils/api.js
 import axios from 'axios';
 
 // Create axios instance with base URL
@@ -11,38 +11,47 @@ const api = axios.create({
   }
 });
 
-// Add request interceptor to add auth token
+// Request Interceptor (adds auth token later)
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // Add cache-control headers to all GET requests during testing?
+    // if (config.method === 'get') {
+    //   config.headers['Cache-Control'] = 'no-cache';
+    //   config.headers['Pragma'] = 'no-cache';
+    //   config.headers['Expires'] = '0';
+    // }
     return config;
   },
   error => Promise.reject(error)
 );
 
-// Add response interceptor to handle errors
+// Response Interceptor (handles 401 etc.)
 api.interceptors.response.use(
   response => response,
   error => {
     if (error.response && error.response.status === 401) {
-      // Handle unauthorized errors (e.g., redirect to login)
+      console.error('Unauthorized request - Redirecting to login');
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      if (typeof window !== 'undefined') {
+         window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
 );
 
-// *** SUBJECTS API ***
+// --- Group API functions ---
+
 const subjects = {
   getAll: () => api.get('/subjects'),
   getById: (id) => api.get(`/subjects/${id}`),
   getTopics: (id) => api.get(`/subjects/${id}/topics`),
-  getProgress: (id) => api.get(`/subjects/${id}/progress`),
-  getRecommendations: (id) => api.get(`/subjects/${id}/recommendations`),
+  getProgress: (id) => api.get(`/subjects/${id}/progress`), // Note: Backend uses mock data currently
+  getRecommendations: (id) => api.get(`/subjects/${id}/recommendations`), // Note: Backend uses mock data currently
   create: (data) => api.post('/subjects', data),
   update: (id, data) => api.patch(`/subjects/${id}`, data),
   delete: (id) => api.delete(`/subjects/${id}`),
@@ -51,7 +60,6 @@ const subjects = {
   deleteTopic: (id, topicId) => api.delete(`/subjects/${id}/topics/${topicId}`)
 };
 
-// *** RESOURCES API ***
 const resources = {
   getAll: (params) => api.get('/resources', { params }),
   getById: (id) => api.get(`/resources/${id}`),
@@ -63,12 +71,11 @@ const resources = {
   delete: (id) => api.delete(`/resources/${id}`)
 };
 
-// *** QUIZZES API ***
 const quizzes = {
   getAll: (params) => api.get('/quizzes', { params }),
   getById: (id) => api.get(`/quizzes/${id}`),
-  getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`),
-  getPracticeQuizzes: (subjectId, topic) => 
+  getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`), // Consider moving this under subjects?
+  getPracticeQuizzes: (subjectId, topic) =>
     api.get(`/quizzes/subject/${subjectId}/practice${topic ? `?topic=${topic}` : ''}`),
   submitAttempt: (id, answers) => api.post(`/quizzes/${id}/attempts`, { answers }),
   create: (data) => api.post('/quizzes', data),
@@ -76,9 +83,45 @@ const quizzes = {
   delete: (id) => api.delete(`/quizzes/${id}`)
 };
 
+const users = {
+  getDashboardSummary: (userId) => {
+     if (!userId || userId === 'YOUR_TEST_USER_ID_HERE') {
+        console.error('Attempted to fetch dashboard summary without a valid User ID.');
+        return Promise.reject(new Error('Valid User ID required for getDashboardSummary'));
+      }
+     // Using cache-control headers from previous step
+     return api.get(`/users/${userId}/dashboard-summary`, {
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache', 'Expires': '0' }
+     });
+  },
+  getDetailedProgress: (userId, subjectId) => {
+    if (!userId || !subjectId) {
+        console.error('User ID and Subject ID are required for getDetailedProgress');
+        return Promise.reject(new Error('User ID and Subject ID required'));
+    }
+    // Add cache control here too for consistency during testing
+    return api.get(`/users/${userId}/progress/${subjectId}`, {
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache', 'Expires': '0' }
+     });
+  },
+  getAchievements: (userId) => {
+    if (!userId) {
+        console.error('User ID is required for getAchievements');
+        return Promise.reject(new Error('User ID required'));
+    }
+    // Add cache control here too
+    return api.get(`/users/${userId}/achievements`, {
+        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache', 'Expires': '0' }
+     });
+  }
+  // Add other user functions later (e.g., getProfile, updateProfile, getActivity)
+};
+
+
 // Export all API services
 export default {
   subjects,
   resources,
-  quizzes
+  quizzes,
+  users // Ensure users group is exported
 };

@@ -1,87 +1,103 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-// Mock quiz data
-const quizData = {
-  title: "Mechanics - Forces and Motion",
-  subject: "Physics",
-  totalQuestions: 10,
-  timeLimit: 15, // minutes
-  questions: [
-    {
-      id: 1,
-      text: "A force of 20N acts on a mass of 4kg. What is the resulting acceleration?",
-      options: [
-        { id: "a", text: "2 m/s²" },
-        { id: "b", text: "5 m/s²" },
-        { id: "c", text: "8 m/s²" },
-        { id: "d", text: "10 m/s²" },
-      ],
-      correctAnswer: "b",
-      explanation: "Using Newton's Second Law: F = ma, we can rearrange to a = F/m = 20N/4kg = 5 m/s²."
-    },
-    {
-      id: 2,
-      text: "A car accelerates from rest to 20 m/s in 10 seconds. What is its acceleration?",
-      options: [
-        { id: "a", text: "0.5 m/s²" },
-        { id: "b", text: "2 m/s²" },
-        { id: "c", text: "5 m/s²" },
-        { id: "d", text: "10 m/s²" },
-      ],
-      correctAnswer: "b",
-      explanation: "Acceleration is the change in velocity over time: a = Δv/Δt = (20 m/s - 0 m/s)/10s = 2 m/s²."
-    },
-    {
-      id: 3,
-      text: "Which of the following is NOT a vector quantity?",
-      options: [
-        { id: "a", text: "Velocity" },
-        { id: "b", text: "Force" },
-        { id: "c", text: "Displacement" },
-        { id: "d", text: "Energy" },
-      ],
-      correctAnswer: "d",
-      explanation: "Energy is a scalar quantity, as it has magnitude but no direction. Velocity, force, and displacement are all vector quantities."
-    },
-  ]
-};
+import { useSearchParams, useRouter } from 'next/navigation';
+import api from '../../../utils/api';
 
 export default function TakeQuiz() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const quizId = searchParams.get('id');
+  
+  const [quizData, setQuizData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
-  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState({});
   const [showExplanation, setShowExplanation] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(quizData.timeLimit * 60);
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [animateQuestion, setAnimateQuestion] = useState(false);
+  const [quizResults, setQuizResults] = useState(null);
+
+  // Fetch quiz data
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      if (!quizId) {
+        setError("No quiz ID provided");
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        const response = await api.quizzes.getById(quizId);
+        const quiz = response.data.data.quiz;
+        
+        // Transform quiz data to match component expectations
+        const formattedQuiz = {
+          title: quiz.title,
+          subject: quiz.subject.name,
+          totalQuestions: quiz.questions.length,
+          timeLimit: quiz.timeLimit || 15,
+          questions: quiz.questions.map((q, index) => ({
+            id: q._id,
+            text: q.text,
+            options: q.options.map((opt, i) => ({
+              id: opt._id || String.fromCharCode(97 + i), // Generate a-d if no id
+              text: opt.text,
+              isCorrect: opt.isCorrect
+            })),
+            correctAnswer: q.correctAnswer || 
+              (q.options.find(o => o.isCorrect) ? 
+                q.options.find(o => o.isCorrect)._id || 
+                String.fromCharCode(97 + q.options.findIndex(o => o.isCorrect)) : null),
+            explanation: q.explanation || "No explanation provided."
+          }))
+        };
+        
+        setQuizData(formattedQuiz);
+        setTimeRemaining(formattedQuiz.timeLimit * 60);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching quiz:", err);
+        setError("Failed to load quiz. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchQuiz();
+  }, [quizId]);
 
   // Timer effect
   useEffect(() => {
-    if (!isSubmitted && timeRemaining > 0) {
-      const timer = setTimeout(() => {
-        setTimeRemaining(timeRemaining - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    } else if (timeRemaining === 0 && !isSubmitted) {
+    if (!quizData || isSubmitted || timeRemaining <= 0) return;
+    
+    const timer = setTimeout(() => {
+      setTimeRemaining(timeRemaining - 1);
+    }, 1000);
+    
+    if (timeRemaining === 0) {
       setIsSubmitted(true);
     }
-  }, [timeRemaining, isSubmitted]);
+    
+    return () => clearTimeout(timer);
+  }, [timeRemaining, isSubmitted, quizData]);
 
   // Format time as MM:SS
-  const formatTime = (seconds: number) => {
+  const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   // Calculate progress
-  const progress = ((currentQuestion + 1) / quizData.questions.length) * 100;
+  const progress = quizData ? ((currentQuestion + 1) / quizData.questions.length) * 100 : 0;
 
   // Handle option selection
-  const handleSelectOption = (optionId: string) => {
-    if (!isSubmitted) {
+  const handleSelectOption = (optionId) => {
+    if (!isSubmitted && quizData) {
       setSelectedOption(optionId);
       setAnswers({
         ...answers,
@@ -92,7 +108,7 @@ export default function TakeQuiz() {
 
   // Handle navigation
   const handleNext = () => {
-    if (currentQuestion < quizData.questions.length - 1) {
+    if (quizData && currentQuestion < quizData.questions.length - 1) {
       setAnimateQuestion(true);
       setTimeout(() => {
         setCurrentQuestion(currentQuestion + 1);
@@ -108,7 +124,7 @@ export default function TakeQuiz() {
       setAnimateQuestion(true);
       setTimeout(() => {
         setCurrentQuestion(currentQuestion - 1);
-        setSelectedOption(answers[quizData.questions[currentQuestion - 1]?.id] || "");
+        setSelectedOption(answers[quizData?.questions[currentQuestion - 1]?.id] || "");
         setShowExplanation(false);
         setAnimateQuestion(false);
       }, 300);
@@ -123,18 +139,38 @@ export default function TakeQuiz() {
   };
 
   // Handle submit
-  const handleSubmit = () => {
-    setIsSubmitted(true);
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+      
+      // Format answers for API
+      const formattedAnswers = Object.entries(answers).map(([questionId, answerId]) => ({
+        questionId,
+        answerId
+      }));
+      
+      const response = await api.quizzes.submitAttempt(quizId, formattedAnswers);
+      setQuizResults(response.data.data);
+      setIsSubmitted(true);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error submitting quiz:", err);
+      setError("Failed to submit quiz. Please try again.");
+      setLoading(false);
+    }
   };
 
-  // Calculate score
+  // Calculate score manually for the UI
   const calculateScore = () => {
+    if (!quizData) return { score: 0, total: 0, percentage: 0 };
+    
     let correct = 0;
     quizData.questions.forEach((question) => {
       if (answers[question.id] === question.correctAnswer) {
         correct++;
       }
     });
+    
     return {
       score: correct,
       total: quizData.questions.length,
@@ -142,9 +178,68 @@ export default function TakeQuiz() {
     };
   };
 
+  // If still loading
+  if (loading && !quizData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading quiz...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If error
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md">
+          <div className="text-red-500 text-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Error Loading Quiz</h2>
+          <p className="text-gray-600 mb-6 text-center">{error}</p>
+          <div className="flex justify-center">
+            <Link
+              href="/quiz"
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+            >
+              Return to Quizzes
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If no quiz data
+  if (!quizData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Quiz Not Found</h2>
+          <p className="text-gray-600 mb-6">The requested quiz could not be found or loaded.</p>
+          <Link
+            href="/quiz"
+            className="px-6 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+          >
+            Browse Quizzes
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const currentQ = quizData.questions[currentQuestion];
   const isCorrect = selectedOption === currentQ.correctAnswer;
-  const score = calculateScore();
+  const score = quizResults ? { 
+    score: quizResults.score, 
+    total: quizResults.totalPoints,
+    percentage: quizResults.percentageScore 
+  } : calculateScore();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -185,7 +280,7 @@ export default function TakeQuiz() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 lg:mt-8 pb-12">
-                {isSubmitted ? (
+        {isSubmitted ? (
           // Results screen
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-500 transform">
             <div className="px-6 sm:px-8 py-10">
@@ -271,7 +366,7 @@ export default function TakeQuiz() {
                               ? 'bg-red-500 text-white'
                               : 'bg-gray-200 text-gray-700'
                           }`}>
-                            {option.id.toUpperCase()}
+                            {typeof option.id === 'string' && option.id.length === 1 ? option.id.toUpperCase() : '?'}
                           </div>
                           <span className={`text-sm ${
                             option.id === question.correctAnswer
@@ -416,7 +511,7 @@ export default function TakeQuiz() {
                             ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white'
                             : 'bg-gray-200 text-gray-700'
                         }`}>
-                          {option.id.toUpperCase()}
+                          {typeof option.id === 'string' && option.id.length === 1 ? option.id.toUpperCase() : option.id.slice(0, 1).toUpperCase()}
                         </div>
                         <span className={`text-gray-800 ${selectedOption === option.id ? 'font-medium' : ''}`}>{option.text}</span>
                       </div>

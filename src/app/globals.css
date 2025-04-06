@@ -1,35 +1,39 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* CSS Variables for theming (optional, but can be useful) */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #171717; /* Dark gray for text */
   --card-bg: #ffffff;
-  --card-border: #e5e7eb;
-  --primary-light: #ddd6fe;
-  --hero-bg-start: #6d28d9;
-  --hero-bg-end: #4c1d95;
+  --card-border: #e5e7eb; /* gray-200 */
+  --primary-light: #ddd6fe; /* purple-200 */
+  --hero-bg-start: #6d28d9; /* purple-700 */
+  --hero-bg-end: #4c1d95; /* purple-900 */
 }
 
+/* Dark theme overrides for CSS Variables */
 [data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --card-bg: #1a1a1a;
-  --card-border: #2d2d2d;
-  --primary-light: #4c1d95;
-  --hero-bg-start: #4c1d95;
-  --hero-bg-end: #2e1065;
+  --background: #0a0a0a; /* Very dark gray */
+  --foreground: #ededed; /* Light gray for text */
+  --card-bg: #1a1a1a; /* Darker gray for cards */
+  --card-border: #2d2d2d; /* Even darker gray for borders */
+  --primary-light: #4c1d95; /* purple-900 */
+  --hero-bg-start: #4c1d95; /* purple-900 */
+  --hero-bg-end: #2e1065; /* purple-950 */
 }
 
+/* Apply base background and text color using variables */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* font-family removed - Inter font applied via className in layout.tsx */
+  /* Ensure smooth transitions */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Add these animations to the end of your globals.css file */
+/* Keyframes for animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -43,61 +47,17 @@ body {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+ @keyframes float-reverse { /* Added for variety */
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.5s ease-out;
-}
-
-.animate-widthGrow {
-  animation: widthGrow 1s ease-out;
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-slow {
-  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Dark mode specific styles */
-.dark-card {
-  @apply bg-gray-800 border-gray-700 shadow-lg hover:shadow-gray-800/30;
-}
-
-.light-card {
-  @apply bg-white border-gray-100 shadow-md hover:shadow-lg;
-}
-
-/* Dark mode toggle styles */
-.dark-mode-toggle {
-  @apply relative inline-flex items-center cursor-pointer;
-}
-
-.dark-mode-toggle-track {
-  @apply w-11 h-6 bg-gray-700 rounded-full transition-colors duration-300;
-}
-
-.dark-mode-toggle-track.active {
-  @apply bg-purple-600;
-}
-
-.dark-mode-toggle-thumb {
-  @apply absolute w-5 h-5 bg-white rounded-full transform transition-transform duration-300 flex items-center justify-center left-0.5 top-0.5;
-}
-
-.dark-mode-toggle-thumb.active {
-  @apply translate-x-5;
-}
-
-/* Add these additional animations and styles to your globals.css file */
-
-/* Additional keyframes */
 @keyframes rotate-slow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -110,17 +70,36 @@ body {
 }
 
 @keyframes appear {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Additional animation classes */
+/* Animation utility classes */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-widthGrow {
+  animation: widthGrow 1s ease-out;
+}
+
+.animate-float, .floating-icon { /* Added alias */
+  animation: float 6s ease-in-out infinite;
+}
+ .floating-icon-reverse { /* Added for variety */
+  animation: float-reverse 7s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 .animate-rotate-slow {
   animation: rotate-slow 20s linear infinite;
 }
@@ -134,26 +113,58 @@ body {
   animation: appear 0.6s ease-out forwards;
 }
 
-/* Enhanced dark/light mode toggle */
+
+/* Dark mode toggle styles - Updated for better alignment */
 .dark-mode-toggle {
-  @apply relative inline-flex items-center cursor-pointer;
+  @apply relative inline-flex items-center cursor-pointer p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800;
+  /* Added vertical alignment to match other nav items */
+  height: 28px;
+  vertical-align: middle;
 }
 
 .dark-mode-toggle-track {
-  @apply w-11 h-6 bg-gray-300 dark:bg-gray-700 rounded-full transition-colors duration-300;
+  @apply w-10 h-5 bg-gray-300 dark:bg-gray-700 rounded-full transition-colors duration-300;
 }
 
+/* Style for the track when dark mode is active */
 .dark-mode-toggle-track.active {
-  @apply bg-purple-500 dark:bg-purple-600;
+   @apply bg-purple-500 dark:bg-purple-600;
 }
 
 .dark-mode-toggle-thumb {
-  @apply absolute w-5 h-5 bg-white rounded-full transform transition-transform duration-300 flex items-center justify-center left-0.5 top-0.5 shadow-md;
+  @apply absolute w-4 h-4 bg-white rounded-full transform transition-transform duration-300 flex items-center justify-center shadow-md;
+  /* Adjusted positioning */
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
+/* Style for the thumb when dark mode is active (moves right) */
 .dark-mode-toggle-thumb.active {
-  @apply translate-x-5;
+  transform: translateY(-50%) translateX(20px);
 }
+
+/* Optional: Base styles for cards using CSS variables */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Example: Navigation Link base styles using @layer */
+@layer components {
+  .nav-link {
+    @apply text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200 font-medium text-sm;
+  }
+  .mobile-nav-link {
+     @apply flex items-center py-2.5 px-4 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200;
+     /* Add icons here if needed within the link content */
+  }
+  .mobile-login-button {
+    @apply block w-full text-center text-white bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-800 hover:to-purple-700 px-4 py-3 rounded-lg shadow-md hover:shadow-lg dark:shadow-purple-900/20 transition-all duration-200 font-medium;
+  }
+}
+
 
 /* Hero section enhancements */
 .hero-title {
@@ -180,28 +191,29 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f1f1f1; /* Light mode track */
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #1e1e1e;
+  background: #1e1e1e; /* Dark mode track */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c4b5fd;
+  background: #c4b5fd; /* Light mode thumb */
   border-radius: 5px;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #6d28d9;
+  background: #6d28d9; /* Dark mode thumb */
+   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a78bfa;
+  background: #a78bfa; /* Light mode hover */
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #8b5cf6;
+  background: #8b5cf6; /* Dark mode hover */
 }
 
 /* Fancy link underline animation */
@@ -217,7 +229,7 @@ body {
   height: 2px;
   bottom: 0;
   left: 0;
-  background-color: theme('colors.purple.500');
+  background-color: theme('colors.purple.500'); /* Use Tailwind theme color */
   transform: scaleX(0);
   transform-origin: bottom right;
   transition: transform 0.3s ease-out;
@@ -228,18 +240,19 @@ body {
   transform-origin: bottom left;
 }
 
-/* Gradient text */
+/* Gradient text utility */
 .gradient-text {
   @apply text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400;
 }
 
-/* Responsive typography size */
+/* Responsive typography size example */
 @media (max-width: 640px) {
   .responsive-heading {
-    font-size: 2.5rem !important;
+    /* Use Tailwind's responsive variants where possible, but this is an example */
+    font-size: 2.5rem !important; /* Example: Use Tailwind classes like text-4xl sm:text-5xl instead */
   }
-  
+
   .responsive-subheading {
-    font-size: 1.25rem !important;
+    font-size: 1.25rem !important; /* Example: Use Tailwind classes like text-lg sm:text-xl instead */
   }
 }

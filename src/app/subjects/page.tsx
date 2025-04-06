@@ -45,6 +45,20 @@ const SubjectIcon = ({ iconName, color }: { iconName: string, color: string }) =
         </svg>
        );
     }
+    if (iconName === 'book') {
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: color }}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      );
+    }
+    if (iconName === 'globe') {
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: color }}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      );
+    }
     // Default Book Icon
      return (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: color }}>
@@ -54,23 +68,20 @@ const SubjectIcon = ({ iconName, color }: { iconName: string, color: string }) =
 };
 
 // Helper to get Tailwind arbitrary compatible color with opacity
-// e.g., colorToTailwind(subject.color, '10') -> '[#3498db]/10'
-// Important: Tailwind needs the exact hex code for arbitrary values.
 const colorToTailwind = (hexColor = '#808080', opacity = 'FF') => {
-    // Basic hex validation (remove # if present)
     const cleanHex = hexColor.startsWith('#') ? hexColor.substring(1) : hexColor;
-    // Construct the arbitrary value string
-    // Opacity FF (100%) is usually implied, but be explicit if needed or use Tailwind's opacity shorthand `/10`, `/20` etc.
-    const opacitySuffix = opacity === 'FF' ? '' : `/${parseInt(opacity, 16)}`; // Convert hex opacity to Tailwind integer opacity
+    const opacitySuffix = opacity === 'FF' ? '' : `/${parseInt(opacity, 16)}`;
     return `[#${cleanHex}]${opacitySuffix}`;
 };
-
 
 export default function Subjects() {
   const { isDarkMode } = useDarkMode();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [visibleSubjects, setVisibleSubjects] = useState<Subject[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const subjectsPerPage = 3; // Show 3 subjects per page
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -78,7 +89,11 @@ export default function Subjects() {
         setLoading(true);
         setError(null);
         const response = await axios.get(`${API_URL}/subjects`);
-        setSubjects(response.data.data?.subjects || []);
+        const fetchedSubjects = response.data.data?.subjects || [];
+        setSubjects(fetchedSubjects);
+        
+        // Set initial visible subjects
+        setVisibleSubjects(fetchedSubjects.slice(0, subjectsPerPage));
       } catch (err) {
         console.error("Error fetching subjects:", err);
         setError("Failed to load subjects. Please ensure the backend is running.");
@@ -90,43 +105,112 @@ export default function Subjects() {
     fetchSubjects();
   }, []);
 
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    const startIndex = (page - 1) * subjectsPerPage;
+    setVisibleSubjects(subjects.slice(startIndex, startIndex + subjectsPerPage));
+    setCurrentPage(page);
+  };
+
   // Define border hover color class based on subject color
-  // Tailwind JIT needs full class names, sometimes dynamic bracket notation can be tricky with hover states.
-  // A helper function might be needed if simple bracket notation doesn't work reliably for hover borders.
-  // Let's try with arbitrary values first.
   const getHoverBorderClass = (color: string) => {
-      // Assuming color is a hex like #3498db
       const cleanHex = color.startsWith('#') ? color.substring(1) : color;
-      return `hover:border-[#${cleanHex}]/30 dark:hover:border-[#${cleanHex}]/70`;
-      // If this doesn't work reliably, you might need a map or switch statement
-      // returning specific Tailwind classes like 'hover:border-blue-200 dark:hover:border-blue-800'
+      return `hover:border-[#${cleanHex}] dark:hover:border-[#${cleanHex}]`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <span className="inline-block px-3 py-1 text-sm font-medium rounded-full text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 mb-4 transition-colors duration-300">Advanced Level</span>
-          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-5xl lg:text-6xl tracking-tight transition-colors duration-300">
-            Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400">Subjects</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300 relative overflow-hidden">
+      {/* Background floating icons */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-[5%] text-purple-500 dark:text-purple-400 text-7xl opacity-70 floating-icon">∑</div>
+        <div className="absolute top-[15%] right-[10%] text-blue-500 dark:text-blue-400 text-8xl opacity-60 floating-icon-reverse">π</div>
+        <div className="absolute top-[30%] left-[15%] text-green-500 dark:text-green-400 text-6xl opacity-65 floating-icon-slow">∞</div>
+        <div className="absolute top-[60%] right-[20%] text-red-500 dark:text-red-400 text-9xl opacity-55 floating-icon">⚛</div>
+        <div className="absolute top-[40%] right-[5%] text-yellow-500 dark:text-yellow-400 text-7xl opacity-60 floating-icon-slow">𝜙</div>
+        <div className="absolute bottom-[15%] left-[10%] text-indigo-500 dark:text-indigo-400 text-8xl opacity-60 floating-icon-reverse">∫</div>
+        <div className="absolute bottom-[30%] right-[15%] text-teal-500 dark:text-teal-400 text-7xl opacity-65 floating-icon">≈</div>
+        <div className="absolute bottom-[5%] right-[5%] text-pink-500 dark:text-pink-400 text-6xl opacity-55 floating-icon-slow">±</div>
+        
+        {/* Science icons */}
+        <div className="absolute top-[20%] left-[25%] opacity-50 floating-icon-slow">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-[45%] right-[25%] opacity-50 floating-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        
+        <div className="absolute bottom-[20%] left-[30%] opacity-50 floating-icon-reverse">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-[70%] right-[30%] opacity-50 floating-icon-slow">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        
+        {/* Additional science icons */}
+        <div className="absolute top-[35%] left-[40%] opacity-50 floating-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
+          </svg>
+        </div>
+        
+        <div className="absolute bottom-[40%] right-[40%] opacity-50 floating-icon-reverse">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-[5%] left-[60%] opacity-50 floating-icon-slow">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        
+        <div className="absolute bottom-[10%] left-[50%] opacity-50 floating-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-purple-500 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+          </svg>
+        </div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Header Section - Reduced vertical padding */}
+        <div className="text-center mb-8">
+          <span className="inline-block px-4 py-1.5 text-sm font-medium rounded-full text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/30 mb-3 transition-colors duration-300 
+           shadow-sm backdrop-blur-sm animate-pulse-subtle">Accelerated Learning</span>
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl lg:text-5xl tracking-tight transition-colors duration-300 
+           text-shadow relative z-10">
+            Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-600 dark:from-purple-400 dark:via-indigo-300 dark:to-blue-400">Subjects</span>
+            
+            {/* Decorative elements */}
+            <span className="absolute -top-2 -right-2 text-5xl text-purple-200 dark:text-purple-800 opacity-50 transform rotate-12 z-0">*</span>
+            <span className="absolute -bottom-1 -left-1 text-4xl text-blue-200 dark:text-blue-800 opacity-50 transform -rotate-6 z-0">∞</span>
           </h1>
-          <p className="mt-6 text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed transition-colors duration-300">
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed transition-colors duration-300">
             Prepare for your A/L exams with comprehensive materials tailored to the Sri Lankan curriculum.
           </p>
         </div>
 
         {/* Loading State */}
         {loading && (
-            <div className="text-center py-10">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+            <div className="text-center py-6">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-3"></div>
                 <p className="text-gray-600 dark:text-gray-300">Loading subjects...</p>
             </div>
         )}
 
         {/* Error State */}
         {error && (
-            <div className="text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800">
+            <div className="text-center py-6 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg">
                  <div className="text-red-500 text-3xl mb-3">⚠️</div>
                 <p className="text-red-700 dark:text-red-300">{error}</p>
             </div>
@@ -134,142 +218,248 @@ export default function Subjects() {
 
         {/* No Subjects Found State */}
         {!loading && !error && subjects.length === 0 && (
-             <div className="text-center py-10 max-w-md mx-auto bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800">
+             <div className="text-center py-6 max-w-md mx-auto bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800 shadow-lg">
                  <div className="text-yellow-500 text-3xl mb-3">🤔</div>
                 <p className="text-yellow-700 dark:text-yellow-300">No subjects found. Please check the backend or seed the database.</p>
             </div>
         )}
 
-        {/* Dynamic Subject Cards */}
-        {!loading && subjects.length > 0 && subjects.map((subject) => {
-            const safeColor = subject.color || '#cccccc'; // Fallback color
-            const safeGradientFrom = subject.gradientFrom || safeColor;
-            const safeGradientTo = subject.gradientTo || safeColor;
-            // Generate dynamic Tailwind classes using arbitrary values
-            const iconBgColorClass = `bg-[${safeColor}]/10 dark:bg-[${safeColor}]/40`; // e.g., bg-[#3498db]/10 dark:bg-[#3498db]/40
-            const keyTopicBgClass = `bg-[${safeColor}]/10 dark:bg-[${safeColor}]/20`; // e.g., bg-[#3498db]/10 dark:bg-[#3498db]/20
-            const keyTopicTextColorClass = `text-[${safeColor}]/80 dark:text-[${safeColor}]/70`; // e.g. text-[#3498db]/80 dark:text-[#3498db]/70 - Adjust opacity as needed
-            const checkIconColorClass = `text-[${safeColor}] dark:text-[${safeColor}]/80`; // Example for checkmark icon
+        {/* Dynamic Subject Cards - Now in a grid */}
+        {!loading && visibleSubjects.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {visibleSubjects.map((subject) => {
+                const safeColor = subject.color || '#cccccc'; // Fallback color
+                const safeGradientFrom = subject.gradientFrom || safeColor;
+                const safeGradientTo = subject.gradientTo || safeColor;
+                
+                // Generate dynamic Tailwind classes using arbitrary values
+                const iconBgColorClass = `bg-[${safeColor}]/10 dark:bg-[${safeColor}]/30`; 
+                const keyTopicBgClass = `bg-[${safeColor}]/5 dark:bg-[${safeColor}]/10`; 
+                const keyTopicTextColorClass = `text-[${safeColor}] dark:text-[${safeColor}]`; 
+                const checkIconColorClass = `text-[${safeColor}] dark:text-[${safeColor}]`;
+                
+                // Calculate how many empty list items to add to ensure consistent height
+                const maxTopics = 3;
+                const actualTopics = subject.topics?.length || 0;
+                const emptyTopicsNeeded = Math.max(0, maxTopics - actualTopics);
+                const topicsToShow = subject.topics?.slice(0, maxTopics) || [];
 
-            return (
-              <div key={subject._id}
-                   className={`bg-white dark:bg-gray-800 shadow-xl dark:shadow-gray-900/10 rounded-2xl overflow-hidden mb-16 transform transition duration-300 hover:shadow-2xl dark:hover:shadow-gray-900/20 hover:-translate-y-1 border border-gray-100 dark:border-gray-700 ${getHoverBorderClass(safeColor)}`}
-              >
-                <div className="md:flex">
-                    {/* Left side gradient + decorative */}
-                    <div
-                        className="md:flex-shrink-0 w-full md:w-64 h-48 md:h-auto relative overflow-hidden"
-                        // Apply gradient using inline style
-                        style={{ background: `linear-gradient(to bottom right, ${safeGradientFrom}, ${safeGradientTo})`}}
+                return (
+                  <div key={subject._id}
+                       className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-xl dark:shadow-gray-900/10 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 
+                       ${getHoverBorderClass(safeColor)} transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group relative h-full animated-border flex flex-col`}
+                  >
+                    {/* Top gradient banner with animation */}
+                    <div 
+                        className="h-16 w-full relative overflow-hidden animated-gradient"
+                        style={{ background: `linear-gradient(45deg, ${safeGradientFrom}, ${safeGradientTo}, ${safeGradientFrom})`}}
                     >
-                       {/* You can add subject-specific decorative elements here if needed */}
-                       <div className="absolute inset-0 opacity-20">
-                            {/* Placeholder decorations */}
-                            <div className="absolute top-1/4 left-1/4 text-white text-4xl opacity-50">{subject.name.substring(0,3)}</div>
-                            <div className="absolute bottom-1/4 right-1/4 text-white text-3xl opacity-50">{subject.icon}</div>
-                       </div>
+                        {/* Top right icon */}
+                        <div className="absolute top-2 right-3 bg-white/20 dark:bg-black/20 backdrop-blur-sm rounded-full p-1 shadow-md">
+                            <SubjectIcon iconName={subject.icon} color="#ffffff" />
+                        </div>
                     </div>
-                    {/* Right side content */}
-                    <div className="p-8 md:p-10 flex-1">
-                        <div className="flex items-center">
-                            {/* Icon container with dynamic BG */}
-                            <div className={`h-14 w-14 ${iconBgColorClass} rounded-full flex items-center justify-center shadow-sm transition-colors duration-300`}>
+                    
+                    {/* Content */}
+                    <div className="p-5 flex-1 flex flex-col">
+                        {/* Title with icon */}
+                        <div className="flex items-center -mt-8 mb-4 relative z-10">
+                            <div className={`h-14 w-14 ${iconBgColorClass} rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-700 transition-colors duration-300`}>
                                <SubjectIcon iconName={subject.icon} color={safeColor} />
                             </div>
-                            <h2 className="ml-5 text-3xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">{subject.name}</h2>
+                            <h2 className="ml-3 text-xl font-bold text-gray-900 dark:text-gray-100 transition-colors duration-300">
+                                {subject.name}
+                                <div className={`h-1 w-0 group-hover:w-full mt-0.5 transition-all duration-500 ease-out ${subject.color}`} 
+                                     style={{ backgroundColor: safeColor }}></div>
+                            </h2>
                         </div>
-                        <p className="mt-5 text-lg text-gray-600 dark:text-gray-300 leading-relaxed transition-colors duration-300">
+                        
+                        {/* Short description */}
+                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed transition-colors duration-300 line-clamp-2 mb-4">
                             {subject.description}
                         </p>
 
-                        {/* Dynamic Key Topics / Resources Sections */}
-                         <div className="mt-8 grid md:grid-cols-2 gap-6">
-                           {/* Key Topics Column */}
-                           {subject.topics && subject.topics.length > 0 && (
-                               <div className={`${keyTopicBgClass} rounded-xl p-5 transition-colors duration-300`}>
-                                    <h3 className={`font-semibold ${keyTopicTextColorClass} mb-3 text-lg transition-colors duration-300`}>Key Topics</h3>
-                                    <ul className="space-y-3">
-                                        {subject.topics.slice(0, 4).map(topic => (
-                                            <li key={topic._id || topic.name} className="flex items-start">
-                                                <svg className={`h-5 w-5 ${checkIconColorClass} mr-3 mt-0.5 transition-colors duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                </svg>
-                                                <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">{topic.name}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                               </div>
-                           )}
-                            {/* Placeholder Resources Column (adjust as needed) */}
-                             <div className={`${keyTopicBgClass} rounded-xl p-5 transition-colors duration-300`}>
-                                <h3 className={`font-semibold ${keyTopicTextColorClass} mb-3 text-lg transition-colors duration-300`}>Resources</h3>
-                                <ul className="space-y-3">
-                                    {/* Example static list - replace with dynamic data if available */}
-                                    <li className="flex items-start">
-                                         <svg className={`h-5 w-5 ${checkIconColorClass} mr-3 mt-0.5 transition-colors duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                                         <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">Interactive Lessons</span>
-                                    </li>
-                                     <li className="flex items-start">
-                                         <svg className={`h-5 w-5 ${checkIconColorClass} mr-3 mt-0.5 transition-colors duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                                         <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">Practice Quizzes</span>
-                                    </li>
-                                     <li className="flex items-start">
-                                         <svg className={`h-5 w-5 ${checkIconColorClass} mr-3 mt-0.5 transition-colors duration-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                                         <span className="text-gray-700 dark:text-gray-300 transition-colors duration-300">Past Papers</span>
-                                    </li>
-                                     {/* Add more static or dynamic resource examples */}
-                                </ul>
-                             </div>
-                        </div>
-
-                        {/* Explore Button with dynamic gradient/focus */}
-                        <div className="mt-10">
-                            <Link
-                                href={`/subjects/${subject._id}`} // Dynamic link
-                                className={`inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[${safeColor}] transition-all duration-200 transform hover:-translate-y-1`}
-                                // Apply gradient using inline style
-                                style={{ background: `linear-gradient(to right, ${safeGradientFrom}, ${safeGradientTo})`}}
-                            >
-                                Explore {subject.name}
-                                <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                        {/* Key Topics */}
+                        <div className={`${keyTopicBgClass} rounded-lg p-3 transition-colors duration-300 mb-4 flex-1`}>
+                            <h3 className={`font-medium ${keyTopicTextColorClass} text-sm mb-2 transition-colors duration-300 flex items-center`}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
-                            </Link>
+                                Key Topics
+                            </h3>
+                            <ul className="space-y-1.5">
+                                {topicsToShow.map(topic => (
+                                    <li key={topic._id || topic.name} className="flex items-start">
+                                        <svg className={`h-4 w-4 ${checkIconColorClass} mr-1.5 mt-0.5 transition-colors duration-300 flex-shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span className="text-xs text-gray-700 dark:text-gray-300 transition-colors duration-300">{topic.name}</span>
+                                    </li>
+                                ))}
+                                {/* Add empty placeholder topics to ensure consistent height */}
+                                {Array.from({ length: emptyTopicsNeeded }).map((_, index) => (
+                                    <li key={`empty-${index}`} className="flex items-start opacity-0 h-6">
+                                        <svg className={`h-4 w-4 mr-1.5 mt-0.5 flex-shrink-0`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span className="text-xs">Placeholder</span>
+                                    </li>
+                                ))}
+                                {(!subject.topics || subject.topics.length === 0) && emptyTopicsNeeded === 0 && (
+                                    <li className="text-xs text-gray-500 italic">No topics available</li>
+                                )}
+                            </ul>
+                        </div>
+                        
+                        {/* Explore Button */}
+                        <div className="mt-auto pt-3">
+                            <Link
+                            href={`/subjects/${subject._id}`}
+                            className={`w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[${safeColor}] transition-all duration-300 transform hover:-translate-y-0.5 shadow-md animated-gradient`}
+                            style={{ background: `linear-gradient(45deg, ${safeGradientFrom}, ${safeGradientTo}, ${safeGradientFrom})`}}
+                        >
+                            Explore {subject.name}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="ml-1.5 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </Link>
                         </div>
                     </div>
-                </div>
-              </div>
-            )
-        })}
+                  </div>
+                );
+            })}
+          </div>
+        )}
 
-        {/* Call to action Section */}
-         <div className="mt-8 mb-8 bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-purple-800 dark:to-indigo-800 rounded-2xl shadow-xl dark:shadow-gray-900/20 overflow-hidden">
-           {/* ... Contents of CTA ... */}
-           <div className="px-8 py-12 md:p-12 relative">
-            <div className="absolute inset-0 opacity-10"> {/* Decorative elements */}
-               <div className="absolute top-1/4 left-1/4 text-white text-4xl">∑</div>
-               <div className="absolute bottom-1/4 right-1/4 text-white text-3xl">F=ma</div>
-               <div className="absolute top-3/4 left-1/3 text-white text-3xl">H₂O</div>
+        {/* Pagination */}
+        {!loading && subjects.length > subjectsPerPage && (
+          <div className="flex justify-center space-x-2 mb-4">
+            {Array.from({ length: Math.ceil(subjects.length / subjectsPerPage) }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-3 py-1 rounded-md transition-colors duration-300 ${
+                  currentPage === page 
+                    ? 'bg-purple-600 text-white dark:bg-purple-700'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Call to action Section - More compact */}
+        <div className="mb-6 bg-gradient-to-r from-purple-700 to-indigo-700 dark:from-purple-800 dark:to-indigo-800 rounded-xl shadow-xl dark:shadow-gray-900/20 overflow-hidden">
+          <div className="px-6 py-8 md:p-8 relative">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-1/4 left-1/4 text-white text-4xl">∑</div>
+              <div className="absolute bottom-1/4 right-1/4 text-white text-3xl">F=ma</div>
+              <div className="absolute top-3/4 left-1/3 text-white text-3xl">H₂O</div>
             </div>
             <div className="relative z-10 md:flex items-center justify-between">
-               <div className="md:w-2/3 mb-8 md:mb-0">
-                 <h2 className="text-3xl font-bold text-white">Ready to accelerate your learning?</h2>
-                 <p className="mt-4 text-purple-100 text-lg">Join thousands of students already benefiting from our comprehensive learning resources.</p>
-               </div>
-               <div className="md:w-1/3 text-center">
-                 <Link
-                   href="/dashboard"
-                   className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 border-2 border-white text-base font-medium rounded-lg text-purple-700 dark:text-purple-900 bg-white dark:bg-white hover:bg-purple-50 dark:hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-purple-700 focus:ring-white transition-all duration-200 shadow-md"
-                 >
-                   <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
-                   Go to Dashboard
-                 </Link>
-               </div>
+              <div className="md:w-2/3 mb-6 md:mb-0">
+                <h2 className="text-2xl font-bold text-white">Ready to accelerate your learning?</h2>
+                <p className="mt-2 text-purple-100 text-base">Join thousands of students already benefiting from our comprehensive learning resources.</p>
+              </div>
+              <div className="md:w-1/3 text-center">
+                <Link
+                  href="/dashboard"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border-2 border-white text-sm font-medium rounded-lg text-purple-700 dark:text-purple-900 bg-white dark:bg-white hover:bg-purple-50 dark:hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-purple-700 focus:ring-white transition-all duration-200 shadow-md hover:-translate-y-0.5 transform"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+                  Go to Dashboard
+                </Link>
+              </div>
             </div>
-           </div>
-         </div>
+          </div>
+        </div>
+
+        {/* No hardcoded stats section */}
 
       </div>
+      
+      {/* Add global style for animations */}
+      <style jsx global>{`
+        .text-shadow {
+          text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .animate-pulse-subtle {
+          animation: pulse-subtle 3s infinite;
+        }
+        @keyframes pulse-subtle {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .animated-gradient {
+          background-size: 400% 400%;
+          animation: gradient-shift 8s ease infinite;
+        }
+        @keyframes gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animated-border {
+          position: relative;
+          overflow: hidden;
+        }
+        .animated-border::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          animation: shine 3s infinite;
+        }
+        @keyframes shine {
+          0% { left: -100%; }
+          50% { left: 100%; }
+          100% { left: 100%; }
+        }
+        
+        /* Background floating icons animations */
+        .floating-icon {
+          animation: float 6s ease-in-out infinite;
+        }
+        .floating-icon-reverse {
+          animation: float-reverse 7s ease-in-out infinite;
+        }
+        .floating-icon-slow {
+          animation: float 10s ease-in-out infinite;
+        }
+        @keyframes float {
+          0% {
+            transform: translateY(0) rotate(0deg);
+          }
+          50% {
+            transform: translateY(-15px) rotate(5deg);
+          }
+          100% {
+            transform: translateY(0) rotate(0deg);
+          }
+        }
+        @keyframes float-reverse {
+          0% {
+            transform: translateY(0) rotate(0deg);
+          }
+          50% {
+            transform: translateY(15px) rotate(-5deg);
+          }
+          100% {
+            transform: translateY(0) rotate(0deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }

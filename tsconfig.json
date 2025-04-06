@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".", // <-- ADD THIS LINE
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -19,8 +20,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"] // This line is correct
     }
+    // ... any other compiler options you might have ...
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.js"],
   "exclude": ["node_modules"]

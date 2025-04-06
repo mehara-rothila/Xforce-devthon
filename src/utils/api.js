@@ -2,7 +2,8 @@
 import axios from 'axios';
 
 // Create axios instance with base URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+// Export the API_URL so it can be used elsewhere
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -11,35 +12,35 @@ const api = axios.create({
   }
 });
 
-// Request Interceptor (adds auth token later)
+// --- Interceptors ---
+
+// Request Interceptor: Adds auth token to headers if found in localStorage
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Check if localStorage is available (important for SSR/server-side context)
+    if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
     }
-    // Add cache-control headers to all GET requests during testing?
-    // if (config.method === 'get') {
-    //   config.headers['Cache-Control'] = 'no-cache';
-    //   config.headers['Pragma'] = 'no-cache';
-    //   config.headers['Expires'] = '0';
-    // }
     return config;
   },
   error => Promise.reject(error)
 );
 
-// Response Interceptor (handles 401 etc.)
+// Response Interceptor: Handles 401 Unauthorized errors by redirecting to login
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.response && error.response.status === 401) {
+    // Check if it's a 401 error and if window is defined (client-side)
+    if (typeof window !== 'undefined' && error.response && error.response.status === 401) {
       console.error('Unauthorized request - Redirecting to login');
-      localStorage.removeItem('token');
-      if (typeof window !== 'undefined') {
-         window.location.href = '/login';
-      }
+      localStorage.removeItem('token'); // Clear potentially invalid token
+      // Redirect to login page
+      window.location.href = '/login'; // Or use Next.js router if available/appropriate context
     }
+    // Reject the promise for other errors or if not client-side
     return Promise.reject(error);
   }
 );
@@ -50,8 +51,10 @@ const subjects = {
   getAll: () => api.get('/subjects'),
   getById: (id) => api.get(`/subjects/${id}`),
   getTopics: (id) => api.get(`/subjects/${id}/topics`),
-  getProgress: (id) => api.get(`/subjects/${id}/progress`), // Note: Backend uses mock data currently
-  getRecommendations: (id) => api.get(`/subjects/${id}/recommendations`), // Note: Backend uses mock data currently
+  // Note: Ensure backend endpoints exist and handle logic correctly
+  getProgress: (id) => api.get(`/subjects/${id}/progress`),
+  getRecommendations: (id) => api.get(`/subjects/${id}/recommendations`),
+  // Admin functions (ensure proper auth checks on backend)
   create: (data) => api.post('/subjects', data),
   update: (id, data) => api.patch(`/subjects/${id}`, data),
   delete: (id) => api.delete(`/subjects/${id}`),
@@ -65,7 +68,13 @@ const resources = {
   getById: (id) => api.get(`/resources/${id}`),
   getBySubject: (subjectId) => api.get(`/resources/subject/${subjectId}`),
   getStudyMaterials: (subjectId) => api.get(`/resources/subject/${subjectId}/materials`),
-  download: (id) => api.get(`/resources/${id}/download`),
+  // Note: The frontend page currently uses window.location.href for downloads,
+  // but this Axios definition is kept for consistency or other potential uses.
+  // Set 'responseType: blob' if you intend for Axios to handle the file data.
+  download: (id) => api.get(`/resources/${id}/download`, { responseType: 'blob' }),
+  // --- Function to get category counts ---
+  getCategoryCounts: (params) => api.get('/resources/category-counts', { params }), // Accepts params like { subject: 'subjectId' }
+  // Admin functions
   create: (data) => api.post('/resources', data),
   update: (id, data) => api.patch(`/resources/${id}`, data),
   delete: (id) => api.delete(`/resources/${id}`)
@@ -74,54 +83,33 @@ const resources = {
 const quizzes = {
   getAll: (params) => api.get('/quizzes', { params }),
   getById: (id) => api.get(`/quizzes/${id}`),
-  getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`), // Consider moving this under subjects?
+  // This route might be better under subjects API group, ensure backend matches
+  getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`),
   getPracticeQuizzes: (subjectId, topic) =>
     api.get(`/quizzes/subject/${subjectId}/practice${topic ? `?topic=${topic}` : ''}`),
   submitAttempt: (id, answers) => api.post(`/quizzes/${id}/attempts`, { answers }),
+  // Admin functions
   create: (data) => api.post('/quizzes', data),
   update: (id, data) => api.patch(`/quizzes/${id}`, data),
   delete: (id) => api.delete(`/quizzes/${id}`)
 };
 
 const users = {
-  getDashboardSummary: (userId) => {
-     if (!userId || userId === 'YOUR_TEST_USER_ID_HERE') {
-        console.error('Attempted to fetch dashboard summary without a valid User ID.');
-        return Promise.reject(new Error('Valid User ID required for getDashboardSummary'));
-      }
-     // Using cache-control headers from previous step
-     return api.get(`/users/${userId}/dashboard-summary`, {
-        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache', 'Expires': '0' }
-     });
-  },
-  getDetailedProgress: (userId, subjectId) => {
-    if (!userId || !subjectId) {
-        console.error('User ID and Subject ID are required for getDetailedProgress');
-        return Promise.reject(new Error('User ID and Subject ID required'));
-    }
-    // Add cache control here too for consistency during testing
-    return api.get(`/users/${userId}/progress/${subjectId}`, {
-        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache', 'Expires': '0' }
-     });
-  },
-  getAchievements: (userId) => {
-    if (!userId) {
-        console.error('User ID is required for getAchievements');
-        return Promise.reject(new Error('User ID required'));
-    }
-    // Add cache control here too
-    return api.get(`/users/${userId}/achievements`, {
-        headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache', 'Expires': '0' }
-     });
-  }
-  // Add other user functions later (e.g., getProfile, updateProfile, getActivity)
+  // Note: Ensure userId is valid before calling these
+  getDashboardSummary: (userId) => api.get(`/users/${userId}/dashboard-summary`),
+  getDetailedProgress: (userId, subjectId) => api.get(`/users/${userId}/progress/${subjectId}`),
+  getAchievements: (userId) => api.get(`/users/${userId}/achievements`),
+  // Add other user functions as needed (getProfile, updateProfile, etc.)
 };
 
 
-// Export all API services
+// Export all API services grouped together
 export default {
   subjects,
   resources,
   quizzes,
-  users // Ensure users group is exported
+  users
 };
+
+// Also remember API_URL is exported separately as a named export:
+// export const API_URL = ...;

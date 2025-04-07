@@ -64,8 +64,14 @@ export default function Quizzes() {
   const [availableSubjects, setAvailableSubjects] = useState<SubjectFilter[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [animateIn, setAnimateIn] = useState<boolean>(false);
 
   const { isDarkMode } = useDarkMode(); // Get dark mode state
+
+  // Animation on mount
+  useEffect(() => {
+    setAnimateIn(true);
+  }, []);
 
   // --- Effects ---
   // Fetch available subjects for filter buttons
@@ -213,10 +219,91 @@ export default function Quizzes() {
 
   // --- JSX ---
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-gradient-to-b from-gray-900 to-gray-800' : 'bg-gradient-to-b from-gray-50 to-gray-100'} transition-colors duration-300`}>
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gradient-to-b from-gray-900 to-gray-800' : 'bg-gradient-to-b from-gray-50 to-gray-100'} transition-colors duration-300 relative overflow-hidden`}>
+      {/* Animated Background Elements - Randomly positioned */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+        {/* Mathematical symbols - Randomly placed */}
+        <div className="absolute top-[7%] left-[13%] text-purple-500 dark:text-purple-400 text-9xl opacity-75 floating-icon">∑</div>
+        <div className="absolute top-[33%] right-[17%] text-blue-500 dark:text-blue-400 text-10xl opacity-70 floating-icon-reverse">π</div>
+        <div className="absolute top-[61%] left-[27%] text-green-500 dark:text-green-400 text-8xl opacity-75 floating-icon-slow">∞</div>
+        <div className="absolute top-[19%] right-[38%] text-red-500 dark:text-red-400 text-11xl opacity-65 floating-icon">⚛</div>
+        <div className="absolute top-[77%] right-[23%] text-yellow-500 dark:text-yellow-400 text-9xl opacity-70 floating-icon-slow">𝜙</div>
+        <div className="absolute bottom-[31%] left-[8%] text-indigo-500 dark:text-indigo-400 text-10xl opacity-70 floating-icon-reverse">∫</div>
+        <div className="absolute bottom-[12%] right-[42%] text-teal-500 dark:text-teal-400 text-9xl opacity-75 floating-icon">≈</div>
+        <div className="absolute bottom-[47%] right-[9%] text-pink-500 dark:text-pink-400 text-8xl opacity-65 floating-icon-slow">±</div>
+        
+        {/* Additional math symbols - More random placements */}
+        <div className="absolute top-[23%] left-[54%] text-fuchsia-500 dark:text-fuchsia-400 text-8xl opacity-70 floating-icon">Δ</div>
+        <div className="absolute top-[44%] left-[38%] text-emerald-500 dark:text-emerald-400 text-7xl opacity-65 floating-icon-slow">λ</div>
+        <div className="absolute top-[81%] left-[67%] text-cyan-500 dark:text-cyan-400 text-9xl opacity-70 floating-icon-reverse">θ</div>
+        <div className="absolute top-[29%] left-[83%] text-rose-500 dark:text-rose-400 text-8xl opacity-65 floating-icon">α</div>
+        <div className="absolute bottom-[63%] left-[6%] text-amber-500 dark:text-amber-400 text-9xl opacity-70 floating-icon-slow">β</div>
+        <div className="absolute bottom-[19%] left-[71%] text-purple-500 dark:text-purple-400 text-8xl opacity-65 floating-icon-reverse">μ</div>
+        <div className="absolute bottom-[28%] left-[32%] text-blue-500 dark:text-blue-400 text-7xl opacity-70 floating-icon">ω</div>
+        
+        {/* Additional symbols for more richness */}
+        <div className="absolute top-[52%] left-[18%] text-sky-500 dark:text-sky-400 text-8xl opacity-60 floating-icon-slow">γ</div>
+        <div className="absolute top-[37%] right-[29%] text-lime-500 dark:text-lime-400 text-9xl opacity-55 floating-icon">σ</div>
+        <div className="absolute bottom-[42%] right-[37%] text-orange-500 dark:text-orange-400 text-10xl opacity-50 floating-icon-reverse">δ</div>
+        <div className="absolute top-[73%] right-[13%] text-violet-500 dark:text-violet-400 text-8xl opacity-60 floating-icon-slow">ρ</div>
+        
+        {/* Science formulas - Random positions */}
+        <div className="absolute top-[14%] left-[31%] text-indigo-500 dark:text-indigo-400 text-6xl opacity-65 floating-icon-slow">E=mc²</div>
+        <div className="absolute top-[58%] left-[48%] text-teal-500 dark:text-teal-400 text-5xl opacity-60 floating-icon">F=ma</div>
+        <div className="absolute top-[39%] left-[76%] text-violet-500 dark:text-violet-400 text-6xl opacity-65 floating-icon-reverse">H₂O</div>
+        <div className="absolute bottom-[17%] left-[52%] text-rose-500 dark:text-rose-400 text-6xl opacity-60 floating-icon">PV=nRT</div>
+        <div className="absolute bottom-[53%] left-[24%] text-emerald-500 dark:text-emerald-400 text-5xl opacity-65 floating-icon-slow">v=λf</div>
+        <div className="absolute top-[86%] left-[11%] text-sky-500 dark:text-sky-400 text-5xl opacity-55 floating-icon-reverse">C₆H₁₂O₆</div>
+        <div className="absolute top-[68%] right-[31%] text-amber-500 dark:text-amber-400 text-6xl opacity-60 floating-icon">E=hf</div>
+        
+        {/* Science icons - Randomly positioned */}
+        <div className="absolute top-[41%] left-[8%] opacity-60 floating-icon-slow">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-[17%] right-[7%] opacity-60 floating-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        
+        <div className="absolute bottom-[7%] left-[36%] opacity-60 floating-icon-reverse">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-[54%] right-[28%] opacity-60 floating-icon-slow">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-[23%] left-[67%] opacity-60 floating-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
+          </svg>
+        </div>
+        
+        {/* Additional science icons */}
+        <div className="absolute bottom-[37%] right-[6%] opacity-55 floating-icon-reverse">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+          </svg>
+        </div>
+        
+        <div className="absolute top-[71%] left-[13%] opacity-55 floating-icon-slow">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+      </div>
+
       {/* Hero Header */}
       <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 pt-16 pb-32 overflow-hidden">
-        {/* Animated Background Elements */}
+        {/* Animated Background Elements (quiz-specific) */}
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <div className="absolute top-[10%] right-[15%] text-white text-2xl animate-float" style={{ animationDuration: '8s' }}>❓</div>
           <div className="absolute top-[30%] left-[10%] text-white text-xl animate-pulse-slow" style={{ animationDuration: '7s' }}>🧠</div>
@@ -227,7 +314,7 @@ export default function Quizzes() {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="sm:flex sm:items-center sm:justify-between">
-            <div>
+            <div className="animate-fade-in-up">
               <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
                 Practice Quizzes
               </h1>
@@ -235,7 +322,7 @@ export default function Quizzes() {
                 Test your knowledge, track your progress, and earn rewards
               </p>
             </div>
-            <div className="mt-4 sm:mt-0">
+            <div className="mt-4 sm:mt-0 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               <Link
                 href="/dashboard"
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-purple-700 bg-white hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105"
@@ -250,10 +337,10 @@ export default function Quizzes() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:mt-8 pb-12">        
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:mt-8 pb-12 relative z-10">        
         
         {/* Filters Card */}
-        <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl shadow-xl overflow-hidden mb-8 transition-colors duration-300 border`}>
+        <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700' : 'bg-white/90 border-gray-100'} rounded-2xl shadow-xl overflow-hidden mb-8 transition-colors duration-300 border backdrop-blur-sm transform -translate-y-16 animate-fade-in`}>
           <div className="p-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               {/* Subject Filters */}
@@ -368,7 +455,7 @@ export default function Quizzes() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="text-center py-10">
+          <div className="text-center py-10 animate-fade-in">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-3"></div>
             <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Loading quizzes...</p>
           </div>
@@ -376,7 +463,7 @@ export default function Quizzes() {
 
         {/* Error State */}
         {!isLoading && error && (
-          <div className="text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg">
+          <div className="text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg animate-fade-in">
             <div className="text-red-500 text-3xl mb-3">⚠️</div>
             <p className="text-red-700 dark:text-red-300">{error}</p>
           </div>
@@ -384,7 +471,7 @@ export default function Quizzes() {
 
         {/* No Quizzes Found State */}
         {!isLoading && !error && quizzes.length === 0 && (
-          <div className="text-center py-10 max-w-md mx-auto bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800 shadow-lg">
+          <div className="text-center py-10 max-w-md mx-auto bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800 shadow-lg animate-fade-in">
             <div className="text-yellow-500 text-3xl mb-3">🤔</div>
             <p className="text-yellow-700 dark:text-yellow-300">No quizzes found matching your criteria. Try adjusting the filters or add more quizzes to the database!</p>
           </div>
@@ -393,10 +480,11 @@ export default function Quizzes() {
         {/* Quiz Cards */}
         {!isLoading && !error && quizzes.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {quizzes.map((quiz) => (
+            {quizzes.map((quiz, index) => (
               <div 
                 key={quiz._id} 
-                className={`${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-purple-800' : 'bg-white border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg overflow-hidden border hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
+                className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700 hover:border-purple-800' : 'bg-white/90 border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg overflow-hidden border hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 backdrop-blur-sm animate-fade-in`}
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
@@ -475,7 +563,7 @@ export default function Quizzes() {
 
         {/* Featured Quiz */}
         {!isLoading && !error && quizzes.length > 0 && (
-          <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-xl overflow-hidden mb-12 transform transition-transform duration-300 hover:scale-[1.01]">
+          <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-xl overflow-hidden mb-12 transform transition-transform duration-300 hover:scale-[1.01] animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <div className="p-8">
               <div className="flex flex-col md:flex-row md:items-center">
                 <div className="flex-1 mb-6 md:mb-0 md:mr-8">
@@ -485,14 +573,14 @@ export default function Quizzes() {
                   <h3 className="text-2xl font-bold text-white mb-4">Challenge Yourself!</h3>
                   <p className="text-purple-100 mb-6">Take our most popular quizzes to test your knowledge and earn extra points. Complete quizzes on different subjects to increase your mastery level.</p>
                   <div className="flex space-x-4">
-                    <button className="px-5 py-2.5 bg-white text-purple-700 rounded-lg font-medium hover:bg-purple-50 transition-colors duration-200 shadow-lg flex items-center">
+                    <button className="px-5 py-2.5 bg-white text-purple-700 rounded-lg font-medium hover:bg-purple-50 transition-colors duration-200 shadow-lg flex items-center transform hover:scale-105">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       Weekly Challenge
                     </button>
-                    <button className="px-5 py-2.5 bg-purple-700/30 text-white rounded-lg font-medium hover:bg-purple-700/40 transition-colors duration-200 shadow-lg border border-white/20 flex items-center">
+                    <button className="px-5 py-2.5 bg-purple-700/30 text-white rounded-lg font-medium hover:bg-purple-700/40 transition-colors duration-200 shadow-lg border border-white/20 flex items-center transform hover:scale-105">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
@@ -501,7 +589,7 @@ export default function Quizzes() {
                   </div>
                 </div>
                 <div className="md:w-1/3 flex justify-center">
-                  <div className="w-40 h-40 md:w-48 md:h-48 bg-white/10 rounded-full flex items-center justify-center p-6">
+                  <div className="w-40 h-40 md:w-48 md:h-48 bg-white/10 rounded-full flex items-center justify-center p-6 animate-pulse-slow" style={{ animationDuration: '4s' }}>
                     <div className="w-full h-full bg-white/20 rounded-full flex items-center justify-center p-6">
                       <div className="w-full h-full bg-white/30 rounded-full flex items-center justify-center text-white text-5xl">
                         🧠
@@ -516,8 +604,8 @@ export default function Quizzes() {
 
         {/* Stats and Progress */}
         {!isLoading && !error && quizzes.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-purple-800' : 'bg-white border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg p-6 border hover:shadow-xl transition-all duration-300`}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700 hover:border-purple-800' : 'bg-white/90 border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg p-6 border hover:shadow-xl transition-all duration-300 backdrop-blur-sm`}>
               <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'} mb-4 flex items-center transition-colors duration-300`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -555,7 +643,7 @@ export default function Quizzes() {
               </div>
             </div>
             
-            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-purple-800' : 'bg-white border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg p-6 border hover:shadow-xl transition-all duration-300`}>
+            <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700 hover:border-purple-800' : 'bg-white/90 border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg p-6 border hover:shadow-xl transition-all duration-300 backdrop-blur-sm`}>
               <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'} mb-4 flex items-center transition-colors duration-300`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -565,7 +653,7 @@ export default function Quizzes() {
               <div className="space-y-4">
                 {recentAchievements.map((ach) => (
                   <div key={ach.id} className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
                       {ach.icon}
                     </div>
                     <div className="ml-3">
@@ -577,7 +665,7 @@ export default function Quizzes() {
               </div>
             </div>
             
-            <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700 hover:border-purple-800' : 'bg-white border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg p-6 border hover:shadow-xl transition-all duration-300`}>
+            <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700 hover:border-purple-800' : 'bg-white/90 border-gray-100 hover:border-purple-200'} rounded-2xl shadow-lg p-6 border hover:shadow-xl transition-all duration-300 backdrop-blur-sm`}>
               <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'} mb-4 flex items-center transition-colors duration-300`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -589,7 +677,7 @@ export default function Quizzes() {
                   <div key={sub.id}>
                     <div className={`flex justify-between items-center mb-1`}>
                       <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} transition-colors duration-300`}>{sub.name}</span>
-                      <span className="text-sm font-semibold text-blue-700">{sub.progress}%</span>
+                      <span className="text-sm font-semibold text-blue-700 dark:text-blue-400">{sub.progress}%</span>
                     </div>
                     <div className={`h-2 w-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-full overflow-hidden transition-colors duration-300`}>
                       <div className={`h-2 ${getMasteryColor(sub.name)} rounded-full`} style={{ width: `${sub.progress}%` }}></div>
@@ -601,6 +689,80 @@ export default function Quizzes() {
           </div>
         )}
       </div>
+
+      {/* Global styles for animations */}
+      <style jsx global>{`
+        /* Custom text sizes for larger symbols */
+        .text-10xl {
+          font-size: 9rem;
+        }
+        .text-11xl {
+          font-size: 10rem;
+        }
+        
+        /* Background floating icons animations */
+        .floating-icon {
+          animation: float 6s ease-in-out infinite;
+        }
+        .floating-icon-reverse {
+          animation: float-reverse 7s ease-in-out infinite;
+        }
+        .floating-icon-slow {
+          animation: float 10s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+          0% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(5deg); }
+          100% { transform: translateY(0) rotate(0deg); }
+        }
+        
+        @keyframes float-reverse {
+          0% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(15px) rotate(-5deg); }
+          100% { transform: translateY(0) rotate(0deg); }
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        .animate-fade-in-up {
+          animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      `}</style>
     </div>
   );
 }

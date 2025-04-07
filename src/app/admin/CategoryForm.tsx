@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import api from '@/utils/api'; // Import api, although calls are commented out
-import { X, Loader2 } from 'lucide-react';
+import api from '@/utils/api'; // Use the updated api utility
+import { X, Loader2, AlertCircle, Check, Palette, Tag, FileText, Layout, Edit, List, MessageCircle } from 'lucide-react'; // Added Edit, List, MessageCircle
 import SubjectIcon from '@/components/icons/SubjectIcon'; // Reusing SubjectIcon for categories
 
 // --- Interfaces ---
@@ -12,25 +12,40 @@ interface ForumCategory {
   description?: string;
   color?: string;
   icon?: string;
-  // Other fields from model if needed in form
+  topicsCount?: number; // Added for preview
+  postsCount?: number; // Added for preview
 }
 
 interface CategoryFormProps {
   initialCategoryData?: ForumCategory | null;
-  onSuccess: () => void;
-  onCancel: () => void;
+  onSuccess: () => void; // Callback on successful save
+  onCancel: () => void; // Callback to close the form/modal
 }
 
-// Define Available Icons (reuse or customize for categories)
+// --- Define Available Icons ---
 const availableIcons = [
     { name: 'Book (Default)', value: 'book' },
     { name: 'Atom (Physics)', value: 'atom' },
     { name: 'Flask (Chemistry)', value: 'flask' },
     { name: 'Calculator (Math)', value: 'calculator' },
     { name: 'Globe (Geography/Other)', value: 'globe' },
-    { name: 'Chat Bubble', value: 'chat' }, // Example specific to forum
-    { name: 'Light Bulb', value: 'lightbulb' }, // Example specific to forum
+    { name: 'Chat Bubble', value: 'chat' },
+    { name: 'Light Bulb', value: 'lightbulb' },
     // Add more relevant icons here
+];
+
+// Predefined color palette
+const colorPalette = [
+  '#4299E1', // blue-500
+  '#48BB78', // green-500
+  '#ED8936', // orange-500
+  '#9F7AEA', // purple-500
+  '#F56565', // red-500
+  '#ECC94B', // yellow-500
+  '#38B2AC', // teal-500
+  '#ED64A6', // pink-500
+  '#667EEA', // indigo-500
+  '#4A5568', // gray-600
 ];
 
 // --- Component ---
@@ -47,156 +62,235 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<boolean>(false);
 
   const isEditing = !!initialCategoryData?._id;
+
+  // Validation states
+  const [nameError, setNameError] = useState<string | null>(null);
 
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    // Clear field-specific errors as user types
+    if (name === 'name' && nameError) { setNameError(null); }
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const selectColor = (color: string) => {
+    setFormData(prev => ({ ...prev, color }));
+  };
+
+  const validateForm = (): boolean => {
+    let valid = true;
+    setNameError(null); // Reset errors on new validation
+    if (!formData.name.trim()) { setNameError("Category name is required"); valid = false; }
+    else if (formData.name.length > 50) { setNameError("Category name must be under 50 characters"); valid = false; }
+    return valid;
   };
 
   // --- Submission ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
 
-    // Basic Validation
-    if (!formData.name) {
-      setError("Category Name is required.");
-      return;
-    }
+    if (!validateForm()) { return; } // Stop if validation fails
 
     setIsLoading(true);
 
-    // Prepare payload (what WOULD be sent)
     const payload = {
-        name: formData.name,
-        description: formData.description || '',
+        name: formData.name.trim(),
+        description: formData.description?.trim() || '',
         color: formData.color || '#4a5568',
         icon: formData.icon || 'book',
-        // Include gradientFrom/To if you add them to the form/model
+        // Add gradientFrom/To if needed, deriving from color if necessary
+        gradientFrom: formData.color || '#4a5568', // Example: default gradient same as color
+        gradientTo: formData.color ? (formData.color.length === 7 ? formData.color.substring(0, 5) + 'aa' : '#cccccc') : '#6a7588', // Example: slightly darker/transparent gradientTo
     };
 
-    // --- !!! BACKEND ACTION (COMMENTED OUT) !!! ---
-    // The following API calls will FAIL until you implement
-    // createCategory and updateCategory in your forumController.js
-    // and define corresponding routes and api.js functions.
+    // --- !!! ENABLED BACKEND ACTION !!! ---
     try {
-        console.log("Simulating save for category:", payload);
+        console.log("Attempting to save category:", payload);
+        let response;
         if (isEditing && formData._id) {
-             // await api.forum.updateCategory(formData._id, payload); // Uncomment when backend ready
-             console.warn("Backend endpoint for updating category not implemented.");
+             console.log(`Calling updateCategory for ID: ${formData._id}`);
+             // --- UNCOMMENTED API CALL ---
+             response = await api.forum.updateCategory(formData._id, payload);
+             // ---------------------------
         } else {
-             // await api.forum.createCategory(payload); // Uncomment when backend ready
-             console.warn("Backend endpoint for creating category not implemented.");
+             console.log(`Calling createCategory`);
+             // --- UNCOMMENTED API CALL ---
+             response = await api.forum.createCategory(payload);
+             // ---------------------------
         }
-        // Simulate success for UI flow
-        alert(`Simulated ${isEditing ? 'update' : 'creation'} of category "${formData.name}". Backend not called.`);
-        onSuccess(); // Call success callback to close modal etc.
+
+        // Check response status from your API structure (adjust if needed)
+        // Assuming backend sends { status: 'success', ... } or throws error
+        if (response.data?.status === 'success') {
+            setSuccess(`Successfully ${isEditing ? 'updated' : 'created'} category "${formData.name}"`);
+            // Call onSuccess callback after a short delay to show message
+            setTimeout(() => {
+                onSuccess(); // Close modal and refresh list in parent
+            }, 1500); // 1.5 second delay
+        } else {
+             // Handle cases where API returns success=false or unexpected structure
+             throw new Error(response.data?.message || "Failed to save category due to unexpected API response.");
+        }
 
     } catch (err: any) {
-      console.error("Error saving category (simulation):", err);
-      setError(`Failed to save category (simulation): ${err.response?.data?.message || err.message || 'Unknown error'}`);
-    } finally {
-      setIsLoading(false);
+      console.error("Error saving category:", err);
+      // Extract more specific error message if available
+      let errorMessage = `Failed to save category: ${err.message || 'Unknown error'}`;
+      if (err.response?.data?.message) {
+          errorMessage = `Failed to save category: ${err.response.data.message}`;
+      } else if (err.response?.data?.errors) {
+          // Handle Mongoose validation errors array if backend sends it
+          const errorDetails = Object.values(err.response.data.errors).map((e: any) => e.message).join(', ');
+          errorMessage = `Validation failed: ${errorDetails}`;
+      }
+      setError(errorMessage);
+      setIsLoading(false); // Ensure loading stops on error
     }
-    // --- !!! END OF COMMENTED OUT BACKEND ACTION !!! ---
+    // Removed finally block for isLoading as success needs delay before calling onSuccess
+    // --- !!! END OF ENABLED BACKEND ACTION !!! ---
   };
+
+  const togglePreview = () => { setPreviewMode(!previewMode); };
 
   // --- Render ---
   return (
-     <form onSubmit={handleSubmit} className="space-y-6 max-h-[85vh] overflow-y-auto pr-2">
-        {/* Header */}
-        <div className="flex justify-between items-center border-b pb-4 mb-6 sticky top-0 bg-white z-10 pt-2">
-            <h2 className="text-xl font-semibold text-gray-800">
-            {isEditing ? 'Edit Category' : 'Create New Category'}
+     <div className="w-full max-w-3xl mx-auto">
+        {/* Header Bar */}
+        <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10 pt-2 pb-4 mb-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                {isEditing ? ( <><Edit className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />Edit Category</> )
+                           : ( <><Layout className="h-5 w-5 mr-2 text-cyan-500 dark:text-cyan-400" />Create New Category</> )}
             </h2>
-            <button type="button" onClick={onCancel} className="p-1 text-gray-400 hover:text-gray-600" aria-label="Close form">
-                <X className="h-6 w-6" />
-            </button>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-            <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <strong className="font-bold">Error: </strong>
-                <span className="block sm:inline">{error}</span>
-                <button type="button" onClick={() => setError(null)} className="absolute top-0 bottom-0 right-0 px-4 py-3">
-                    <X className="h-5 w-5 text-red-700"/>
+            <div className="flex items-center space-x-2">
+                <button type="button" onClick={togglePreview} className={`px-3 py-1.5 text-sm rounded-md border ${ previewMode ? 'bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-900/20 dark:text-cyan-300 dark:border-cyan-800' : 'bg-white text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600' }`}>
+                    {previewMode ? 'Edit' : 'Preview'}
+                </button>
+                <button type="button" onClick={onCancel} className="p-1.5 rounded-md text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400" aria-label="Close form">
+                    <X className="h-6 w-6" />
                 </button>
             </div>
+        </div>
+
+        {/* Messages */}
+        {error && (
+           <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start" role="alert">
+               <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" />
+               <div className="flex-1"> <strong className="font-medium text-red-800 dark:text-red-300">Error:</strong> <p className="text-sm text-red-700 dark:text-red-200 mt-1">{error}</p> </div>
+               <button type="button" onClick={() => setError(null)} className="ml-3 flex-shrink-0 p-1 rounded-md text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"> <X className="h-5 w-5" /> </button>
+           </div>
+        )}
+        {success && (
+           <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-start" role="alert">
+               <Check className="h-5 w-5 text-green-500 dark:text-green-400 mt-0.5 mr-3 flex-shrink-0" />
+               <div className="flex-1"> <strong className="font-medium text-green-800 dark:text-green-300">Success!</strong> <p className="text-sm text-green-700 dark:text-green-200 mt-1">{success}</p> </div>
+               {/* Success message auto-hides via timeout in handleSubmit */}
+           </div>
         )}
 
-        {/* Category Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name */}
-            <div className="md:col-span-2">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
-                <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} required className="w-full input-style"/>
+        {/* Preview Mode */}
+        {previewMode ? (
+           <div className="animate-fadeIn space-y-6">
+             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700" style={{ borderLeftWidth: '4px', borderLeftColor: formData.color || '#4a5568' }}>
+               <div className="p-6">
+                 <div className="flex items-center mb-4">
+                   <div className="h-12 w-12 rounded-full flex items-center justify-center mr-4" style={{ backgroundColor: `${formData.color || '#4a5568'}20` }}>
+                     <SubjectIcon iconName={formData.icon} color={formData.color || '#4a5568'} className="h-7 w-7" />
+                   </div>
+                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{formData.name || 'Category Name'}</h3>
+                 </div>
+                 <p className="text-gray-600 dark:text-gray-300 mb-6">{formData.description || 'No description provided.'}</p>
+                 <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700">
+                   <div className="text-sm text-gray-500 dark:text-gray-400">Created just now</div>
+                   <div className="flex space-x-2">
+                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300">
+                       <List className="h-3.5 w-3.5 mr-1" /> {isEditing ? initialCategoryData?.topicsCount ?? 0 : 0} Topics
+                     </span>
+                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+                       <MessageSquare className="h-3.5 w-3.5 mr-1" /> {isEditing ? initialCategoryData?.postsCount ?? 0 : 0} Posts
+                     </span>
+                   </div>
+                 </div>
+               </div>
+             </div>
+             <div className="flex justify-end">
+               <button type="button" onClick={togglePreview} className="px-4 py-2 btn-secondary mr-3">Edit Details</button>
+               <button type="button" onClick={handleSubmit} disabled={isLoading} className="px-4 py-2 btn-primary flex items-center">
+                 {isLoading ? ( <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 inline" /> Saving...</> ) : isEditing ? 'Update Category' : 'Create Category'}
+               </button>
+             </div>
+           </div>
+        ) : (
+        /* Edit Form */
+        <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Basic Information */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-5 flex items-center"> <Tag className="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" /> Basic Information </h3>
+               <div className="space-y-6">
+                 {/* Name */}
+                 <div>
+                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Category Name <span className="text-red-500">*</span> </label>
+                   <div className="relative">
+                     <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400 transition-colors ${ nameError ? 'border-red-300 text-red-900 placeholder-red-300 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' }`} placeholder="e.g., Physics, General Discussion" />
+                     {nameError && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p> )}
+                   </div>
+                 </div>
+                 {/* Description */}
+                 <div>
+                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Description (Optional) </label>
+                   <textarea id="description" name="description" rows={3} value={formData.description || ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400" placeholder="Briefly describe the purpose of this category" />
+                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400"> A good description helps users understand what discussions belong in this category. </p>
+                 </div>
+               </div>
             </div>
 
-            {/* Description */}
-             <div className="md:col-span-2">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
-                <textarea id="description" name="description" rows={3} value={formData.description || ''} onChange={handleInputChange} className="w-full input-style"/>
+            {/* Appearance */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-5 flex items-center"> <Palette className="h-5 w-5 mr-2 text-gray-500 dark:text-gray-400" /> Appearance </h3>
+               <div className="space-y-6">
+                 {/* Color */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"> Category Color </label>
+                   <div className="flex flex-wrap gap-3 mb-3">
+                     {colorPalette.map(color => ( <button key={color} type="button" onClick={() => selectColor(color)} className={`h-8 w-8 rounded-full border-2 transition-all ${ formData.color === color ? 'border-gray-900 dark:border-white transform scale-110' : 'border-transparent hover:scale-105' }`} style={{ backgroundColor: color }} aria-label={`Select color ${color}`} /> ))}
+                     <div className="flex items-center"> <input type="color" value={formData.color} onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))} className="h-8 w-8 border-0 p-0 rounded-md cursor-pointer"/> </div>
+                   </div>
+                   <div className="flex items-center mt-2"> <div className="w-12 h-6 rounded mr-3" style={{ backgroundColor: formData.color }}></div> <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"> {formData.color} </code> </div>
+                 </div>
+                 {/* Icon */}
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"> Category Icon </label>
+                   <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
+                     {availableIcons.map(icon => ( <button key={icon.value} type="button" onClick={() => setFormData(prev => ({ ...prev, icon: icon.value }))} className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${ formData.icon === icon.value ? 'bg-cyan-50 ring-2 ring-cyan-500 text-cyan-700 dark:bg-cyan-900/30 dark:ring-cyan-600 dark:text-cyan-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600' }`} > <SubjectIcon iconName={icon.value} color={formData.icon === icon.value ? formData.color : undefined} className="h-6 w-6 mb-1" /> <span className="text-xs truncate max-w-full">{icon.name.split(' ')[0]}</span> </button> ))}
+                   </div>
+                   <div className="flex items-center mt-2"> <div className="p-2 rounded-md mr-3" style={{ backgroundColor: `${formData.color}20` }}> <SubjectIcon iconName={formData.icon} color={formData.color} className="h-6 w-6" /> </div> <span className="text-sm text-gray-600 dark:text-gray-400">Selected icon: {availableIcons.find(i => i.value === formData.icon)?.name || formData.icon}</span> </div>
+                 </div>
+               </div>
             </div>
 
-             {/* Icon Select Dropdown */}
-            <div>
-                <label htmlFor="icon" className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-                <div className='flex items-center space-x-2'>
-                    <select
-                        id="icon"
-                        name="icon"
-                        value={formData.icon}
-                        onChange={handleInputChange}
-                        className="w-full input-style appearance-none bg-white"
-                        style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}
-                    >
-                        {availableIcons.map(iconOption => (
-                            <option key={iconOption.value} value={iconOption.value}>
-                                {iconOption.name}
-                            </option>
-                        ))}
-                    </select>
-                    {/* Icon Preview */}
-                    <span className='p-1 border rounded-md bg-gray-100'>
-                        <SubjectIcon iconName={formData.icon} color={formData.color} className="h-5 w-5"/>
-                    </span>
-                </div>
+            {/* Form Actions */}
+            <div className="flex justify-end space-x-3 sticky bottom-0 bg-gradient-to-t from-white via-white to-transparent dark:from-gray-800 dark:via-gray-800 pt-3 pb-2 -mx-6 px-6">
+                <button type="button" onClick={onCancel} disabled={isLoading} className="px-4 py-2 btn-secondary">Cancel</button>
+                <button type="submit" disabled={isLoading} className="px-4 py-2 btn-primary flex items-center">
+                    {isLoading ? ( <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 inline" /> Saving...</> ) : isEditing ? 'Update Category' : 'Create Category'}
+                </button>
             </div>
+        </form>
+       )}
 
-            {/* Color */}
-             <div>
-                <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                <input type="color" id="color" name="color" value={formData.color} onChange={handleInputChange} className="w-full h-10 border border-gray-300 rounded-md cursor-pointer p-1"/>
-            </div>
-             {/* Add inputs for gradientFrom and gradientTo if your model/styling uses them */}
-
-        </div>
-
-
-        {/* Actions */}
-        <div className="flex justify-end space-x-3 border-t pt-6 mt-8 sticky bottom-0 bg-white pb-4 z-10">
-            <button type="button" onClick={onCancel} disabled={isLoading} className="px-4 py-2 btn-secondary">Cancel</button>
-            <button type="submit" disabled={isLoading} className="px-4 py-2 btn-primary flex items-center">
-                {isLoading ? (
-                     <>
-                      <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5" />
-                      Saving...
-                    </>
-                ) : (isEditing ? 'Update Category' : 'Create Category')}
-            </button>
-        </div>
-
-        {/* Styles */}
+        {/* Reusable Styles */}
         <style jsx>{`
-            .input-style { @apply px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500; } /* Adjusted focus color */
-            .btn-primary { @apply bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm; } /* Adjusted color */
-            .btn-secondary { @apply bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 shadow-sm; }
+            .input-style { @apply px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:ring-cyan-400 dark:focus:border-cyan-400; }
+            .btn-primary { @apply bg-cyan-600 text-white rounded-md hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm dark:bg-cyan-700 dark:hover:bg-cyan-600; }
+            .btn-secondary { @apply bg-white border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50 shadow-sm; }
         `}</style>
-     </form>
+     </div>
   );
 };
 

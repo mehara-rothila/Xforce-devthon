@@ -1,615 +1,685 @@
-'use client';
-import { useState, useEffect } from 'react';
+// src/app/dashboard/page.tsx (Full Code - Part 1/3)
+
+'use client'; // Essential for hooks and client-side logic
+
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    format,
+    formatDistanceToNow,
+    startOfMonth,
+    endOfMonth,
+    eachDayOfInterval,
+    getDay, // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    getDate,
+    isToday,
+    isSameMonth,
+} from 'date-fns'; // Import necessary date-fns functions
+
+// --- Import Child Components ---
+// Ensure these components exist in the same directory or provide correct path
 import RecommendationsSection from './RecommendationsSection';
 import ProgressTab from './ProgressTab';
 import AchievementsTab from './AchievementsTab';
-// We are using fetch directly for summary, but keep api import if needed elsewhere
-// import api from '../../utils/api';
 
-// Interface definitions (ensure these match backend response if using original structure)
+// --- Import API and Auth Context ---
+import api from '../../utils/api'; // Adjust path if needed
+import { useAuth } from '@/app/context/AuthContext'; // Adjust path to your AuthContext
+
+// --- Interface Definitions ---
 interface SubjectProgress {
-  subjectId: string;
-  name: string;
-  color: string;
-  progress: number;
+    subjectId: string; // Assuming backend sends subjectId
+    name: string;
+    color: string; // Assuming backend sends color
+    progress: number;
 }
 
 interface DashboardSummary {
-  userName: string;
-  level: number;
-  xp: number;
-  pointsToNextLevel: number;
-  streak: number;
-  points: number;
-  leaderboardRank: string;
-  subjectProgress: SubjectProgress[];
+    userName: string; // Make sure backend sends this field or derive from user context
+    level: number;
+    xp: number;
+    pointsToNextLevel: number; // Make sure backend calculates and sends this
+    streak: number;
+    points: number;
+    leaderboardRank: string; // Or number, adjust based on backend
+    subjectProgress: SubjectProgress[];
+    // Add registration date if backend sends it
+    // registrationDate?: string; // Example: ISO date string
 }
+
+interface ActivityItem {
+    id: string; // Unique ID for each activity item
+    type: 'quiz' | 'forum' | 'resource' | 'achievement' | 'level_up' | 'other'; // Added more types potentially
+    title: string; // Main description, e.g., "Completed Quiz", "Posted in Forum"
+    subject?: string; // Optional subject name
+    details?: string; // Optional extra details, e.g., quiz name, forum topic title
+    timestamp: string; // ISO date string
+}
+
+// --- Helper Components ---
+
+// Renders an icon based on the activity type
+const ActivityIcon: React.FC<{ type: ActivityItem['type'] }> = ({ type }) => {
+    let icon;
+    let bgColor = 'bg-gray-100 dark:bg-gray-700';
+    let textColor = 'text-gray-500 dark:text-gray-400';
+
+    switch (type) {
+        case 'quiz':
+            icon = <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>;
+            bgColor = 'bg-green-100 dark:bg-green-900/50';
+            textColor = 'text-green-600 dark:text-green-400';
+            break;
+        case 'forum':
+            icon = <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" /><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" /></svg>;
+            bgColor = 'bg-blue-100 dark:bg-blue-900/50';
+            textColor = 'text-blue-600 dark:text-blue-400';
+            break;
+        case 'resource':
+            icon = <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" /></svg>;
+            bgColor = 'bg-purple-100 dark:bg-purple-900/50';
+            textColor = 'text-purple-600 dark:text-purple-400';
+            break;
+        // Add cases for other types like 'achievement', 'level_up' if needed
+        default: // 'other' or unrecognized
+            icon = <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+            bgColor = 'bg-gray-100 dark:bg-gray-700';
+            textColor = 'text-gray-500 dark:text-gray-400';
+    }
+
+    return (
+        // Added ring for better visibility on different backgrounds
+        <span className={`absolute left-0 top-1 h-8 w-8 rounded-full ${bgColor} flex items-center justify-center ${textColor} shadow-sm ring-1 ring-inset ring-black/5 dark:ring-white/10`}>
+            {icon}
+        </span>
+    );
+};
 
 
 export default function Dashboard() {
-  // Component State
-  const [isLoaded, setIsLoaded] = useState(false); // For page load animation
-  const [activeTab, setActiveTab] = useState('overview'); // For main content tabs
-  const [dashboardSummary, setDashboardSummary] = useState<DashboardSummary | null>(null); // For sidebar data
-  const [isLoadingSummary, setIsLoadingSummary] = useState(true); // Loading state for sidebar
-  const [errorSummary, setErrorSummary] = useState<string | null>(null); // Error state for sidebar
+    // --- Component State ---
+    const [isPageLoaded, setIsPageLoaded] = useState(false); // For entry animation
+    const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'achievements'>('overview');
+    const [dashboardSummary, setDashboardSummary] = useState<DashboardSummary | null>(null);
+    const [isLoadingSummary, setIsLoadingSummary] = useState(true);
+    const [errorSummary, setErrorSummary] = useState<string | null>(null);
+    const [activityData, setActivityData] = useState<ActivityItem[] | null>(null);
+    const [isLoadingActivity, setIsLoadingActivity] = useState(true);
+    const [errorActivity, setErrorActivity] = useState<string | null>(null);
+    // State for active dates (fetched from backend later)
+    const [activeDates, setActiveDates] = useState<Set<string>>(new Set()); // Use a Set for efficient lookup ('YYYY-MM-DD')
 
-  // Data Fetching Effect for Sidebar Summary
-  useEffect(() => {
-    setIsLoaded(true); // Trigger page load animation
+    // Get auth state from context
+    const auth = useAuth(); // Make sure AuthProvider wraps your layout
+    const router = useRouter();
 
-    const fetchSummary = async () => {
-      console.log("Attempting to fetch dashboard summary..."); // DEBUG LOG
-      setIsLoadingSummary(true);
-      setErrorSummary(null);
-      setDashboardSummary(null); // Reset summary on fetch start
+    // --- Calendar Logic ---
+    // Using a fixed date for consistent display based on your context comment
+    // Replace with `new Date()` for production
+    const today = useMemo(() => new Date(2025, 3, 7), []); // April 7, 2025
+    // const today = new Date(); // Use this line for actual current date
 
-      // Using fetch API for testing
-      try {
-        const userId = '67f0acf710387ecd9ba7458a'; // Use the actual test user ID
-        console.log(`Fetching summary for userId: ${userId} using fetch`); // DEBUG LOG
+    const firstDayCurrentMonth = useMemo(() => startOfMonth(today), [today]);
+    const lastDayCurrentMonth = useMemo(() => endOfMonth(today), [today]);
 
-        if (!userId || userId === 'YOUR_TEST_USER_ID_HERE') {
-           console.error("ERROR: Test User ID is not set or is still the placeholder.");
-           throw new Error("Test User ID not set.");
-        }
-
-        const response = await fetch(`http://localhost:5000/api/users/${userId}/dashboard-summary`, { // Use full URL for fetch
-          method: 'GET',
-          headers: {
-            // Add auth token header here later when auth is ready
-            // 'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json' // Explicitly ask for JSON
-          },
-          cache: 'no-store' // Cache busting for fetch
+    // Generate days for the current month's calendar view
+    const calendarDays = useMemo(() => {
+        const days = eachDayOfInterval({
+            start: firstDayCurrentMonth,
+            end: lastDayCurrentMonth,
         });
 
-        console.log("Fetch Response Status:", response.status, response.statusText); // DEBUG LOG
+        // Calculate starting weekday (0=Sun, 1=Mon, ..., 6=Sat)
+        // Assuming week starts Monday for display (adjust if needed)
+        // getDay returns 0 for Sunday, 1 for Monday...
+        const startingDayIndex = (getDay(firstDayCurrentMonth) + 6) % 7; // Monday as 0 .. Sunday as 6
 
-        if (!response.ok) { // Checks for 2xx status codes
-          // Attempt to get error message from body if possible
-          let errorMsg = `HTTP error! status: ${response.status}`;
-          try {
-            // Try parsing error body as JSON first (common practice)
-            const errBody = await response.json();
-            errorMsg = errBody.message || JSON.stringify(errBody);
-          } catch (e) {
-             try {
-                // If not JSON, try parsing as text
-                const textBody = await response.text();
-                errorMsg = textBody || errorMsg;
-             } catch (e2) { /* Ignore secondary error if text parsing fails */ }
-          }
-          throw new Error(errorMsg);
-        }
+        // Create an array with placeholders for days before the month starts
+        return Array.from({ length: startingDayIndex }).fill(null).concat(days);
+    }, [firstDayCurrentMonth, lastDayCurrentMonth]);
+    // --- End Calendar Logic ---
 
-        // If response.ok, parse the JSON body
-        const data = await response.json();
-        console.log("Data received via fetch:", data); // DEBUG LOG <--- Check this object!
+       // --- Data Fetching Effect ---
+       useEffect(() => {
+        setIsPageLoaded(true); // Trigger entry animation
 
-        // Now check the structure returned by the backend
-        // IMPORTANT: Adjust this check based on the response structure you expect
-        // If using the SIMPLIFIED test response: check for data.message, data.userNameFound etc.
-        // If using the ORIGINAL backend response: check for data.status, data.data.summary
-        // Assuming ORIGINAL structure for now:
-        if (data && data.status === 'success' && data.data && data.data.summary) {
-           console.log("Setting dashboard summary state (fetch):", data.data.summary);
-           setDashboardSummary(data.data.summary);
-        }
-        // Example check if using the SIMPLIFIED test response:
-        // else if (data && data.message && data.userNameFound) {
-        //    console.log("Received simplified test payload:", data);
-        //    // Decide how to handle this - maybe set a limited summary?
-        //    // setDashboardSummary({ userName: data.userNameFound, level: 0, xp: 0, ... }); // Example
-        //    setErrorSummary("Received test data, not full summary."); // Or just log it
-        // }
-         else {
-           console.error("Fetch response missing expected data structure:", data);
-           setErrorSummary('Invalid data structure received from server (fetch).');
-        }
+        // Use a small timeout to allow context state to potentially settle after redirect
+        const timerId = setTimeout(() => {
+            const fetchAllDashboardData = async () => {
+                // Only proceed if auth state is loaded and user object exists
+                if (!auth.isLoading && auth.user) {
+                    const userId = auth.user._id;
+                    // Check if userId is actually present now after the timeout
+                    if (!userId) {
+                        // If still missing, the problem is definitely in how AuthContext sets the user state
+                        console.error("[DASHBOARD_FETCH_ALL] Auth loaded, user object exists, but user._id is STILL missing after timeout!", auth.user);
+                        setErrorSummary("User ID is missing, cannot fetch data. Please check AuthContext.");
+                        setErrorActivity("User ID is missing, cannot fetch data.");
+                        setIsLoadingSummary(false);
+                        setIsLoadingActivity(false);
+                        // Force logout might be appropriate here
+                        // auth.logout();
+                        // router.push('/login');
+                        return; // Stop fetching
+                    }
 
-      } catch (err: any) {
-        console.error("Fetch API Call Error caught:", err);
-        setErrorSummary(err.message || 'Failed to load dashboard summary (fetch).');
-      } finally {
-        console.log("Setting isLoadingSummary to false (fetch).");
-        setIsLoadingSummary(false);
+                    console.log(`[DASHBOARD_FETCH_ALL] Auth loaded, user ${userId} found after timeout. Fetching data...`);
+
+                    // Reset states for fresh fetch
+                    setIsLoadingSummary(true);
+                    setErrorSummary(null);
+                    setDashboardSummary(null);
+                    setIsLoadingActivity(true);
+                    setErrorActivity(null);
+                    setActivityData(null);
+                    setActiveDates(new Set());
+
+                    // --- Fetch Summary ---
+                    try {
+                        console.log(`[DASHBOARD_FETCH_ALL] Fetching summary for user ${userId}...`);
+                        const summaryResponse = await api.users.getDashboardSummary(userId);
+                        const summaryApiData = summaryResponse.data;
+                        if (summaryApiData?.status === 'success' && summaryApiData.data?.summary) {
+                            setDashboardSummary(summaryApiData.data.summary);
+                            console.log("[DASHBOARD_FETCH_ALL] Summary fetched successfully.");
+                        } else {
+                            throw new Error(summaryApiData?.message || 'Invalid summary data structure received.');
+                        }
+                    } catch (err: any) {
+                        console.error("[DASHBOARD_FETCH_ALL] Error fetching summary:", err);
+                        setErrorSummary(err.response?.data?.message || err.message || 'Failed to load dashboard summary.');
+                        if (err.response?.status === 401 || err.response?.status === 403) {
+                            auth.logout();
+                            router.push('/login');
+                        }
+                    } finally {
+                        setIsLoadingSummary(false);
+                    }
+
+                    // --- Fetch Activity ---
+                    try {
+                        console.log(`[DASHBOARD_FETCH_ALL] Fetching activity for user ${userId}...`);
+                        const activityResponse = await api.users.getRecentActivity(userId);
+                        const activityApiData = activityResponse.data;
+                        if (activityApiData?.status === 'success' && activityApiData.data?.activities) {
+                            if (Array.isArray(activityApiData.data.activities)) {
+                                setActivityData(activityApiData.data.activities);
+                                console.log(`[DASHBOARD_FETCH_ALL] Activity fetched successfully.`);
+                            } else {
+                                throw new Error('Activities data is not an array.');
+                            }
+                        } else {
+                            throw new Error(activityApiData?.message || 'Invalid activity data structure received.');
+                        }
+                    } catch (err: any) {
+                        console.error("[DASHBOARD_FETCH_ALL] Error fetching activity:", err);
+                        setErrorActivity(err.response?.data?.message || err.message || 'Failed to load recent activity.');
+                    } finally {
+                        setIsLoadingActivity(false);
+                    }
+
+                    // --- Fetch Active Dates (Placeholder) ---
+                    try {
+                        console.warn("[DASHBOARD_FETCH_ALL] Active dates fetching requires backend implementation.");
+                        const mockActiveDates = ['2025-04-01', '2025-04-02', '2025-04-03', '2025-04-05', '2025-04-06', '2025-04-07'];
+                        setActiveDates(new Set(mockActiveDates));
+                    } catch (err) {
+                        console.error("[DASHBOARD_FETCH_ALL] Error fetching active dates:", err);
+                    }
+
+                } else if (!auth.isLoading && !auth.user) {
+                    // Auth is loaded, but no user is logged in
+                    console.log("[DASHBOARD_FETCH_ALL] Auth loaded, but no user found (checked after timeout). Redirecting to login.");
+                    setIsLoadingSummary(false);
+                    setIsLoadingActivity(false);
+                    router.push('/login');
+                } else {
+                    // Auth context is still loading (shouldn't happen if timeout is used after initial load check)
+                    console.log("[DASHBOARD_FETCH_ALL] Auth still loading (checked after timeout)...");
+                    setIsLoadingSummary(true);
+                    setIsLoadingActivity(true);
+                }
+            };
+
+            fetchAllDashboardData();
+
+        }, 0); // Use a 0ms timeout - this is enough to push execution to the next event loop tick
+
+        // Cleanup timeout if component unmounts
+        return () => clearTimeout(timerId);
+
+    }, [auth.isLoading, auth.user, router, auth.logout, firstDayCurrentMonth]); // Dependencies remain the same
+
+  // --- Render Content (If Auth Loaded and User Exists) ---
+  // Note: The actual rendering logic is in Part 3.
+  // If auth loaded but no user exists, the useEffect hook should have redirected.
+  // If the user logs out while on the page, the context change should trigger the useEffect again.
+
+  // Continued in Part 3...
+// src/app/dashboard/page.tsx (Full Code - Part 3/3)
+// ... (Imports, Interfaces, Helper, State from Part 1) ...
+// ... (useEffect, Auth Loading Render from Part 2) ...
+
+    // --- Function to Render Content Based on Active Tab ---
+    const renderTabContent = () => {
+      switch(activeTab) {
+          case 'progress':
+              // Pass necessary props to ProgressTab if needed
+              // Example: <ProgressTab userId={auth.user?._id} />
+              return <ProgressTab />;
+          case 'achievements':
+              // Pass necessary props to AchievementsTab if needed
+              // Example: <AchievementsTab userId={auth.user?._id} />
+              return <AchievementsTab />;
+          case 'overview':
+          default:
+              // --- Overview Tab Content ---
+              // This includes multiple sections: Welcome, Subjects, Recommendations, Activity, Streak Calendar
+              return (
+                  // Entry animation applied here
+                  <div className={`transition-all duration-700 ease-out transform ${isPageLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'} space-y-8`}>
+
+                      {/* --- Welcome Banner --- */}
+                      <div className="bg-gradient-to-br from-indigo-600 to-purple-700 dark:from-indigo-700 dark:to-purple-900 rounded-2xl shadow-xl overflow-hidden relative transform transition-transform duration-300 hover:-translate-y-1">
+                         {/* Decorative elements */}
+                         <div className="absolute inset-0 bg-pattern-dots opacity-10"></div>
+                         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white rounded-full opacity-10"></div>
+                         <div className="absolute bottom-0 left-0 mb-5 ml-5 w-20 h-20 bg-white rounded-full opacity-10"></div>
+                         {/* Content */}
+                         <div className="px-8 py-8 sm:py-10 relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="text-center sm:text-left">
+                               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">Ready to improve your A/L scores?</h2>
+                               <p className="text-indigo-100 text-lg">
+                                  {auth.user ? `Let's continue, ${auth.user.name}!` : 'Your personalized learning journey is waiting!'}
+                               </p>
+                            </div>
+                            {/* Link this button to the main subjects page or the next recommended action */}
+                            <Link href="/subjects" className="flex-shrink-0 px-8 py-3.5 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 rounded-xl font-semibold shadow-lg hover:bg-indigo-50 dark:hover:bg-gray-700 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 dark:focus:ring-offset-indigo-700">
+                               View Subjects
+                            </Link>
+                         </div>
+                      </div>
+
+                      {/* --- Subject Cards Section --- */}
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md dark:shadow-gray-900/10 p-6 border border-gray-100 dark:border-gray-700">
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Your Subjects</h3>
+                          {/* Loading State */}
+                          {isLoadingSummary && ( <p className="text-gray-600 dark:text-gray-400 text-sm">Loading subject progress...</p> )}
+                          {/* Error State */}
+                          {errorSummary && !isLoadingSummary && ( <p className="text-red-600 dark:text-red-400 text-sm">Error loading subjects: {errorSummary}</p> )}
+                          {/* Empty State */}
+                          {!isLoadingSummary && !errorSummary && (!dashboardSummary || dashboardSummary.subjectProgress.length === 0) && (
+                              <p className="text-gray-600 dark:text-gray-400 text-sm">No subjects added yet. <Link href="/subjects" className="text-purple-600 hover:underline">Explore subjects</Link>.</p>
+                          )}
+                          {/* Success State */}
+                          {!isLoadingSummary && !errorSummary && dashboardSummary && dashboardSummary.subjectProgress.length > 0 && (
+                              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                  {dashboardSummary.subjectProgress.map(subj => (
+                                      // Link each card to the specific subject page
+                                      <Link href={`/subjects/${subj.subjectId}`} key={subj.subjectId} className="block p-4 rounded-lg border dark:border-gray-700 bg-gray-50 dark:bg-gray-750 hover:shadow-md hover:border-purple-200 dark:hover:border-purple-700 transition-all duration-200 group">
+                                          <div className="flex justify-between items-center mb-2">
+                                              <span className="font-medium text-gray-800 dark:text-gray-200 truncate pr-2 group-hover:text-purple-700 dark:group-hover:text-purple-300">{subj.name}</span>
+                                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full text-white flex-shrink-0`} style={{ backgroundColor: subj.color || '#6b7280' }}>
+                                                  {subj.progress}%
+                                              </span>
+                                          </div>
+                                          {/* Progress Bar */}
+                                          <div className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                                              <div
+                                                  className="h-full rounded-full"
+                                                  style={{ width: `${subj.progress}%`, backgroundColor: subj.color || '#4f46e5', transition: 'width 0.5s ease-in-out' }}
+                                              ></div>
+                                          </div>
+                                      </Link>
+                                  ))}
+                              </div>
+                          )}
+                      </div>
+
+                      {/* --- AI Recommendations Section --- */}
+                      {/* Assuming RecommendationsSection handles its own loading/data */}
+                      <RecommendationsSection /* Pass userId or other props if needed */ />
+
+                      {/* --- Recent Activity Section --- */}
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 border border-gray-100 dark:border-gray-700">
+                          {/* Header */}
+                          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                              <div className="flex items-center">
+                                  <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mr-3 flex-shrink-0">
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                  </div>
+                                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Activity</h2>
+                              </div>
+                              {/* Optional: Link to a full activity page */}
+                              {/* <Link href="/activity" className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium flex items-center transition-colors duration-150">
+                                  View All <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                              </Link> */}
+                          </div>
+                          {/* Activity List */}
+                          <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-96 overflow-y-auto">
+                              {isLoadingActivity && ( <div className="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">Loading activity...</div> )}
+                              {errorActivity && !isLoadingActivity && ( <div className="px-6 py-5 text-center text-sm text-red-500 dark:text-red-400">Could not load activity: {errorActivity}</div> )}
+                              {!isLoadingActivity && !errorActivity && (!activityData || activityData.length === 0) && ( <div className="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No recent activity found.</div> )}
+                              {!isLoadingActivity && !errorActivity && activityData && activityData.length > 0 && (
+                                  activityData.map((activity) => (
+                                      <div key={activity.id} className="px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
+                                          <div className="relative pl-11"> {/* Increased padding for icon */}
+                                              <ActivityIcon type={activity.type} />
+                                              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
+                                                  <div className="flex-1 pr-4"> {/* Added padding right */}
+                                                      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 leading-snug">{activity.title}</h3>
+                                                      {(activity.subject || activity.details) && (
+                                                          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                                              {activity.subject} {activity.details && `(${activity.details})`}
+                                                          </p>
+                                                      )}
+                                                  </div>
+                                                  <span className="mt-1 sm:mt-0 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap flex-shrink-0">
+                                                      {/* Format timestamp nicely */}
+                                                      {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+                                                  </span>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  ))
+                              )}
+                          </div>
+                      </div>
+
+                      {/* --- Study Streak Calendar Section --- */}
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 border border-gray-100 dark:border-gray-700">
+                          {/* Header */}
+                          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-t-2xl">
+                              <div className="flex items-center justify-between">
+                                  <div className="flex items-center">
+                                      <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mr-3 flex-shrink-0">
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                      </div>
+                                      <div>
+                                          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Study Streak</h2>
+                                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                                              You're on a <span className="font-semibold text-purple-700 dark:text-purple-300">{isLoadingSummary ? '...' : (dashboardSummary?.streak ?? 0)}-day</span> streak! Keep it up.
+                                          </p>
+                                      </div>
+                                  </div>
+                                  {/* Display current month/year */}
+                                  <div className="text-sm font-semibold text-purple-800 dark:text-purple-300">
+                                      {format(today, 'MMMM yyyy')} {/* Corrected date format */}
+                                  </div>
+                              </div>
+                          </div>
+                          {/* Calendar Body */}
+                          <div className="p-4 md:p-6">
+                              {/* Optional: Display Registration Date */}
+                              {/* <p className="text-xs text-center text-gray-400 dark:text-gray-500 mb-4">
+                                  Member since: {auth.user?.createdAt ? format(new Date(auth.user.createdAt), 'PPP') : '[Requires Backend Data]'}
+                              </p> */}
+
+                              {/* Calendar Grid Headers (Mon-Sun) */}
+                              <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+                                  {/* Assuming week starts Monday */}
+                                  <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div><div>Su</div>
+                              </div>
+                              {/* Calendar Grid Days */}
+                              <div className="grid grid-cols-7 gap-1">
+                                  {calendarDays.map((day, index) => {
+                                      if (!day) {
+                                          // Render empty cell for placeholder days before month starts
+                                          return <div key={`empty-${index}`} className="h-8 w-8"></div>;
+                                      }
+
+                                      const dayNumber = getDate(day);
+                                      const dayString = format(day, 'yyyy-MM-dd');
+                                      // isCurrentMonthDay check might not be needed if calendarDays only includes current month days + nulls
+                                      // const isCurrentMonthDay = isSameMonth(day, today);
+                                      const isTodayDay = isToday(day);
+                                      // Check if the day is marked as active from fetched data
+                                      const isActiveDay = activeDates.has(dayString);
+
+                                      // Determine cell styling
+                                      let cellClasses = "h-8 w-8 rounded-lg flex items-center justify-center text-xs transition-colors duration-150 ";
+                                      if (isTodayDay) {
+                                          // Highlight today distinctly
+                                          cellClasses += isActiveDay
+                                              ? "bg-indigo-600 text-white font-bold ring-2 ring-indigo-400 dark:ring-indigo-500" // Today and active
+                                              : "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-bold ring-2 ring-indigo-300 dark:ring-indigo-600"; // Today but not active
+                                      } else if (isActiveDay) {
+                                          // Highlight other active days
+                                          cellClasses += "bg-purple-200 dark:bg-purple-800/60 text-purple-800 dark:text-purple-200 font-medium";
+                                      } else {
+                                          // Default style for other days in the month
+                                          cellClasses += "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+                                      }
+
+                                      return (
+                                          <div key={dayString} className={cellClasses}>
+                                              {dayNumber}
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                              {/* Legend/Info (Optional) */}
+                              <div className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+                                  {/* Example legend items */}
+                                  <span className="inline-flex items-center mr-3"><div className="h-3 w-3 rounded-full bg-indigo-600 mr-1.5"></div> Today</span>
+                                  <span className="inline-flex items-center"><div className="h-3 w-3 rounded-full bg-purple-200 dark:bg-purple-800/60 mr-1.5"></div> Active Day</span>
+                                  <p className="mt-1">(Active day highlighting requires backend data)</p>
+                              </div>
+                          </div>
+                      </div>
+
+                  </div>
+              ); // End of Overview Tab Content
       }
-    }; // End of fetchSummary
-
-    fetchSummary();
-  }, []); // Empty dependency array means this runs once on mount
-
-  // Function to render content based on active tab
-  const renderTabContent = () => {
-    switch(activeTab) {
-      case 'progress':
-        // TODO: Fetch real data for ProgressTab
-        return <ProgressTab />;
-      case 'achievements':
-        // TODO: Fetch real data for AchievementsTab
-        return <AchievementsTab />;
-      case 'overview':
-      default:
-        // Overview Tab Content
-        // TODO: Fetch real data for subject cards, activity, streak etc.
-        return (
-          <div className={`transition-all duration-700 transform ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'} space-y-8`}>
-            {/* Welcome Banner */}
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 dark:from-indigo-700 dark:to-purple-900 rounded-2xl shadow-xl overflow-hidden relative transform transition-transform duration-300 hover:-translate-y-1">
-               <div className="absolute inset-0 bg-pattern-dots opacity-10"></div>
-               <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white rounded-full opacity-10"></div>
-               <div className="absolute bottom-0 left-0 mb-5 ml-5 w-20 h-20 bg-white rounded-full opacity-10"></div>
-               <div className="px-8 py-8 sm:py-10 relative z-10 flex flex-col sm:flex-row items-center justify-between">
-                 <div className="mb-6 sm:mb-0 text-center sm:text-left">
-                   <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Ready to improve your A/L scores?</h2>
-                   <p className="text-indigo-100 text-lg">
-                     {isLoadingSummary ? 'Loading...' : (dashboardSummary ? `Welcome back, ${dashboardSummary.userName}!` : 'Your personalized learning journey is waiting!')}
-                   </p>
-                 </div>
-                 <button className="px-8 py-3.5 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 rounded-xl font-medium shadow-lg hover:bg-indigo-50 dark:hover:bg-gray-700 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 dark:focus:ring-offset-indigo-700">
-                   Start Learning
-                 </button>
-               </div>
-             </div>
-
-            {/* Subject Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {/* Physics Card - Still uses mock structure, but progress % uses fetched data */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md dark:shadow-gray-900/10 overflow-hidden transition-all duration-300 hover:shadow-xl dark:hover:shadow-gray-900/20 border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800 group">
-                <div className="p-6">
-                   <div className="flex justify-between items-start mb-5">
-                    <div className="flex items-center">
-                      <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 text-blue-600 dark:text-blue-400 mr-4 shadow-sm group-hover:shadow-md transition-all duration-200 relative">
-                        <div className="absolute inset-0 rounded-xl bg-blue-400 dark:bg-blue-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                      </span>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors duration-200">Physics</h3>
-                    </div>
-                    {dashboardSummary?.subjectProgress.find(s => s.name === 'Physics') ? (
-                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm">
-                         {dashboardSummary.subjectProgress.find(s => s.name === 'Physics')?.progress}%
-                       </span>
-                    ) : (
-                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-400 text-white shadow-sm">{isLoadingSummary ? '...' : '--%'}</span>
-                    )}
-                  </div>
-                  <div className="mb-5">
-                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-gray-500 dark:text-gray-400 font-medium">Progress</span>
-                      <span className="text-gray-700 dark:text-gray-300 font-semibold">24/32 topics</span> {/* Mock data - Needs separate fetch */}
-                    </div>
-                    <div className="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full relative" style={{ width: `${dashboardSummary?.subjectProgress.find(s => s.name === 'Physics')?.progress || 0}%`, transition: 'width 1s ease-in-out' }}>
-                        <div className="absolute inset-0 bg-white dark:bg-gray-100 opacity-30 animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex justify-between items-center">
-                    <span className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                      Strong {/* Mock data - Needs separate fetch */}
-                    </span>
-                    <Link href="/subjects/physics" className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium flex items-center group-hover:translate-x-1 transform transition-transform duration-200">
-                      Continue <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              {/* Chemistry Card - Still uses mock structure, but progress % uses fetched data */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md dark:shadow-gray-900/10 overflow-hidden transition-all duration-300 hover:shadow-xl dark:hover:shadow-gray-900/20 border border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-800 group">
-                 <div className="p-6">
-                   <div className="flex justify-between items-start mb-5">
-                    <div className="flex items-center">
-                      <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 text-green-600 dark:text-green-400 mr-4 shadow-sm group-hover:shadow-md transition-all duration-200 relative">
-                         <div className="absolute inset-0 rounded-xl bg-green-400 dark:bg-green-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                      </span>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors duration-200">Chemistry</h3>
-                    </div>
-                    {dashboardSummary?.subjectProgress.find(s => s.name === 'Chemistry') ? (
-                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-600 to-green-500 text-white shadow-sm">
-                         {dashboardSummary.subjectProgress.find(s => s.name === 'Chemistry')?.progress}%
-                       </span>
-                    ) : (
-                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-400 text-white shadow-sm">{isLoadingSummary ? '...' : '--%'}</span>
-                    )}
-                  </div>
-                  <div className="mb-5">
-                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-gray-500 dark:text-gray-400 font-medium">Progress</span>
-                      <span className="text-gray-700 dark:text-gray-300 font-semibold">18/29 topics</span> {/* Mock data */}
-                    </div>
-                    <div className="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full relative" style={{ width: `${dashboardSummary?.subjectProgress.find(s => s.name === 'Chemistry')?.progress || 0}%`, transition: 'width 1s ease-in-out' }}>
-                        <div className="absolute inset-0 bg-white dark:bg-gray-100 opacity-30 animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex justify-between items-center">
-                    <span className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                      Moderate {/* Mock data */}
-                    </span>
-                    <Link href="/subjects/chemistry" className="text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 font-medium flex items-center group-hover:translate-x-1 transform transition-transform duration-200">
-                      Continue <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-               {/* Math Card - Still uses mock structure, but progress % uses fetched data */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md dark:shadow-gray-900/10 overflow-hidden transition-all duration-300 hover:shadow-xl dark:hover:shadow-gray-900/20 border border-gray-100 dark:border-gray-700 hover:border-yellow-200 dark:hover:border-yellow-800 group">
-                 <div className="p-6">
-                   <div className="flex justify-between items-start mb-5">
-                    <div className="flex items-center">
-                      <span className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900 dark:to-yellow-800 text-yellow-600 dark:text-yellow-400 mr-4 shadow-sm group-hover:shadow-md transition-all duration-200 relative">
-                        <div className="absolute inset-0 rounded-xl bg-yellow-400 dark:bg-yellow-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                      </span>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-yellow-700 dark:group-hover:text-yellow-400 transition-colors duration-200">Combined Math</h3>
-                    </div>
-                    {dashboardSummary?.subjectProgress.find(s => s.name === 'Combined Math') ? (
-                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-600 to-yellow-500 text-white shadow-sm">
-                         {dashboardSummary.subjectProgress.find(s => s.name === 'Combined Math')?.progress}%
-                       </span>
-                    ) : (
-                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-400 text-white shadow-sm">{isLoadingSummary ? '...' : '--%'}</span>
-                    )}
-                  </div>
-                  <div className="mb-5">
-                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-gray-500 dark:text-gray-400 font-medium">Progress</span>
-                      <span className="text-gray-700 dark:text-gray-300 font-semibold">28/32 topics</span> {/* Mock data */}
-                    </div>
-                    <div className="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full relative" style={{ width: `${dashboardSummary?.subjectProgress.find(s => s.name === 'Combined Math')?.progress || 0}%`, transition: 'width 1s ease-in-out' }}>
-                        <div className="absolute inset-0 bg-white dark:bg-gray-100 opacity-30 animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-                   <div className="flex justify-between items-center">
-                    <span className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900/30 px-3 py-1 rounded-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-yellow-500 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                      Excellent {/* Mock data */}
-                    </span>
-                    <Link href="/subjects/math" className="text-sm text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-300 font-medium flex items-center group-hover:translate-x-1 transform transition-transform duration-200">
-                      Continue <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* AI Recommendations (Still uses mock data) */}
-            <RecommendationsSection />
-
-            {/* Recent Activity (Still uses mock data) */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden border border-gray-100 dark:border-gray-700">
-              <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                 <div className="flex items-center">
-                  <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  </div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Activity</h2>
-                </div>
-                <Link href="#" className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium flex items-center transition-colors duration-150">
-                  View All <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                </Link>
-              </div>
-              <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                {/* Mock Activity Item 1 */}
-                <div className="px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
-                   <div className="relative pl-10">
-                    <span className="absolute left-0 top-1 h-8 w-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center text-green-600 dark:text-green-400 shadow-sm">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                    </span>
-                    <div className="absolute left-4 top-9 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-600"></div>
-                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
-                      <div>
-                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Completed Mechanics Quiz</h3>
-                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Score: 85% - Great job! 🎉</p>
-                      </div>
-                      <span className="mt-1 sm:mt-0 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">2 hours ago</span>
-                    </div>
-                     <div className="mt-3 flex">
-                      <div className="flex-1 bg-green-50 dark:bg-green-900/20 rounded-lg p-3 text-sm border border-green-100 dark:border-green-800 text-gray-800 dark:text-gray-300">
-                        <span className="font-medium text-gray-800 dark:text-gray-200">Feedback:</span> You did well on force and motion problems, but may need more practice with circular motion concepts.
-                      </div>
-                    </div>
-                     <div className="mt-2 flex justify-end">
-                      <button className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium flex items-center hover:underline focus:outline-none">
-                        Review Quiz <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                {/* Mock Activity Item 2 */}
-                <div className="px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
-                   <div className="relative pl-10">
-                    <span className="absolute left-0 top-1 h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-sm">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" /><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" /></svg>
-                    </span>
-                    <div className="absolute left-4 top-9 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-600"></div>
-                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
-                      <div>
-                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Posted a question in Chemistry Forum</h3>
-                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Topic: "Naming isomers in organic chemistry"</p>
-                      </div>
-                      <span className="mt-1 sm:mt-0 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">Yesterday</span>
-                    </div>
-                     <div className="mt-3 flex">
-                      <div className="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                        <span className="mr-1 font-bold">3</span> responses
-                      </div>
-                    </div>
-                     <div className="mt-2 flex justify-end">
-                      <button className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium flex items-center hover:underline focus:outline-none">
-                        View Discussion <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                {/* Mock Activity Item 3 */}
-                <div className="px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
-                   <div className="relative pl-10">
-                    <span className="absolute left-0 top-1 h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-600 dark:text-purple-400 shadow-sm">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" /></svg>
-                    </span>
-                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
-                      <div>
-                        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Downloaded 2023 Model Papers</h3>
-                        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Combined Mathematics model paper set</p>
-                      </div>
-                      <span className="mt-1 sm:mt-0 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md">2 days ago</span>
-                    </div>
-                     <div className="mt-2 flex justify-end">
-                      <button className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium flex items-center hover:underline focus:outline-none">
-                        View Resource <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Study Streak Calendar (Still uses mock data) */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden border border-gray-100 dark:border-gray-700">
-               <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30">
-                <div className="flex items-center">
-                  <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mr-3">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Study Streak</h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
-                      You're on a <span className="font-semibold">{isLoadingSummary ? '...' : (dashboardSummary?.streak ?? 0)}-day</span> streak! Keep it up.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-6">
-                 <div className="grid grid-cols-7 gap-2 mb-2 text-center">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Mon</div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Tue</div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Wed</div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Thu</div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Fri</div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Sat</div>
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Sun</div>
-                </div>
-                <div className="grid grid-cols-7 gap-2">
-                  {/* Mock calendar days - Needs separate fetch */}
-                  <div className="h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">28</div>
-                  <div className="h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">29</div>
-                  <div className="h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">30</div>
-                  <div className="h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white flex items-center justify-center text-xs shadow-sm">1</div>
-                  <div className="h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white flex items-center justify-center text-xs shadow-sm">2</div>
-                  <div className="h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white flex items-center justify-center text-xs shadow-sm">3</div>
-                  <div className="h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-700 dark:text-gray-300">4</div>
-                  <div className="h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white flex items-center justify-center text-xs shadow-sm">5</div>
-                  <div className="h-12 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-700 text-white flex items-center justify-center text-sm font-bold border-2 border-purple-400 dark:border-purple-500 shadow-lg relative">
-                    <div className="absolute inset-0 bg-white dark:bg-purple-200 opacity-20 animate-pulse"></div>
-                    <span className="relative z-10">6</span>
-                  </div>
-                  <div className="h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">7</div>
-                  <div className="h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">8</div>
-                  <div className="h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">9</div>
-                  <div className="h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">10</div>
-                  <div className="h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">11</div>
-                  {Array(7).fill(0).map((_, i) => (
-                    <div key={i} className="h-12 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">{12 + i}</div>
-                  ))}
-                </div>
-                 <div className="mt-6 text-center">
-                   <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800 shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                    Keep your streak going to earn 100 bonus points tomorrow!
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ); // End of Overview Tab Content
-    }
   }; // End of renderTabContent
 
-  // Main component return
+  // --- Main Component Return ---
+  // This structure includes the header with tabs and the main content area
+  // which is split into a sidebar and the tab content.
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-      {/* Dashboard Header */}
-      <div className="relative bg-gradient-to-r from-purple-900 via-purple-700 to-purple-600 dark:from-purple-950 dark:via-purple-800 dark:to-purple-700 text-white overflow-hidden transition-colors duration-300">
-        {/* Decorative particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute h-4 w-4 rounded-full bg-white opacity-20 top-[20%] left-[10%] animate-float" style={{ animationDuration: '7s' }}></div>
-          <div className="absolute h-6 w-6 rounded-full bg-white opacity-10 top-[30%] right-[15%] animate-float" style={{ animationDuration: '11s', animationDelay: '1s' }}></div>
-          <div className="absolute h-3 w-3 rounded-full bg-white opacity-20 bottom-[20%] left-[20%] animate-float" style={{ animationDuration: '9s', animationDelay: '2s' }}></div>
-          <div className="absolute h-8 w-8 rounded-full bg-white opacity-10 top-[70%] right-[25%] animate-float" style={{ animationDuration: '8s', animationDelay: '1.5s' }}></div>
-          <div className="absolute h-16 w-16 rounded-full bg-purple-500 opacity-20 bottom-[10%] right-[10%] blur-xl animate-pulse-slow"></div>
-          <div className="absolute h-24 w-24 rounded-full bg-purple-400 opacity-10 top-[5%] left-[5%] blur-xl animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="py-8">
-             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="mb-4 md:mb-0">
-                <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm">Student Dashboard</h1>
-                <p className="mt-1 text-purple-200">
-                  Welcome back, <span className="font-medium text-white">{isLoadingSummary ? '...' : dashboardSummary?.userName ?? 'Student'}</span>
-                </p>
-              </div>
-               <div className="flex space-x-3">
-                 <Link href="/resources" className="px-4 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/25 text-white font-medium transition-all duration-200 flex items-center shadow-lg shadow-purple-900/20 hover:transform hover:scale-105">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>
-                  Resources
-                </Link>
-                <Link href="/quiz" className="px-4 py-2.5 rounded-lg bg-white dark:bg-gray-800 text-purple-700 dark:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-all duration-200 flex items-center shadow-lg shadow-purple-900/20 hover:transform hover:scale-105">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>
-                  Start Quiz
-                </Link>
-              </div>
-            </div>
-            {/* Navigation Tabs */}
-            <div className="mt-8 border-b border-white/20">
-              <nav className="flex space-x-8">
-                 <button onClick={() => setActiveTab('overview')} className={`py-4 px-1 text-sm font-medium border-b-2 ${ activeTab === 'overview' ? 'border-white text-white' : 'border-transparent text-purple-200 hover:text-white hover:border-white/50'} transition-all duration-200`}>Overview</button>
-                 <button onClick={() => setActiveTab('progress')} className={`py-4 px-1 text-sm font-medium border-b-2 ${ activeTab === 'progress' ? 'border-white text-white' : 'border-transparent text-purple-200 hover:text-white hover:border-white/50'} transition-all duration-200`}>Progress</button>
-                 <button onClick={() => setActiveTab('achievements')} className={`py-4 px-1 text-sm font-medium border-b-2 ${ activeTab === 'achievements' ? 'border-white text-white' : 'border-transparent text-purple-200 hover:text-white hover:border-white/50'} transition-all duration-200`}>Achievements</button>
-              </nav>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-          {/* --- SIDEBAR --- */}
-          <div className="lg:col-span-3">
-            <div className={`transition-all duration-700 transform ${isLoaded ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden sticky top-8 border border-gray-100 dark:border-gray-700">
-                {/* Loading/Error State */}
-                {isLoadingSummary && (
-                  <div className="px-6 py-6 text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Loading profile...</p>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-850 transition-colors duration-300">
+          {/* --- Dashboard Header --- */}
+          <div className="sticky top-0 z-30 shadow-sm"> {/* Make header sticky */}
+              <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 dark:from-gray-900 dark:via-gray-850 dark:to-gray-800 text-white overflow-hidden transition-colors duration-300 border-b border-purple-800/20 dark:border-gray-700/50">
+                  {/* Background decorative elements (optional) */}
+                  {/* <div className="absolute inset-0 overflow-hidden"> ... </div> */}
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                      <div className="py-6 md:py-8">
+                          {/* Top part: Title and Action Buttons */}
+                          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                              <div className="mb-4 md:mb-0">
+                                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white drop-shadow-md">Student Dashboard</h1>
+                                  <p className="mt-1 text-purple-200 dark:text-gray-300">
+                                      Welcome back, <span className="font-medium text-white">{auth.user?.name ?? 'Student'}</span>
+                                  </p>
+                              </div>
+                              <div className="flex space-x-3 flex-shrink-0">
+                                  <Link href="/resources" className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/25 text-white text-sm font-medium transition-all duration-200 flex items-center shadow-lg shadow-purple-900/20 hover:transform hover:scale-105">
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg>
+                                      Resources
+                                  </Link>
+                                  <Link href="/quiz" className="px-4 py-2 rounded-lg bg-white dark:bg-gray-700 text-purple-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 text-sm font-medium transition-all duration-200 flex items-center shadow-lg shadow-purple-900/20 hover:transform hover:scale-105">
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>
+                                      Start Quiz
+                                  </Link>
+                              </div>
+                          </div>
+                          {/* Bottom part: Tab Navigation */}
+                          <div className="mt-6 border-b border-white/20 dark:border-gray-700">
+                              <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                                  <button
+                                      onClick={() => setActiveTab('overview')}
+                                      className={`whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
+                                          activeTab === 'overview'
+                                              ? 'border-indigo-300 text-white'
+                                              : 'border-transparent text-purple-100 hover:text-white hover:border-white/50'
+                                      }`}
+                                      aria-current={activeTab === 'overview' ? 'page' : undefined}
+                                  >
+                                      Overview
+                                  </button>
+                                  <button
+                                      onClick={() => setActiveTab('progress')}
+                                      className={`whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
+                                          activeTab === 'progress'
+                                              ? 'border-indigo-300 text-white'
+                                              : 'border-transparent text-purple-100 hover:text-white hover:border-white/50'
+                                      }`}
+                                      aria-current={activeTab === 'progress' ? 'page' : undefined}
+                                  >
+                                      Progress
+                                  </button>
+                                  <button
+                                      onClick={() => setActiveTab('achievements')}
+                                      className={`whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium transition-colors duration-200 ${
+                                          activeTab === 'achievements'
+                                              ? 'border-indigo-300 text-white'
+                                              : 'border-transparent text-purple-100 hover:text-white hover:border-white/50'
+                                      }`}
+                                      aria-current={activeTab === 'achievements' ? 'page' : undefined}
+                                  >
+                                      Achievements
+                                  </button>
+                              </nav>
+                          </div>
+                      </div>
                   </div>
-                )}
-                {errorSummary && !isLoadingSummary && (
-                   <div className="px-6 py-6 text-center text-red-600 bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800">
-                    <p className="text-sm font-medium">Error loading profile:</p>
-                    <p className="text-xs mt-1">{errorSummary}</p>
-                  </div>
-                )}
-
-                {/* Sidebar Content (Conditionally Rendered) */}
-                {/* This block will only render if loading is false, there's no error, AND dashboardSummary is not null */}
-                {!isLoadingSummary && !errorSummary && dashboardSummary && (
-                  <>
-                    {/* Profile Section */}
-                    <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700 text-center relative bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-850">
-                       <div className="absolute top-0 right-0 p-2">
-                        <Link href="/profile" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg></Link>
-                      </div>
-                      <div className="inline-block relative mb-4">
-                        <div className="h-24 w-24 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 mx-auto flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                          <div className="absolute inset-0 rounded-full bg-white opacity-20 animate-pulse-slow" style={{ animationDuration: '3s' }}></div>
-                          <span className="relative z-10">{dashboardSummary.userName?.charAt(0).toUpperCase() || '?'}</span>
-                        </div>
-                         <div className="absolute -bottom-1 -right-1 bg-green-500 h-5 w-5 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" style={{ animationDuration: '2s' }}></div>
-                      </div>
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{dashboardSummary.userName}</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{dashboardSummary.subjectProgress.map(s => s.name).join(', ')}</p>
-                      <div className="mt-4 grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-700">
-                        {dashboardSummary.subjectProgress.slice(0, 3).map((subject) => (
-                          <div key={subject.subjectId} className="px-2 text-center group">
-                            <div className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300 group-hover:from-blue-500 group-hover:to-blue-300 dark:group-hover:from-blue-400 dark:group-hover:to-blue-200 transition-all duration-300">{subject.progress}%</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{subject.name}</div>
-                          </div>
-                        ))}
-                        {Array(Math.max(0, 3 - dashboardSummary.subjectProgress.length)).fill(0).map((_, i) => (
-                           <div key={`placeholder-${i}`} className="px-2 text-center group">
-                            <div className="text-lg font-bold text-gray-400">--%</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Subject</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Points & Level Section */}
-                    <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Points & Level</h3>
-                        <Link href="/rewards" className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 font-medium transition-colors duration-150">View Rewards</Link>
-                      </div>
-                      <div className="flex items-center">
-                         <div className="flex-shrink-0 h-12 w-12 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-full flex items-center justify-center shadow-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <div className="ml-4 flex-1">
-                          <div className="flex justify-between mb-1">
-                            <span className="font-medium text-gray-700 dark:text-gray-300">Level {dashboardSummary.level}</span>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">{dashboardSummary.xp} / {(dashboardSummary.level + 1) * 150}</span> {/* Example formula */}
-                          </div>
-                          <div className="h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                             <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full relative" style={{ width: `${Math.min(100, (dashboardSummary.xp / ((dashboardSummary.level + 1) * 150)) * 100)}%` }}> {/* Ensure width doesn't exceed 100% */}
-                               <div className="absolute inset-0 bg-white dark:bg-indigo-200 opacity-30 animate-pulse"></div>
-                             </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-4">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">{dashboardSummary.pointsToNextLevel} points</span> until next level
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Leaderboard Position Section */}
-                    <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Leaderboard</h3>
-                      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg p-4 shadow-sm border border-purple-100/50 dark:border-purple-800/30 hover:shadow-md transition-all duration-200 group">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white font-bold text-sm shadow-md relative overflow-hidden group-hover:shadow-lg transition-all duration-200">
-                            <div className="absolute inset-0 bg-white opacity-20 animate-pulse-slow"></div>
-                            <span className="relative z-10">{dashboardSummary.leaderboardRank.match(/\d+/)?.[0] || '?'}</span> {/* Extract number */}
-                          </div>
-                          <div className="ml-4">
-                            <div className="font-medium text-gray-900 dark:text-gray-100">National Rank</div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{dashboardSummary.leaderboardRank}</div>
-                          </div>
-                           <div className="ml-auto">
-                            <Link href="/leaderboard" className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors duration-150 group-hover:scale-110 inline-block transform transition-transform duration-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg></Link>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Quick Links Section */}
-                    <div className="px-6 py-6">
-                       <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Links</h3>
-                        <ul className="space-y-3">
-                          <li><Link href="/profile" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 group"><div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600 dark:group-hover:bg-purple-900/50 dark:group-hover:text-purple-400 transition-colors duration-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></div><span className="ml-3">My Profile</span></Link></li>
-                          <li><Link href="/rewards" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 group"><div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600 dark:group-hover:bg-purple-900/50 dark:group-hover:text-purple-400 transition-colors duration-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><span className="ml-3">Rewards Store</span></Link></li>
-                          <li><Link href="/forum" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 group"><div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600 dark:group-hover:bg-purple-900/50 dark:group-hover:text-purple-400 transition-colors duration-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg></div><span className="ml-3">Discussion Forum</span></Link></li>
-                          <li><Link href="/settings" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 group"><div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600 dark:group-hover:bg-purple-900/50 dark:group-hover:text-purple-400 transition-colors duration-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div><span className="ml-3">Settings</span></Link></li>
-                          <li><Link href="/help" className="flex items-center text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 group"><div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600 dark:group-hover:bg-purple-900/50 dark:group-hover:text-purple-400 transition-colors duration-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><span className="ml-3">Help Center</span></Link></li>
-                        </ul>
-                    </div>
-                  </>
-                )}
-              </div> {/* Closes sticky div */}
-            </div> {/* Closes transition div */}
-          </div> {/* Closes sidebar column div */}
-
-          {/* --- Main Content Area (Tabs) --- */}
-          <div className="lg:col-span-9">
-            {renderTabContent()}
+              </div>
           </div>
 
-        </div> {/* Closes grid div */}
-      </div> {/* Closes max-w-7xl div */}
-    </div> // Closes min-h-screen div
+
+          {/* --- Main Content Area Grid --- */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"> {/* Use items-start */}
+
+                  {/* --- SIDEBAR --- */}
+                  <div className="lg:col-span-3 lg:sticky lg:top-28"> {/* Make sidebar sticky relative to header height + padding */}
+                      <div className={`transition-all duration-700 ease-out transform ${isPageLoaded ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
+                          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden border border-gray-100 dark:border-gray-700/50">
+                              {/* Sidebar Loading State */}
+                              {isLoadingSummary && !dashboardSummary && (
+                                  <div className="px-6 py-6 text-center">
+                                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
+                                      <p className="text-sm text-gray-500 dark:text-gray-400">Loading profile...</p>
+                                  </div>
+                              )}
+                              {/* Sidebar Error State */}
+                              {errorSummary && !isLoadingSummary && (
+                                  <div className="px-6 py-6 text-center text-red-600 bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800">
+                                      <p className="text-sm font-medium">Error loading profile:</p>
+                                      <p className="text-xs mt-1">{errorSummary}</p>
+                                  </div>
+                              )}
+                              {/* Sidebar Content (if user exists and summary loaded or loading) */}
+                              {auth.user && (
+                                  <>
+                                      {/* Profile Section */}
+                                      <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700 text-center relative bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-850">
+                                          {/* Edit Profile Link */}
+                                          <div className="absolute top-2 right-2">
+                                              <Link href="/profile/edit" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+                                              </Link>
+                                          </div>
+                                          {/* Avatar */}
+                                          <div className="inline-block relative mb-4">
+                                              <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 mx-auto flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-lg ring-4 ring-white dark:ring-gray-850">
+                                                  <span className="relative z-10">{auth.user.name?.charAt(0).toUpperCase() || '?'}</span>
+                                              </div>
+                                              {/* Online indicator (optional) */}
+                                              {/* <div className="absolute -bottom-1 -right-1 bg-green-500 h-5 w-5 rounded-full border-2 border-white dark:border-gray-800 animate-pulse" style={{ animationDuration: '2s' }}></div> */}
+                                          </div>
+                                          {/* User Name */}
+                                          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{auth.user.name}</h2>
+                                          {/* Subjects List */}
+                                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate px-4 mt-1">
+                                              {dashboardSummary?.subjectProgress && dashboardSummary.subjectProgress.length > 0
+                                                  ? dashboardSummary.subjectProgress.map(s => s.name).join(', ')
+                                                  : (isLoadingSummary ? 'Loading subjects...' : 'No subjects selected')}
+                                          </p>
+                                          {/* Mini Progress Bars */}
+                                          <div className="mt-4 grid grid-cols-3 divide-x divide-gray-200 dark:divide-gray-700">
+                                              {dashboardSummary?.subjectProgress?.slice(0, 3).map((subject) => (
+                                                  <div key={subject.subjectId} className="px-2 text-center group" title={`${subject.name}: ${subject.progress}%`}>
+                                                      <div className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300 transition-all duration-300">{subject.progress}%</div>
+                                                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{subject.name}</div>
+                                                  </div>
+                                              ))}
+                                              {/* Placeholders if less than 3 subjects */}
+                                              {Array(Math.max(0, 3 - (dashboardSummary?.subjectProgress?.length || 0))).fill(0).map((_, i) => (
+                                                  <div key={`placeholder-${i}`} className="px-2 text-center group">
+                                                      <div className="text-lg font-bold text-gray-400">{isLoadingSummary ? '...' : '--%'}</div>
+                                                      <div className="text-xs text-gray-500 dark:text-gray-400">Subject</div>
+                                                  </div>
+                                              ))}
+                                          </div>
+                                      </div>
+
+                                      {/* Points & Level Section */}
+                                      <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700">
+                                          <div className="flex items-center justify-between mb-4">
+                                              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Points & Level</h3>
+                                              <Link href="/rewards" className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium transition-colors duration-150">View Rewards</Link>
+                                          </div>
+                                          {!isLoadingSummary && dashboardSummary ? (
+                                              <>
+                                                  <div className="flex items-center mb-2">
+                                                      <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-full flex items-center justify-center shadow-sm">
+                                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600 dark:text-purple-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                                      </div>
+                                                      <div className="ml-3 flex-1">
+                                                          <div className="flex justify-between mb-1 text-xs">
+                                                              <span className="font-medium text-gray-700 dark:text-gray-300">Level {dashboardSummary.level}</span>
+                                                              {/* Calculate XP needed for next level (example: level * 150) - Adjust formula as needed */}
+                                                              <span className="text-gray-500 dark:text-gray-400">{dashboardSummary.xp} / {(dashboardSummary.level + 1) * 150} XP</span>
+                                                          </div>
+                                                          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                              <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full"
+                                                                   // Calculate percentage for progress bar
+                                                                   style={{ width: `${Math.min(100, (dashboardSummary.xp / ((dashboardSummary.level + 1) * 150)) * 100)}%`, transition: 'width 0.5s ease-in-out' }}>
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                  </div>
+                                                  <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                                                      {/* Use pointsToNextLevel if provided, otherwise calculate */}
+                                                      <span className="font-medium text-gray-700 dark:text-gray-300">{dashboardSummary.pointsToNextLevel ?? (((dashboardSummary.level + 1) * 150) - dashboardSummary.xp)} XP</span> until next level
+                                                  </div>
+                                                  <div className="mt-3 text-center text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-500">
+                                                      {dashboardSummary.points?.toLocaleString() ?? 0} Points
+                                                  </div>
+                                              </>
+                                          ) : (
+                                              <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-4">Loading stats...</div>
+                                          )}
+                                      </div>
+
+                                      {/* Quick Links Section */}
+                                      <div className="px-6 py-6">
+                                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 text-sm">Quick Links</h3>
+                                          <ul className="space-y-2">
+                                              {/* Simplified Quick Links */}
+                                              <li><Link href="/profile" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>My Profile</Link></li>
+                                              <li><Link href="/rewards" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Rewards Store</Link></li>
+                                              <li><Link href="/forum" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>Discussion Forum</Link></li>
+                                              <li><Link href="/settings" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Settings</Link></li>
+                                          </ul>
+                                      </div>
+                                  </>
+                              )}
+                          </div> {/* Closes sticky inner div */}
+                      </div> {/* Closes transition div */}
+                  </div> {/* Closes sidebar column div */}
+
+
+                  {/* --- Main Content Area (Renders Tab Content) --- */}
+                  <div className="lg:col-span-9">
+                      {renderTabContent()}
+                  </div>
+
+              </div> {/* Closes grid div */}
+          </div> {/* Closes max-w-7xl div */}
+      </div> // Closes min-h-screen div
   ); // Closes return
 } // Closes function Dashboard
-

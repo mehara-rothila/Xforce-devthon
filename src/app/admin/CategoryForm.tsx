@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import api from '@/utils/api'; // Use the updated api utility
-import { X, Loader2, AlertCircle, Check, Palette, Tag, FileText, Layout, Edit, List, MessageCircle } from 'lucide-react'; // Added Edit, List, MessageCircle
+import { X, Loader2, AlertCircle, Check, Palette, Tag, FileText, Layout, Edit, List, MessageCircle, MessageSquare } from 'lucide-react';
 import SubjectIcon from '@/components/icons/SubjectIcon'; // Reusing SubjectIcon for categories
 
 // --- Interfaces ---

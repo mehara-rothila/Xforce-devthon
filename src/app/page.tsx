@@ -289,12 +289,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - NOW WITH BACKGROUND ICONS */}
       <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="features">
         {/* Decorative elements */}
         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-purple-900/5 to-transparent dark:from-purple-900/10"></div>
         <div className="absolute left-0 top-1/4 w-64 h-64 bg-purple-300/10 dark:bg-purple-900/10 rounded-full filter blur-3xl"></div>
         <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-indigo-300/10 dark:bg-indigo-900/10 rounded-full filter blur-3xl"></div>
+
+        {/* NEW: Math and Science Background Symbols */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+          {/* Mathematical symbols */}
+          <div className="absolute top-[7%] left-[13%] text-purple-500/20 dark:text-purple-400/10 text-9xl floating-icon">∑</div>
+          <div className="absolute top-[33%] right-[17%] text-blue-500/20 dark:text-blue-400/10 text-10xl floating-icon-reverse">π</div>
+          <div className="absolute top-[61%] left-[27%] text-green-500/20 dark:text-green-400/10 text-8xl floating-icon-slow">∞</div>
+          <div className="absolute top-[19%] right-[38%] text-red-500/20 dark:text-red-400/10 text-11xl floating-icon">⚛</div>
+          <div className="absolute top-[77%] right-[23%] text-yellow-500/20 dark:text-yellow-400/10 text-9xl floating-icon-slow">𝜙</div>
+          <div className="absolute bottom-[31%] left-[8%] text-indigo-500/20 dark:text-indigo-400/10 text-10xl floating-icon-reverse">∫</div>
+          <div className="absolute bottom-[12%] right-[42%] text-teal-500/20 dark:text-teal-400/10 text-9xl floating-icon">≈</div>
+          
+          {/* Additional math symbols */}
+          <div className="absolute top-[23%] left-[54%] text-fuchsia-500/20 dark:text-fuchsia-400/10 text-8xl floating-icon">Δ</div>
+          <div className="absolute top-[44%] left-[38%] text-emerald-500/20 dark:text-emerald-400/10 text-7xl floating-icon-slow">λ</div>
+          <div className="absolute top-[81%] left-[67%] text-cyan-500/20 dark:text-cyan-400/10 text-9xl floating-icon-reverse">θ</div>
+          
+          {/* Science formulas */}
+          <div className="absolute top-[14%] left-[31%] text-indigo-500/20 dark:text-indigo-400/10 text-6xl floating-icon-slow">E=mc²</div>
+          <div className="absolute top-[58%] left-[48%] text-teal-500/20 dark:text-teal-400/10 text-5xl floating-icon">F=ma</div>
+          <div className="absolute top-[39%] left-[76%] text-violet-500/20 dark:text-violet-400/10 text-6xl floating-icon-reverse">H₂O</div>
+          <div className="absolute bottom-[17%] left-[52%] text-rose-500/20 dark:text-rose-400/10 text-6xl floating-icon">PV=nRT</div>
+          
+          {/* Science icons */}
+          <div className="absolute top-[41%] left-[8%] opacity-20 dark:opacity-10 floating-icon-slow">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <div className="absolute top-[17%] right-[7%] opacity-20 dark:opacity-10 floating-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+          </div>
+          <div className="absolute bottom-[7%] left-[36%] opacity-20 dark:opacity-10 floating-icon-reverse">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
 
         <div className="max-w-6xl mx-auto relative">
           <div className="text-center mb-20">
@@ -522,10 +562,38 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section - NOW WITH BACKGROUND ICONS */}
       <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="testimonials">
         {/* Decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">{/* Blur circles */}</div>
+        
+        {/* NEW: Math and Science Background Icons */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+          {/* Mathematical symbols */}
+          <div className="absolute top-[12%] left-[8%] text-amber-500/20 dark:text-amber-400/10 text-9xl floating-icon">α</div>
+          <div className="absolute top-[70%] right-[12%] text-pink-500/20 dark:text-pink-400/10 text-11xl floating-icon-reverse">β</div>
+          <div className="absolute top-[35%] left-[17%] text-lime-500/20 dark:text-lime-400/10 text-8xl floating-icon-slow">γ</div>
+          <div className="absolute top-[25%] right-[28%] text-blue-500/20 dark:text-blue-400/10 text-9xl floating-icon">δ</div>
+          <div className="absolute bottom-[20%] left-[23%] text-purple-500/20 dark:text-purple-400/10 text-10xl floating-icon-slow">ε</div>
+          
+          {/* Science formulas */}
+          <div className="absolute top-[61%] right-[15%] text-emerald-500/20 dark:text-emerald-400/10 text-6xl floating-icon">V=IR</div>
+          <div className="absolute bottom-[25%] right-[35%] text-orange-500/20 dark:text-orange-400/10 text-5xl floating-icon-reverse">E=hf</div>
+          
+          {/* Science icons */}
+          <div className="absolute top-[22%] right-[12%] opacity-20 dark:opacity-10 floating-icon-slow">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-purple-500 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+          </div>
+          
+          <div className="absolute bottom-[15%] left-[10%] opacity-20 dark:opacity-10 floating-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+        </div>
+        
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">What Students Say</h2>
@@ -641,9 +709,35 @@ export default function Home() {
         <div className="absolute top-[50%] right-[20%] w-16 h-16 bg-white opacity-5 rounded-lg transform rotate-45 animate-float" style={{ animationDuration: '12s', animationDelay: '1s' }}></div>
       </section>
 
-      {/* FAQ Section */}
+      {/* FAQ Section - NOW WITH BACKGROUND ICONS */}
       <section className="py-24 px-6 bg-white dark:bg-gray-900 relative">
-        <div className="max-w-5xl mx-auto">
+        {/* NEW: Math and Science Background Icons */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+          {/* Mathematical symbols */}
+          <div className="absolute top-[10%] left-[10%] text-red-500/20 dark:text-red-400/10 text-9xl floating-icon-slow">σ</div>
+          <div className="absolute top-[65%] right-[12%] text-green-500/20 dark:text-green-400/10 text-10xl floating-icon">τ</div>
+          <div className="absolute top-[40%] left-[25%] text-yellow-500/20 dark:text-yellow-400/10 text-8xl floating-icon-reverse">μ</div>
+          <div className="absolute bottom-[15%] left-[15%] text-blue-500/20 dark:text-blue-400/10 text-9xl floating-icon-slow">Ω</div>
+          
+          {/* Science formulas */}
+          <div className="absolute top-[25%] right-[20%] text-indigo-500/20 dark:text-indigo-400/10 text-6xl floating-icon-slow">F=G(m₁m₂/r²)</div>
+          <div className="absolute bottom-[35%] right-[8%] text-teal-500/20 dark:text-teal-400/10 text-5xl floating-icon">c=λf</div>
+          
+          {/* Science icons */}
+          <div className="absolute top-[50%] right-[30%] opacity-20 dark:opacity-10 floating-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </div>
+          
+          <div className="absolute top-[15%] left-[30%] opacity-20 dark:opacity-10 floating-icon-reverse">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">Frequently Asked Questions</h2>
             <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-purple-400 mx-auto mb-6 rounded-full"></div>
@@ -662,10 +756,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer - NOW WITH BACKGROUND ICONS */}
       <footer className="bg-gray-900 dark:bg-gray-950 text-white py-24 px-6 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">{/* Blur circles */}</div>
+        
+        {/* NEW: Math and Science Background Symbols */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+          {/* Mathematical symbols */}
+          <div className="absolute top-[10%] left-[7%] text-purple-500/10 dark:text-purple-400/5 text-9xl floating-icon">∞</div>
+          <div className="absolute top-[60%] right-[10%] text-blue-500/10 dark:text-blue-400/5 text-8xl floating-icon-reverse">π</div>
+          <div className="absolute bottom-[20%] left-[20%] text-green-500/10 dark:text-green-400/5 text-10xl floating-icon-slow">√</div>
+          
+          {/* Science formulas */}
+          <div className="absolute top-[30%] right-[15%] text-cyan-500/10 dark:text-cyan-400/5 text-6xl floating-icon-slow">E=mc²</div>
+          <div className="absolute bottom-[30%] right-[25%] text-amber-500/10 dark:text-amber-400/5 text-5xl floating-icon">PV=nRT</div>
+        </div>
+        
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
             {/* Footer Columns */}
@@ -714,8 +821,58 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* NO separate <script> tag needed here as logic is in useEffect */}
+      {/* Add CSS for animations */}
+      <style jsx global>{`
+        /* Text sizes for larger symbols */
+        .text-10xl { font-size: 9rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
 
+        /* Floating icons animations */
+        .floating-icon { 
+          animation: float 6s ease-in-out infinite; 
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        }
+        .floating-icon-reverse { 
+          animation: float-reverse 7s ease-in-out infinite; 
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        }
+        .floating-icon-slow { 
+          animation: float 10s ease-in-out infinite; 
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        }
+
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+          100% { transform: translateY(0px); }
+        }
+
+        @keyframes float-reverse {
+          0% { transform: translateY(0) rotate(0deg) scale(1); }
+          50% { transform: translateY(15px) rotate(-5deg) scale(1.05); }
+          100% { transform: translateY(0) rotate(0deg) scale(1); }
+        }
+
+        /* Enhanced animations */
+        .animate-fadeIn { 
+          animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        }
+        
+        .animate-fadeInUp { 
+          animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+          will-change: transform, opacity;
+        }
+
+        @keyframes fadeIn { 
+          from { opacity: 0; } 
+          to { opacity: 1; } 
+        }
+        
+        @keyframes fadeInUp { 
+          from { opacity: 0; transform: translateY(30px); } 
+          to { opacity: 1; transform: translateY(0); } 
+        }
+      `}</style>
     </main>
   );
 }

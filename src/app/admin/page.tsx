@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import api from '@/utils/api'; // Use the updated api utility
-import { useDarkMode } from '../DarkModeContext'; // Import dark mode context
+import { useRouter } from 'next/navigation'; // Import router for redirection
+import { useAuth } from '../context/AuthContext'; // Import auth context
+import api from '@/utils/api';
+import { useDarkMode } from '../DarkModeContext';
 import QuizList from './QuizList';
 import QuizForm from './QuizForm';
 import SubjectList from './SubjectList';
@@ -19,18 +21,17 @@ import { PlusCircle, BookOpen, HelpCircle, FileText, MessageSquare, X, Loader2 }
 interface QuizSubjectInfo { _id: string; name: string; color?: string; icon?: string; }
 interface Quiz { _id: string; title: string; subject: QuizSubjectInfo | string; difficulty: 'easy' | 'medium' | 'hard'; questions: any[]; totalQuestions?: number; timeLimit: number; isPublished?: boolean; attempts?: number; rating?: number; createdAt?: string; updatedAt?: string; }
 // Subject Interfaces
-interface Topic { _id?: string; name: string; description?: string; order?: number; resources?: string[]; } // This is Subject Topic
+interface Topic { _id?: string; name: string; description?: string; order?: number; resources?: string[]; }
 interface Subject { _id: string; name: string; description: string; color?: string; gradientFrom?: string; gradientTo?: string; icon?: string; topics: Topic[]; isActive?: boolean; createdAt?: string; updatedAt?: string; topicCount?: number; }
 // Resource Interfaces
 interface ResourceSubjectInfo { _id: string; name: string; color?: string; }
-interface Resource { _id: string; title: string; description?: string; category: string; subject: ResourceSubjectInfo | string; // Allow populated or ID
- type: string; size: string; filePath: string; downloads: number; premium: boolean; date: string; isActive?: boolean; createdAt?: string; updatedAt?: string; author?: any; }
+interface Resource { _id: string; title: string; description?: string; category: string; subject: ResourceSubjectInfo | string; type: string; size: string; filePath: string; downloads: number; premium: boolean; date: string; isActive?: boolean; createdAt?: string; updatedAt?: string; author?: any; }
 // Forum Interfaces
 interface ForumCategory { _id: string; name: string; description?: string; color?: string; icon?: string; topicsCount?: number; postsCount?: number; createdAt?: string; updatedAt?: string; }
-interface ForumTopic { // Interface for Forum Topics listed in modal
+interface ForumTopic {
     _id: string;
     title: string;
-    author: { _id: string; name: string; }; // Assuming author is populated
+    author: { _id: string; name: string; };
     views: number;
     repliesCount: number;
     createdAt: string;
@@ -38,6 +39,33 @@ interface ForumTopic { // Interface for Forum Topics listed in modal
 
 // --- Component ---
 export default function AdminDashboard() {
+  // Authentication and Router
+  const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
+
+  // Check authentication and role
+  useEffect(() => {
+    // Wait until auth is not loading to make the decision
+    if (!authLoading) {
+      // If user is not logged in or not an admin, redirect to login
+      if (!user) {
+        console.log('User not authenticated, redirecting to login');
+        router.replace('/login');
+        return;
+      }
+      
+      // Check if user has admin role
+      if (user.role !== 'admin') {
+        console.log('User does not have admin role, redirecting to dashboard');
+        router.replace('/dashboard');
+        return;
+      }
+      
+      // User is authenticated and has admin role, continue rendering
+      console.log('Admin access verified');
+    }
+  }, [user, authLoading, router]);
+
   // Dark Mode Context
   const { isDarkMode } = useDarkMode();
 
@@ -79,6 +107,8 @@ export default function AdminDashboard() {
 
   // --- Data Fetching ---
   const fetchQuizzes = useCallback(async () => {
+    if (!user) return; // Don't fetch if not authenticated
+    
     setIsLoadingQuizzes(true);
     setQuizError(null);
     try {
@@ -98,9 +128,11 @@ export default function AdminDashboard() {
     } finally {
       setIsLoadingQuizzes(false);
     }
-  }, []);
+  }, [user]);
 
   const fetchSubjects = useCallback(async () => {
+    if (!user) return; // Don't fetch if not authenticated
+    
     setIsLoadingSubjects(true);
     setSubjectError(null);
     try {
@@ -120,9 +152,11 @@ export default function AdminDashboard() {
     } finally {
         setIsLoadingSubjects(false);
     }
-  }, []);
+  }, [user]);
 
   const fetchResources = useCallback(async () => {
+    if (!user) return; // Don't fetch if not authenticated
+    
     setIsLoadingResources(true);
     setResourceError(null);
     try {
@@ -142,9 +176,11 @@ export default function AdminDashboard() {
     } finally {
       setIsLoadingResources(false);
     }
-  }, []);
+  }, [user]);
 
   const fetchCategories = useCallback(async () => {
+    if (!user) return; // Don't fetch if not authenticated
+    
     setIsLoadingCategories(true);
     setCategoryError(null);
     try {
@@ -164,10 +200,11 @@ export default function AdminDashboard() {
     } finally {
       setIsLoadingCategories(false);
     }
-  }, []);
+  }, [user]);
 
   const fetchTopicsForCategory = useCallback(async (categoryId: string) => {
-    if (!categoryId) return;
+    if (!user || !categoryId) return; // Don't fetch if not authenticated
+    
     setIsLoadingTopics(true);
     setTopicError(null);
     setTopicsForSelectedCategory([]);
@@ -186,16 +223,18 @@ export default function AdminDashboard() {
     } finally {
         setIsLoadingTopics(false);
     }
-  }, []);
+  }, [user]);
 
 
-  // Initial data fetch
+  // Initial data fetch - only if authenticated and has admin role
   useEffect(() => {
-    fetchQuizzes();
-    fetchSubjects();
-    fetchResources();
-    fetchCategories();
-  }, [fetchQuizzes, fetchSubjects, fetchResources, fetchCategories]);
+    if (user && user.role === 'admin') {
+      fetchQuizzes();
+      fetchSubjects();
+      fetchResources();
+      fetchCategories();
+    }
+  }, [user, fetchQuizzes, fetchSubjects, fetchResources, fetchCategories]);
 
   // --- Quiz Handlers ---
   const handleCreateNewQuiz = () => { setEditingQuiz(null); setShowQuizFormModal(true); };
@@ -309,8 +348,24 @@ export default function AdminDashboard() {
     setTopicError(null);
   };
 
+  // If authentication is loading, show loading indicator
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Verifying credentials...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // --- Rendering ---
+  // If user is not authenticated or not an admin, return null (redirect happens in useEffect)
+  if (!user || user.role !== 'admin') {
+    return null;
+  }
+
+  // --- Rendering the Admin Dashboard (once authenticated) ---
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-6 lg:p-8 transition-colors duration-300 relative overflow-hidden">
       {/* Background floating icons */}

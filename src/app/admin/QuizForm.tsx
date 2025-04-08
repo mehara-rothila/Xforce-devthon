@@ -121,21 +121,20 @@ const QuizForm: React.FC<QuizFormProps> = ({ initialQuizData, onSuccess, onCance
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
   };
-
-  // Handle changes for number inputs
-  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    // Allow empty string for clearing the input, otherwise parse as number
-    const numValue = value === '' ? '' : parseInt(value, 10);
-     // Prevent negative numbers for timeLimit and points
-    if ((name === 'timeLimit' || name === 'points') && numValue < 0) {
-      return;
-    }
-    setFormData(prev => ({
-      ...prev,
-      [name]: numValue
-    }));
-  };
+// Handle changes for number inputs
+const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target;
+  // Allow empty string for clearing the input, otherwise parse as number
+  const numValue = value === '' ? '' : parseInt(value, 10);
+  // Prevent negative numbers for timeLimit and points
+  if ((name === 'timeLimit' || name === 'points') && typeof numValue === 'number' && numValue < 0) {
+    return;
+  }
+  setFormData(prev => ({
+    ...prev,
+    [name]: numValue
+  }));
+};
 
   // --- Question Handlers ---
   const handleAddQuestion = () => {

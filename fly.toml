@@ -19,3 +19,9 @@ primary_region = 'fra'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 1024
+
+
+# Add this section to your fly.toml
+
+[build]
+  builder = "paketobuildpacks/builder:base"

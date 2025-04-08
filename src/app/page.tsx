@@ -816,8 +816,12 @@ export default function Home() {
           <div className="pt-12 border-t border-gray-800 text-center text-gray-400">
             {/* Copyright & Bottom Links */}
             <div className="flex flex-col md:flex-row justify-between items-center"><p>© 2025 Team Xforce. All rights reserved.</p><div className="mt-4 md:mt-0"><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Terms</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Privacy</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Cookies</a></div></div>
-            <p className="mt-6 text-sm">Designed for DEV{"{thon}"} 2.0 | <a href="https://mehara.io" className="text-purple-400 hover:text-purple-300 transition-colors duration-300">mehara.io</a></p>
-          </div>
+            <p className="mt-6 text-sm">
+  Designed for DEV{"{thon}"} 2.0 | 
+  <a href="https://mehara.io" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> mehara.io </a> 
+  & 
+  <a href="https://dinith-edirisinghe.onrender.com/" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> Dinith Edirisinghe</a>
+</p>          </div>
         </div>
       </footer>
 

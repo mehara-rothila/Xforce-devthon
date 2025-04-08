@@ -70,7 +70,7 @@ const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({     
 
             if (!selectedCategory && enhancedCategories.length > 0) {
                 setSelectedCategory(enhancedCategories[0]._id);
-            } else if (initialCategoryId && !enhancedCategories.some(c => c._id === initialCategoryId)) {
+              } else if (initialCategoryId && !enhancedCategories.some((c: ForumCategory) => c._id === initialCategoryId)) {
                 console.warn(`Category ID ${initialCategoryId} from URL params not found.`);
                 setSelectedCategory(enhancedCategories[0]?._id || '');
             }

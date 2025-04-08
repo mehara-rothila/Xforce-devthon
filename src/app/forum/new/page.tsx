@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useDarkMode } from '../../DarkModeContext';
 import api from '@/utils/api';
 import SubjectIcon from '@/components/icons/SubjectIcon';
-import { Loader2, AlertCircle, Layout, Edit } from 'lucide-react';
+import { Loader2, AlertCircle, Check, Layout, Edit } from 'lucide-react';
 
-// Static fallback data
+// Static fallback data (for export)
+// Replace this with your actual static data source or generate at build time
 const STATIC_CATEGORIES: ForumCategory[] = [
   { _id: '1', name: 'Physics Discussions' },
   { _id: '2', name: 'Chemistry Corner' },
@@ -43,99 +44,93 @@ const getCategoryStyles = (categoryName: string = '') => {
   }
 };
 
-// Props for static data
-interface NewTopicPageProps {
-  initialCategories?: ForumCategory[];
-  initialCategoryId?: string;
-}
-
-export default function NewTopicPage({ initialCategories = STATIC_CATEGORIES, initialCategoryId = '' }: NewTopicPageProps) {
+export default function NewTopicPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialCategoryId = searchParams?.get('category') || '';
   const { isDarkMode } = useDarkMode();
 
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategoryId || initialCategories[0]?._id || '');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategoryId || STATIC_CATEGORIES[0]?._id || '');
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
-  const [categories, setCategories] = useState<ForumCategory[]>(initialCategories);
+  const [categories, setCategories] = useState<ForumCategory[]>(STATIC_CATEGORIES);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Fetch categories dynamically (only in client-side or dev environments)
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await api.forum.getCategories();
-        if (response.data?.status === 'success' && Array.isArray(response.data.data?.categories)) {
-          const fetchedCategories = response.data.data.categories;
-          const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({
-            ...cat,
-            ...getCategoryStyles(cat.name)
-          }));
-          setCategories(enhancedCategories);
-
-          if (!selectedCategory && enhancedCategories.length > 0) {
-            setSelectedCategory(enhancedCategories[0]._id);
-          } else if (initialCategoryId && !enhancedCategories.some((c: ForumCategory) => c._id === initialCategoryId)) {
-            console.warn(`Category ID ${initialCategoryId} not found.`);
-            setSelectedCategory(enhancedCategories[0]?._id || initialCategories[0]?._id || '');
+    // Fetch categories using api.js (overrides static data in live environment)
+    useEffect(() => {
+      const fetchCategories = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await api.forum.getCategories();
+          if (response.data?.status === 'success' && Array.isArray(response.data.data?.categories)) {
+            const fetchedCategories = response.data.data.categories;
+            const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({
+              ...cat,
+              ...getCategoryStyles(cat.name)
+            }));
+            setCategories(enhancedCategories);
+  
+            if (!selectedCategory && enhancedCategories.length > 0) {
+              setSelectedCategory(enhancedCategories[0]._id);
+            } else if (initialCategoryId && !enhancedCategories.some((c: ForumCategory) => c._id === initialCategoryId)) {
+              console.warn(`Category ID ${initialCategoryId} from URL params not found.`);
+              setSelectedCategory(enhancedCategories[0]?._id || STATIC_CATEGORIES[0]?._id || '');
+            }
+          } else {
+            console.error("Failed to fetch categories or invalid format:", response.data);
+            setError(response.data?.message || 'Failed to fetch categories');
+            setCategories(STATIC_CATEGORIES); // Fallback to static data on error
           }
+        } catch (err: any) {
+          console.error('Error fetching categories:', err);
+          setError(err.response?.data?.message || err.message || 'Error connecting to the server.');
+          setCategories(STATIC_CATEGORIES); // Fallback to static data on error
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchCategories();
+    }, [initialCategoryId]); // Depend on initialCategoryId only
+  
+    // Handle form submission using api.js
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSubmitError(null);
+  
+      if (!title.trim()) { setSubmitError('Title is required'); return; }
+      if (!content.trim()) { setSubmitError('Content is required'); return; }
+      if (!selectedCategory) { setSubmitError('Please select a category'); return; }
+  
+      setIsSubmitting(true);
+  
+      try {
+        const payload = { title: title.trim(), content: content.trim(), category: selectedCategory };
+        const response = await api.forum.createTopic(payload);
+  
+        if (response.data?.status === 'success' && response.data.data?.topic?._id) {
+          router.push(`/forum/topic/${response.data.data.topic._id}`);
         } else {
-          console.error("Failed to fetch categories or invalid format:", response.data);
-          setError(response.data?.message || 'Failed to fetch categories');
-          setCategories(initialCategories); // Fallback to initialCategories
+          throw new Error(response.data?.message || "Failed to create topic.");
         }
       } catch (err: any) {
-        console.error('Error fetching categories:', err);
-        setError(err.response?.data?.message || err.message || 'Error connecting to the server.');
-        setCategories(initialCategories); // Fallback to initialCategories
+        console.error('Error creating topic:', err);
+        let errorMessage = `Failed to create topic: ${err.message || 'Unknown error'}`;
+        if (err.response?.data?.message) {
+          errorMessage = `Failed to create topic: ${err.response.data.message}`;
+        } else if (err.response?.data?.errors) {
+          const errorDetails = Object.values(err.response.data.errors).map((e: any) => e.message).join(', ');
+          errorMessage = `Validation failed: ${errorDetails}`;
+        }
+        setSubmitError(errorMessage);
       } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
       }
     };
-    fetchCategories();
-  }, [initialCategoryId, initialCategories]);
-
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitError(null);
-
-    if (!title.trim()) { setSubmitError('Title is required'); return; }
-    if (!content.trim()) { setSubmitError('Content is required'); return; }
-    if (!selectedCategory) { setSubmitError('Please select a category'); return; }
-
-    setIsSubmitting(true);
-
-    try {
-      const payload = { title: title.trim(), content: content.trim(), category: selectedCategory };
-      const response = await api.forum.createTopic(payload);
-
-      if (response.data?.status === 'success' && response.data.data?.topic?._id) {
-        router.push(`/forum/topic/${response.data.data.topic._id}`);
-      } else {
-        throw new Error(response.data?.message || "Failed to create topic.");
-      }
-    } catch (err: any) {
-      console.error('Error creating topic:', err);
-      let errorMessage = `Failed to create topic: ${err.message || 'Unknown error'}`;
-      if (err.response?.data?.message) {
-        errorMessage = `Failed to create topic: ${err.response.data.message}`;
-      } else if (err.response?.data?.errors) {
-        const errorDetails = Object.values(err.response.data.errors).map((e: any) => e.message).join(', ');
-        errorMessage = `Validation failed: ${errorDetails}`;
-      }
-      setSubmitError(errorMessage);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Render markdown preview
+      // Function to render markdown preview
   const renderPreview = () => {
     let formattedContent = content
       .replace(/</g, "<").replace(/>/g, ">")
@@ -154,7 +149,7 @@ export default function NewTopicPage({ initialCategories = STATIC_CATEGORIES, in
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
-      {/* Background elements */}
+      {/* Enhanced background with mathematical/scientific elements */}
       <div id="new-topic-page-background" className="absolute inset-0 z-0 opacity-30 pointer-events-none overflow-hidden">
         <div className="absolute top-[7%] left-[13%] text-purple-500 dark:text-purple-400 text-9xl opacity-75 floating-icon">∑</div>
         <div className="absolute top-[33%] right-[17%] text-blue-500 dark:text-blue-400 text-10xl opacity-70 floating-icon-reverse">π</div>
@@ -232,7 +227,7 @@ export default function NewTopicPage({ initialCategories = STATIC_CATEGORIES, in
               <form onSubmit={handleSubmit}>
                 {/* Title input */}
                 <div className="mb-6">
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-700A dark:text-gray-300 mb-2">
                     Topic Title <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -296,8 +291,7 @@ export default function NewTopicPage({ initialCategories = STATIC_CATEGORIES, in
                     })}
                   </div>
                 </div>
-
-                {/* Editor tabs */}
+                                {/* Editor tabs */}
                 <div className="flex border-b border-gray-200 dark:border-gray-700 mb-0">
                   <button
                     type="button"
@@ -355,7 +349,7 @@ export default function NewTopicPage({ initialCategories = STATIC_CATEGORIES, in
                         onClick={() => setContent(prev => prev + '`code`')}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4-4M6 16l-4-4 4-4" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4- pree4 4M6 16l-4-4 4-4" />
                         </svg>
                       </button>
                     </div>
@@ -554,48 +548,4 @@ export default function NewTopicPage({ initialCategories = STATIC_CATEGORIES, in
       `}</style>
     </div>
   );
-}
-
-// Static props for build-time data fetching
-export async function getStaticProps() {
-  try {
-    // Attempt to fetch categories at build time
-    const response = await api.forum.getCategories();
-    if (response.data?.status === 'success' && Array.isArray(response.data.data?.categories)) {
-      const fetchedCategories = response.data.data.categories.map((cat: ForumCategory) => ({
-        ...cat,
-        ...getCategoryStyles(cat.name)
-      }));
-      return {
-        props: {
-          initialCategories: fetchedCategories,
-          initialCategoryId: fetchedCategories[0]?._id || '',
-        },
-        revalidate: 60 * 60, // Revalidate every hour
-      };
-    }
-    // Fallback to static categories if API fails
-    return {
-      props: {
-        initialCategories: STATIC_CATEGORIES.map(cat => ({
-          ...cat,
-          ...getCategoryStyles(cat.name)
-        })),
-        initialCategoryId: STATIC_CATEGORIES[0]?._id || '',
-      },
-      revalidate: 60 * 60,
-    };
-  } catch (err) {
-    console.error('Error fetching categories in getStaticProps:', err);
-    return {
-      props: {
-        initialCategories: STATIC_CATEGORIES.map(cat => ({
-          ...cat,
-          ...getCategoryStyles(cat.name)
-        })),
-        initialCategoryId: STATIC_CATEGORIES[0]?._id || '',
-      },
-      revalidate: 60 * 60,
-    };
-  }
 }

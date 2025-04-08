@@ -62,8 +62,8 @@ export default function NewTopicPage() {
         if (response.data?.status === 'success' && Array.isArray(response.data.data?.categories)) {
             const fetchedCategories = response.data.data.categories;
             // Enhance categories with style info right after fetching
-            const enhancedCategories = fetchedCategories.map(cat => ({
-                ...cat,
+// Add the type annotation using your existing ForumCategory interface
+const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({                ...cat,
                 ...getCategoryStyles(cat.name) // Add style props
             }));
             setCategories(enhancedCategories);

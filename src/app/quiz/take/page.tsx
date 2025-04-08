@@ -13,8 +13,8 @@ export default function TakeQuiz() {
   // State variables for quiz data, loading status, errors, etc.
   const [quizData, setQuizData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-    const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [error, setError] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [answers, setAnswers] = useState({});
   const [showExplanation, setShowExplanation] = useState(false);

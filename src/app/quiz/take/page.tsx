@@ -1,6 +1,6 @@
 // Remove "use client" to make it a Server Component
 import Link from 'next/link';
-import api from '../../../../utils/api';
+import api from '../../../utils/api';
 
 // Define interfaces (same as before)
 interface Option {

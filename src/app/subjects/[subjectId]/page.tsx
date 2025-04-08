@@ -150,14 +150,26 @@ export default function SubjectDetailPage() {
                 else { console.warn("Failed to load subject rewards:", rewardsRes.status === 'rejected' ? rewardsRes.reason : rewardsRes.value.data); }
                 setIsLoadingRewards(false);
 
-                // Process Progress (Simulated)
-                if (progressRes.status === 'fulfilled' && progressRes.value.data?.status === 'success') { setUserProgress(progressRes.value.data.data); }
-                else { console.warn("Failed to load progress"); }
+                // Process Progress (Simulated) - FIXED SECTION WITH TYPE ASSERTION
+                if (progressRes.status === 'fulfilled') {
+                    const progressData = progressRes.value as {data: {status: string, data: any}};
+                    if (progressData.data?.status === 'success') { 
+                        setUserProgress(progressData.data.data); 
+                    }
+                } else { 
+                    console.warn("Failed to load progress"); 
+                }
                 setIsLoadingProgress(false);
 
-                 // Process Recommendations (Simulated)
-                if (recsRes.status === 'fulfilled' && recsRes.value.data?.status === 'success') { setRecommendedResources(recsRes.value.data.data.recommendations); }
-                else { console.warn("Failed to load recommendations"); }
+                // Process Recommendations (Simulated) - FIXED SECTION WITH TYPE ASSERTION
+                if (recsRes.status === 'fulfilled') {
+                    const recsData = recsRes.value as {data: {status: string, data: {recommendations: any[]}}};
+                    if (recsData.data?.status === 'success') { 
+                        setRecommendedResources(recsData.data.data.recommendations); 
+                    }
+                } else { 
+                    console.warn("Failed to load recommendations"); 
+                }
                 setIsLoadingRecs(false);
 
 

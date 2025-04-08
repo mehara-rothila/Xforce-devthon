@@ -250,7 +250,9 @@ const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete
                       <div className="flex items-center justify-center">
                         <span className="relative inline-flex">
                           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
-                            <CheckCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-500" title="Premium" />
+                          // With these lines:
+<CheckCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-500" aria-label="Premium" />
+
                           </span>
                           <span className="absolute top-0 right-0 block h-1.5 w-1.5 rounded-full bg-yellow-500 ring-2 ring-white dark:ring-gray-800"></span>
                         </span>
@@ -258,8 +260,8 @@ const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete
                     ) : (
                       <div className="flex items-center justify-center">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                          <XCircle className="h-4 w-4 text-gray-400 dark:text-gray-500" title="Standard" />
-                        </span>
+<XCircle className="h-4 w-4 text-gray-400 dark:text-gray-500" aria-label="Standard" />    
+                    </span>
                       </div>
                     )}
                   </td>

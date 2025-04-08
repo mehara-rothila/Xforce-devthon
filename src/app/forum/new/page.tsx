@@ -8,6 +8,16 @@ import api from '@/utils/api';
 import SubjectIcon from '@/components/icons/SubjectIcon';
 import { Loader2, AlertCircle, Check, Layout, Edit } from 'lucide-react';
 
+// Static fallback data (for export)
+// Replace this with your actual static data source or generate at build time
+const STATIC_CATEGORIES: ForumCategory[] = [
+  { _id: '1', name: 'Physics Discussions' },
+  { _id: '2', name: 'Chemistry Corner' },
+  { _id: '3', name: 'Mathematics Hub' },
+  { _id: '4', name: 'Study Tips & Tricks' },
+  { _id: '5', name: 'Exam Preparation' },
+];
+
 // Type definitions
 interface ForumCategory {
   _id: string;
@@ -34,30 +44,23 @@ const getCategoryStyles = (categoryName: string = '') => {
   }
 };
 
-// Component with static props
-export default function NewTopicPage({ initialCategories = [] }: { initialCategories?: ForumCategory[] }) {
+export default function NewTopicPage() {
   const router = useRouter();
-  const searchParams = typeof window !== 'undefined' ? useSearchParams() : null; // Fallback for static export
+  const searchParams = useSearchParams();
   const initialCategoryId = searchParams?.get('category') || '';
   const { isDarkMode } = useDarkMode();
 
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategoryId);
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategoryId || STATIC_CATEGORIES[0]?._id || '');
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
-  const [categories, setCategories] = useState<ForumCategory[]>(initialCategories);
-  const [isLoading, setIsLoading] = useState<boolean>(!initialCategories.length);
+  const [categories, setCategories] = useState<ForumCategory[]>(STATIC_CATEGORIES);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-    // Fetch categories using api.js (client-side fallback if no initial data)
+    // Fetch categories using api.js (overrides static data in live environment)
     useEffect(() => {
-      if (initialCategories.length > 0 && !initialCategoryId) {
-        setSelectedCategory(initialCategories[0]._id);
-        setIsLoading(false);
-        return;
-      }
-  
       const fetchCategories = async () => {
         setIsLoading(true);
         setError(null);
@@ -75,21 +78,23 @@ export default function NewTopicPage({ initialCategories = [] }: { initialCatego
               setSelectedCategory(enhancedCategories[0]._id);
             } else if (initialCategoryId && !enhancedCategories.some((c: ForumCategory) => c._id === initialCategoryId)) {
               console.warn(`Category ID ${initialCategoryId} from URL params not found.`);
-              setSelectedCategory(enhancedCategories[0]?._id || '');
+              setSelectedCategory(enhancedCategories[0]?._id || STATIC_CATEGORIES[0]?._id || '');
             }
           } else {
             console.error("Failed to fetch categories or invalid format:", response.data);
             setError(response.data?.message || 'Failed to fetch categories');
+            setCategories(STATIC_CATEGORIES); // Fallback to static data on error
           }
         } catch (err: any) {
           console.error('Error fetching categories:', err);
           setError(err.response?.data?.message || err.message || 'Error connecting to the server.');
+          setCategories(STATIC_CATEGORIES); // Fallback to static data on error
         } finally {
           setIsLoading(false);
         }
       };
       fetchCategories();
-    }, [initialCategoryId, initialCategories]);
+    }, [initialCategoryId]); // Depend on initialCategoryId only
   
     // Handle form submission using api.js
     const handleSubmit = async (e: React.FormEvent) => {
@@ -222,7 +227,7 @@ export default function NewTopicPage({ initialCategories = [] }: { initialCatego
               <form onSubmit={handleSubmit}>
                 {/* Title input */}
                 <div className="mb-6">
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-700A dark:text-gray-300 mb-2">
                     Topic Title <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -285,8 +290,9 @@ export default function NewTopicPage({ initialCategories = [] }: { initialCatego
                       );
                     })}
                   </div>
-                </div>                {/* Editor tabs */}
-                <div className="flex border-b border-gray-200 dark:border-gray-700 mb-0">
+                </div>
+                                {/* Editor tabs */}
+                                <div className="flex border-b border-gray-200 dark:border-gray-700 mb-0">
                   <button
                     type="button"
                     className={`py-2 px-4 font-medium text-sm ${
@@ -343,7 +349,7 @@ export default function NewTopicPage({ initialCategories = [] }: { initialCatego
                         onClick={() => setContent(prev => prev + '`code`')}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4- pree4 4M6 16l-4-4 4-4" />
                         </svg>
                       </button>
                     </div>
@@ -374,8 +380,7 @@ export default function NewTopicPage({ initialCategories = [] }: { initialCatego
                     </div>
                   )}
                   <div className="mt-2 flex flex-wrap gap-2">
-                    <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full transition-all duration-200 hover:bg-blue-200 dark:hover:bg-blue-8
-00/40 transform hover:scale-105">Tip: Use **bold**</span>
+                    <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full transition-all duration-200 hover:bg-blue-200 dark:hover:bg-blue-800/40 transform hover:scale-105">Tip: Use **bold**</span>
                     <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full transition-all duration-200 hover:bg-blue-200 dark:hover:bg-blue-800/40 transform hover:scale-105">Use *italic*</span>
                     <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full transition-all duration-200 hover:bg-blue-200 dark:hover:bg-blue-800/40 transform hover:scale-105">Use `code`</span>
                   </div>
@@ -431,7 +436,7 @@ export default function NewTopicPage({ initialCategories = [] }: { initialCatego
               </form>
             </div>
 
-            <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-750 border-t border-gray-100 dark:border-gray-700">
+            <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 border-t border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500 dark:text-purple-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -543,38 +548,4 @@ export default function NewTopicPage({ initialCategories = [] }: { initialCatego
       `}</style>
     </div>
   );
-}
-
-// Static data fetching for export
-export async function getStaticProps() {
-  try {
-    const response = await api.forum.getCategories();
-    if (response.data?.status === 'success' && Array.isArray(response.data.data?.categories)) {
-      const fetchedCategories = response.data.data.categories;
-      const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({
-        ...cat,
-        ...getCategoryStyles(cat.name)
-      }));
-      return {
-        props: {
-          initialCategories: enhancedCategories,
-        },
-        revalidate: 60 * 60, // Revalidate every hour
-      };
-    }
-    return {
-      props: {
-        initialCategories: [],
-      },
-      revalidate: 60 * 60,
-    };
-  } catch (err) {
-    console.error('Error in getStaticProps:', err);
-    return {
-      props: {
-        initialCategories: [],
-      },
-      revalidate: 60 * 60,
-    };
-  }
 }

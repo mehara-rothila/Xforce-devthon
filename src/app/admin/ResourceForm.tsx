@@ -60,8 +60,11 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       title: initialResourceData?.title || '',
       description: initialResourceData?.description || '',
       category: initialResourceData?.category || resourceCategories[0].value,
-      subject: typeof initialResourceData?.subject === 'object' ? initialResourceData.subject._id : initialResourceData?.subject || (availableSubjects?.length > 0 ? availableSubjects[0]._id : ''),
-      type: 'PDF', // Hardcode to PDF since only PDF upload is handled
+      subject: typeof initialResourceData?.subject === 'object' && initialResourceData.subject !== null
+      ? (initialResourceData.subject as { _id: string })._id
+      : initialResourceData?.subject || (availableSubjects && availableSubjects.length > 0 
+          ? availableSubjects[0]._id 
+          : ''),      type: 'PDF', // Hardcode to PDF since only PDF upload is handled
       premium: initialResourceData?.premium || false,
       filePath: initialResourceData?.filePath || '',
       size: initialResourceData?.size || '',

@@ -412,26 +412,26 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             <X className="h-5 w-5" />
           </button>
         </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative mb-4 animate-fade-in shadow-sm" role="alert">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0" />
-              <div className="ml-3 flex-grow">
-                <p className="font-medium">Error</p>
-                <p className="text-sm">{error}</p>
-              </div>
-              <button 
-                type="button" 
-                onClick={() => setError(null)} 
-                className="ml-auto flex-shrink-0 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        )}
+{/* Error Display */}
+{error && (
+  <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative mb-4 animate-fade-in shadow-sm" role="alert">
+    <div className="flex items-center">
+      <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0" />
+      <div className="ml-3 flex-grow">
+        <p className="font-medium">Error</p>
+        <p className="text-sm">{error}</p>
+      </div>
+      <button 
+        type="button" 
+        onClick={() => setError(null)} 
+        aria-label="Close error message"
+        className="ml-auto flex-shrink-0 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+      >
+        <X className="h-5 w-5" />
+      </button>
+    </div>
+  </div>
+)}
 
         {/* Success Message */}
         {successMessage && (

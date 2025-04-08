@@ -519,18 +519,24 @@ export default function AdminDashboard() {
 
       {/* Modals */}
       
-      {/* Quiz Form Modal */}
-      {showQuizFormModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-            <div className="flex-grow overflow-y-auto p-6">
-              <QuizForm initialQuizData={editingQuiz} onSuccess={handleQuizFormSuccess} onCancel={handleCloseQuizModal} />
-            </div>
-          </div>
-          <div className="fixed inset-0 z-40" onClick={handleCloseQuizModal}></div>
-        </div>
-      )}
-
+    {/* Quiz Form Modal */}
+{showQuizFormModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
+      <div className="flex-grow overflow-y-auto p-6">
+        <QuizForm 
+          initialQuizData={editingQuiz ? {
+            ...editingQuiz,
+            subject: typeof editingQuiz.subject === 'object' ? editingQuiz.subject._id : editingQuiz.subject
+          } : null} 
+          onSuccess={handleQuizFormSuccess} 
+          onCancel={handleCloseQuizModal} 
+        />
+      </div>
+    </div>
+    <div className="fixed inset-0 z-40" onClick={handleCloseQuizModal}></div>
+  </div>
+)}
       {/* Subject Form Modal */}
       {showSubjectFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
@@ -543,22 +549,27 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Resource Form Modal */}
-      {showResourceFormModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-            <div className="flex-grow overflow-y-auto p-6">
-              <ResourceForm
-                initialResourceData={editingResource}
-                availableSubjects={subjects}
-                onSuccess={handleResourceFormSuccess}
-                onCancel={handleCloseResourceModal}
-              />
-            </div>
-          </div>
-          <div className="fixed inset-0 z-40" onClick={handleCloseResourceModal}></div>
-        </div>
-      )}
+     {/* Resource Form Modal */}
+{showResourceFormModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
+      <div className="flex-grow overflow-y-auto p-6">
+        <ResourceForm
+          initialResourceData={editingResource ? {
+            ...editingResource,
+            subject: typeof editingResource.subject === 'object' 
+              ? editingResource.subject._id 
+              : editingResource.subject
+          } : null}
+          availableSubjects={subjects}
+          onSuccess={handleResourceFormSuccess}
+          onCancel={handleCloseResourceModal}
+        />
+      </div>
+    </div>
+    <div className="fixed inset-0 z-40" onClick={handleCloseResourceModal}></div>
+  </div>
+)}
 
       {/* Category Form Modal */}
       {showCategoryFormModal && (
@@ -576,41 +587,50 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Topic View/Delete Modal */}
-      {showTopicModal && selectedCategoryForTopics && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 z-40 flex justify-center items-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl z-50 max-h-[85vh] flex flex-col transition-colors duration-300">
-            <div className="flex justify-between items-center p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-t-lg transition-colors duration-300">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 transition-colors duration-300"> 
-                Topics in "{selectedCategoryForTopics.name}" 
-              </h2>
-              <button onClick={handleCloseTopicModal} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-300"> 
-                <X className="h-5 w-5" /> 
-              </button>
-            </div>
-            <div className="flex-grow overflow-y-auto p-6">
-              {isLoadingTopics && ( 
-                <div className="text-center py-10">
-                  <Loader2 className="h-8 w-8 mx-auto animate-spin text-blue-600 dark:text-blue-400" />
-                  <p className="mt-2 text-gray-600 dark:text-gray-300 transition-colors duration-300">Loading topics...</p>
-                </div> 
-              )}
-              {topicError && ( 
-                <div className="text-center py-10 text-red-600 dark:text-red-400 transition-colors duration-300">
-                  <p>Error loading topics: {topicError}</p>
-                  <button onClick={() => fetchTopicsForCategory(selectedCategoryForTopics._id)} className="mt-2 px-3 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 text-sm transition-colors duration-300">
-                    Retry
-                  </button>
-                </div> 
-              )}
-              {!isLoadingTopics && !topicError && ( 
-                <TopicList topics={topicsForSelectedCategory} onDeleteTopic={handleDeleteTopic} /> 
-              )}
-            </div>
-          </div>
-          <div className="fixed inset-0 z-40" onClick={handleCloseTopicModal}></div>
-        </div>
-      )}
+     {/* Topic View/Delete Modal */}
+{showTopicModal && selectedCategoryForTopics && (
+  <div className="fixed inset-0 bg-black bg-opacity-60 z-40 flex justify-center items-center p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl z-50 max-h-[85vh] flex flex-col transition-colors duration-300">
+      <div className="flex justify-between items-center p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-t-lg transition-colors duration-300">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 transition-colors duration-300"> 
+          Topics in "{selectedCategoryForTopics.name}" 
+        </h2>
+        <button 
+          type="button" 
+          onClick={handleCloseTopicModal} 
+          aria-label="Close topics modal"
+          className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-300"
+        > 
+          <X className="h-5 w-5" /> 
+        </button>
+      </div>
+      <div className="flex-grow overflow-y-auto p-6">
+        {isLoadingTopics && ( 
+          <div className="text-center py-10">
+            <Loader2 className="h-8 w-8 mx-auto animate-spin text-blue-600 dark:text-blue-400" />
+            <p className="mt-2 text-gray-600 dark:text-gray-300 transition-colors duration-300">Loading topics...</p>
+          </div> 
+        )}
+        {topicError && ( 
+          <div className="text-center py-10 text-red-600 dark:text-red-400 transition-colors duration-300">
+            <p>Error loading topics: {topicError}</p>
+            <button 
+              type="button" 
+              onClick={() => fetchTopicsForCategory(selectedCategoryForTopics._id)} 
+              className="mt-2 px-3 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800 text-sm transition-colors duration-300"
+            >
+              Retry
+            </button>
+          </div> 
+        )}
+        {!isLoadingTopics && !topicError && ( 
+          <TopicList topics={topicsForSelectedCategory} onDeleteTopic={handleDeleteTopic} /> 
+        )}
+      </div>
+    </div>
+    <div className="fixed inset-0 z-40" onClick={handleCloseTopicModal}></div>
+  </div>
+)}
 
       {/* Add global style for animations */}
       <style jsx global>{`

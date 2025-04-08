@@ -712,8 +712,9 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                         </h4>
                         <div className="flex flex-wrap items-center mt-1 gap-2">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getDifficultyColor(question.difficulty || 'medium')}`}>
-                            {question.difficulty?.charAt(0).toUpperCase() + question.difficulty?.slice(1) || 'Medium'}
-                          </span>
+                          {question.difficulty 
+  ? question.difficulty.charAt(0).toUpperCase() + question.difficulty.slice(1) 
+  : 'Medium'}                          </span>
                           <span className="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">
                             <Award className="h-3.5 w-3.5 mr-1" />
                             {question.points || 10} points

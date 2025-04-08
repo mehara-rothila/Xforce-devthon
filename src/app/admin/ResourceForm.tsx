@@ -83,34 +83,44 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!initialResourceData?._id;
-
-  // Effect to update form if initial data changes (e.g., opening modal again)
-  useEffect(() => {
-      if (initialResourceData) {
-          setFormData({
-              title: initialResourceData.title || '',
-              description: initialResourceData.description || '',
-              category: initialResourceData.category || resourceCategories[0].value,
-              subject: typeof initialResourceData.subject === 'object' ? initialResourceData.subject._id : initialResourceData.subject || '',
-              type: 'PDF', // Keep as PDF
-              premium: initialResourceData.premium || false,
-              filePath: initialResourceData.filePath || '',
-              size: initialResourceData.size || '',
-              _id: initialResourceData._id || undefined,
-          });
-          setFilePreview(initialResourceData.filePath || null);
-          setSelectedFile(null); // Reset selected file when opening for edit
-      } else {
-           // Reset for creation
-           setFormData({ title: '', description: '', category: resourceCategories[0].value, subject: availableSubjects?.[0]?._id || '', type: 'PDF', premium: false, filePath: '', size: '' });
-           setFilePreview(null);
-           setSelectedFile(null);
-      }
-      setActiveStep(1); // Always start at step 1
-      setError(null);
-      setSuccess(null);
-      setFormErrors({});
-  }, [initialResourceData, availableSubjects]); // Depend on initial data
+// Effect to update form if initial data changes (e.g., opening modal again)
+useEffect(() => {
+  if (initialResourceData) {
+      setFormData({
+          title: initialResourceData.title || '',
+          description: initialResourceData.description || '',
+          category: initialResourceData.category || resourceCategories[0].value,
+          subject: typeof initialResourceData.subject === 'object' && initialResourceData.subject !== null
+            ? (initialResourceData.subject as { _id: string })._id 
+            : initialResourceData.subject || '',
+          type: 'PDF', // Keep as PDF
+          premium: initialResourceData.premium || false,
+          filePath: initialResourceData.filePath || '',
+          size: initialResourceData.size || '',
+          _id: initialResourceData._id || undefined,
+      });
+      setFilePreview(initialResourceData.filePath || null);
+      setSelectedFile(null); // Reset selected file when opening for edit
+  } else {
+       // Reset for creation
+       setFormData({ 
+         title: '', 
+         description: '', 
+         category: resourceCategories[0].value, 
+         subject: availableSubjects && availableSubjects.length > 0 ? availableSubjects[0]._id : '', 
+         type: 'PDF', 
+         premium: false, 
+         filePath: '', 
+         size: '' 
+       });
+       setFilePreview(null);
+       setSelectedFile(null);
+  }
+  setActiveStep(1); // Always start at step 1
+  setError(null);
+  setSuccess(null);
+  setFormErrors({});
+}, [initialResourceData, availableSubjects]); // Depend on initial data
 
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

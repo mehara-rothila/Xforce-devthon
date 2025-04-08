@@ -24,4 +24,4 @@ primary_region = 'fra'
 # Add this section to your fly.toml
 
 [build]
-  builder = "paketobuildpacks/builder:base"
+  builder = "paketobuildpacks/builder:full"

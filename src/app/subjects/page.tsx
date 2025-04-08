@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useDarkMode } from '../DarkModeContext'; // Adjust path if needed
-import api from '../utils/api'; // <-- ADDED: Import the configured API client
+import api from '../../utils/api'; // <-- ADDED: Import the configured API client
 
 // Define Subject type based on your model
 interface Subject {

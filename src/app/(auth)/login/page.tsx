@@ -137,11 +137,17 @@ export default function Login() {
             <p className="mt-2 text-center text-base text-gray-600 dark:text-gray-300">
               Sign in to continue your learning journey
             </p>
-            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-              Or{' '}
-              <Link href="/register" className="font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors duration-150">
-                create a new account
-              </Link>
+            <p className="mt-4 text-center text-base text-gray-600 dark:text-gray-400">
+              <span className="relative inline-block">
+                <span className="inline-block">Or</span>{' '}
+                <Link href="/register" className="inline-flex items-center text-lg font-bold text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-all duration-300 border-b-2 border-purple-400 dark:border-purple-500 hover:border-purple-600 dark:hover:border-purple-400 pb-0.5 transform hover:translate-y-[-2px] hover:scale-105">
+                  <span className="mr-1">create a new account</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 animate-pulse-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
+                <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-purple-400/0 via-purple-400/70 to-purple-400/0 animate-pulse-slow hidden sm:block"></span>
+              </span>
             </p>
           </div>
         </div>

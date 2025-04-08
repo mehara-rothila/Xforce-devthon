@@ -417,21 +417,26 @@ export default function Register() {
             )}
 
             {/* --- Submit Button --- */}
-            <div>
+            <div className="mt-8">
               <button
                 type="submit"
                 disabled={isLoading} // Disable button when loading
-                className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 transition-all duration-200 transform hover:-translate-y-0.5 ${
-                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                className={`w-full flex justify-center py-3 px-6 border border-transparent rounded-xl shadow-xl text-base font-bold text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-900 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : 'animated-pulse-subtle'
                 }`}
               >
                 {isLoading ? (
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 ) : (
-                  'Create Account'
+                  <>
+                    <span className="relative z-10">Create Account</span>
+                    <span className="absolute inset-0 rounded-xl overflow-hidden">
+                      <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-400/30 to-indigo-400/30 animate-pulse-slow"></span>
+                    </span>
+                  </>
                 )}
               </button>
             </div>
@@ -483,6 +488,30 @@ export default function Register() {
         @keyframes pulse-slow { 
           0%, 100% { opacity: 1; transform: scale(1); } 
           50% { opacity: 0.7; transform: scale(0.98); } 
+        }
+        
+        /* Subtle pulse animation for the create account button */
+        .animated-pulse-subtle {
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .animated-pulse-subtle::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.3), rgba(255,255,255,0));
+          transform: translateX(-100%);
+          animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+          100% {
+            transform: translateX(100%);
+          }
         }
 
         .animate-fade-in { 

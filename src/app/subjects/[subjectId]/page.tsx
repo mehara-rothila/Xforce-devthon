@@ -11,6 +11,9 @@ import {
     HelpCircle, Star, Download, ChevronRight, Link as LinkIcon, Award
 } from 'lucide-react';
 
+// Define the base URL using environment variable
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+
 // --- Interfaces ---
 interface Topic { _id?: string; id?: string; name: string; description?: string; order?: number; resources?: string[]; progress?: number; mastery?: 'Low' | 'Medium' | 'High'; }
 interface SubjectData { _id: string; name: string; description: string; color?: string; gradientFrom?: string; gradientTo?: string; icon?: string; topics: Topic[]; forumCategoryId?: string; }
@@ -21,7 +24,7 @@ interface PracticeQuiz { id: string; title: string; questions: number; difficult
 interface ForumDiscussion { id: string; title: string; content: string; replies: number; timestamp: string; }
 interface Reward { _id: string; name: string; description: string; pointsCost: number; category: string; image?: string; stock?: number | null; }
 
-// --- Helper Functions --- // <-- DEFINITIONS ARE HERE -->
+// --- Helper Functions ---
 const getTimeAgo = (dateString: string | undefined): string => {
     if (!dateString) return 'N/A';
     try {
@@ -31,7 +34,6 @@ const getTimeAgo = (dateString: string | undefined): string => {
 };
 const getDifficultyColorClasses = (difficulty: string | undefined = ''): string => {
     const lowerDifficulty = difficulty?.toLowerCase() || '';
-    // Returns the full class string including bg, text, border
     switch (lowerDifficulty) { case 'easy': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800'; case 'medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800'; case 'hard': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800'; case 'advanced': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800'; case 'beginner': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800'; default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600'; }
 };
 const getMasteryColor = (mastery: string | undefined = ''): string => {
@@ -40,21 +42,20 @@ const getMasteryColor = (mastery: string | undefined = ''): string => {
 };
 const getResourceTypeIcon = (type: string | undefined = ''): React.ReactNode => {
     const lowerType = type?.toLowerCase() || '';
-    const iconClass = "h-5 w-5 text-purple-600 dark:text-purple-400"; // Consistent icon style
+    const iconClass = "h-5 w-5 text-purple-600 dark:text-purple-400";
     switch (lowerType) { case 'notes': return <FileText className={iconClass} />; case 'pdf': return <FileText className={iconClass} />; case 'video': return <svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>; case 'interactive': return <svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>; case 'practice quiz': return <HelpCircle className={iconClass} />; case 'study notes': return <BookOpen className={iconClass} />; case 'video lesson': return <svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>; default: return <LinkIcon className={iconClass} />; }
 };
 const getAverageScoreColor = (score: number | undefined = 0): string => { score = score || 0; if (score > 75) return 'text-green-600 dark:text-green-400'; if (score > 60) return 'text-yellow-600 dark:text-yellow-400'; return 'text-red-600 dark:text-red-400'; };
 const getAverageScoreBgGradient = (score: number | undefined = 0): string => { score = score || 0; if (score > 75) return 'bg-gradient-to-r from-green-400 to-green-500 dark:from-green-500 dark:to-green-600'; if (score > 60) return 'bg-gradient-to-r from-yellow-400 to-yellow-500 dark:from-yellow-500 dark:to-yellow-600'; return 'bg-gradient-to-r from-red-400 to-red-500 dark:from-red-500 dark:to-red-600'; };
 const getCategoryStyles = (name: string = '') => {
-    // Using subject name for styling
     switch(name?.toLowerCase()) {
       case 'physics': return { color: 'blue', gradientFrom: 'from-blue-400', gradientTo: 'to-blue-600', hoverGradientFrom: 'from-blue-500', hoverGradientTo: 'to-blue-700', shadowColor: 'rgba(59, 130, 246, 0.5)', bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800', badgeBg: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400', hoverBg: 'hover:bg-blue-50 dark:hover:bg-blue-900/10' };
       case 'chemistry': return { color: 'green', gradientFrom: 'from-green-400', gradientTo: 'to-green-600', hoverGradientFrom: 'from-green-500', hoverGradientTo: 'to-green-700', shadowColor: 'rgba(16, 185, 129, 0.5)', bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-100 dark:border-green-800', badgeBg: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', hoverBg: 'hover:bg-green-50 dark:hover:bg-green-900/10' };
       case 'combined mathematics': return { color: 'yellow', gradientFrom: 'from-yellow-400', gradientTo: 'to-yellow-600', hoverGradientFrom: 'from-yellow-500', hoverGradientTo: 'to-yellow-700', shadowColor: 'rgba(245, 158, 11, 0.5)', bg: 'bg-yellow-50 dark:bg-yellow-900/20', border: 'border-yellow-100 dark:border-yellow-800', badgeBg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400', hoverBg: 'hover:bg-yellow-50 dark:hover:bg-yellow-900/10' };
-      // Add other subject names if needed
       default: return { color: 'purple', gradientFrom: 'from-purple-400', gradientTo: 'to-purple-600', hoverGradientFrom: 'from-purple-500', hoverGradientTo: 'to-purple-700', shadowColor: 'rgba(124, 58, 237, 0.5)', bg: 'bg-purple-50 dark:bg-purple-900/20', border: 'border-purple-100 dark:border-purple-800', badgeBg: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400', hoverBg: 'hover:bg-purple-50 dark:hover:bg-purple-900/10' };
     }
 };
+
 // ---
 
 export default function SubjectDetailPage() {
@@ -78,7 +79,6 @@ export default function SubjectDetailPage() {
     const [isLoadingQuizzes, setIsLoadingQuizzes] = useState<boolean>(true);
     const [isLoadingDiscussions, setIsLoadingDiscussions] = useState<boolean>(false);
     const [isLoadingRewards, setIsLoadingRewards] = useState<boolean>(true);
-
 
     // Fetch all data using api.js
     useEffect(() => {
@@ -149,13 +149,11 @@ export default function SubjectDetailPage() {
         fetchAllData();
     }, [subjectId]);
 
-
     // --- Render Logic ---
     if (isLoadingSubject) { return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-purple-600" /></div>; }
     if (error) { return <div className="min-h-screen flex flex-col justify-center items-center text-center p-4"><AlertCircle className="h-12 w-12 text-red-500 mb-4"/><p className="text-red-600 dark:text-red-400 mb-4">{error}</p><Link href="/subjects" className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">Back to Subjects</Link></div>; }
     if (!subjectData) { return <div className="min-h-screen flex items-center justify-center text-gray-500 dark:text-gray-400">Subject data not available or subject not found.</div>; }
 
-    // Calculate styles *after* confirming subjectData exists
     const subjectStyle = getCategoryStyles(subjectData.name);
     const safeColor = subjectData.color || '#808080';
 
@@ -163,8 +161,6 @@ export default function SubjectDetailPage() {
         <div className={`min-h-screen ${isDarkMode ? 'dark' : ''} bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 pb-16 transition-colors duration-300`}>
             {/* Dynamic Header */}
             <div className={`relative pt-16 pb-24 text-white overflow-hidden`} style={{ background: `linear-gradient(to right, ${subjectData.gradientFrom || safeColor}, ${subjectData.gradientTo || safeColor})`}}>
-                 {/* Optional subtle pattern overlay */}
-                 {/* <div className="absolute inset-0 bg-[url('/path/to/subtle-pattern.svg')] opacity-10"></div> */}
                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                      <Link href="/subjects" className="inline-flex items-center text-white/80 hover:text-white mb-4 transition-colors duration-200 text-sm"> <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"> <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" /> </svg> Back to Subjects </Link>
                      <div className="md:flex md:items-center md:justify-between">
@@ -200,7 +196,32 @@ export default function SubjectDetailPage() {
                             <div className="p-6">
                                 {isLoadingMaterials ? <p className='text-sm text-gray-500'>Loading materials...</p> : studyMaterials.length > 0 ? (
                                     <ul className="space-y-3">
-                                        {studyMaterials.map(material => ( <li key={material.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"> <div className="flex items-center min-w-0 flex-1"> <span className="text-purple-500 mr-3 text-xl flex-shrink-0">{getResourceTypeIcon(material.type)}</span> <div className='min-w-0'> <span className="text-sm font-medium text-gray-800 dark:text-gray-200 block truncate" title={material.title}>{material.title}</span> <span className="text-xs text-gray-500 dark:text-gray-400">{material.fileSize} • Updated {material.lastUpdated}</span> </div> </div> <div className="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center"> {material.isPremium && <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-400">(Premium)</span>} <a href={`${api.API_URL.replace('/api','')}${material.filePath}`} className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-all duration-150 ${material.isPremium ? 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed' : `text-white hover:brightness-110 bg-[${safeColor}]`}`} title={material.isPremium ? "Premium Resource" : "Download"} aria-disabled={material.isPremium} onClick={(e) => material.isPremium && e.preventDefault()} target="_blank" rel="noopener noreferrer" > <Download className="h-3.5 w-3.5 mr-1"/> {material.isPremium ? 'Locked' : 'Download'} </a> </div> </li> ))}
+                                        {studyMaterials.map(material => ( 
+                                            <li key={material.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"> 
+                                                <div className="flex items-center min-w-0 flex-1"> 
+                                                    <span className="text-purple-500 mr-3 text-xl flex-shrink-0">{getResourceTypeIcon(material.type)}</span> 
+                                                    <div className='min-w-0'> 
+                                                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200 block truncate" title={material.title}>{material.title}</span> 
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">{material.fileSize} • Updated {material.lastUpdated}</span> 
+                                                    </div> 
+                                                </div> 
+                                                <div className="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center"> 
+                                                    {material.isPremium && <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-400">(Premium)</span>} 
+                                                    <a 
+                                                        href={`${BASE_URL.replace('/api', '')}${material.filePath}`} 
+                                                        className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-all duration-150 ${material.isPremium ? 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed' : `text-white hover:brightness-110 bg-[${safeColor}]`}`} 
+                                                        title={material.isPremium ? "Premium Resource" : "Download"} 
+                                                        aria-disabled={material.isPremium} 
+                                                        onClick={(e) => material.isPremium && e.preventDefault()} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer" 
+                                                    > 
+                                                        <Download className="h-3.5 w-3.5 mr-1"/> 
+                                                        {material.isPremium ? 'Locked' : 'Download'} 
+                                                    </a> 
+                                                </div> 
+                                            </li> 
+                                        ))}
                                     </ul>
                                 ) : <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">No study materials available.</p>}
                             </div>
@@ -219,7 +240,6 @@ export default function SubjectDetailPage() {
                                                     <div className="flex flex-wrap gap-2 items-center text-xs mb-3">
                                                         <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">{quiz.questions} Qs</span>
                                                         <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">{quiz.timeEstimate}</span>
-                                                        {/* Apply full style string for difficulty badge */}
                                                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getDifficultyColorClasses(quiz.difficulty)}`}>{quiz.difficulty}</span>
                                                     </div>
                                                 </div>

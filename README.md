@@ -115,8 +115,3 @@ The frontend relies on a backend API for data and functionality.  Ensure the bac
 * Forum: `/forum/categories`, `/forum/categories/{categoryId}/topics`, `/forum/topics/{topicId}`, `/forum/topics/{topicId}/replies`, `/forum/replies/{replyId}/vote`, `/forum/replies/{replyId}/best`
 * Rewards: `/rewards`, `/rewards/{id}`, `/rewards/{id}/redeem`, `/users/{userId}/rewards`
 * Uploads: `/uploads/resource`
-
-## 📂 Project Structure
-
-Xforce-devthon/├── src/│   ├── app/          # Next.js App Router (Pages, Layouts, Route Groups)│   │   ├── (auth)/   # Authentication pages│   │   ├── admin/    # Admin dashboard and management components│   │   ├── context/  # React Context (Auth, DarkMode)│   │   ├── dashboard/# User dashboard│   │   ├── forum/    # Forum pages│   │   ├── profile/  # User profile│   │   ├── quiz/       # Quiz pages│   │   ├── resources/  # Resource/Quiz library│   │   └── subjects/  # Subjects pages│   │   ├── globals.css # Global styles│   │   └── layout.tsx  # Root layout│   └── components/   # Reusable React components│   │   └── icons/      # Custom icons│   └── utils/        # API utility (Axios instance)├── public/           # Static assets├── .env.local        # Environment variables├── package.json      # Project dependencies├── tailwind.config.ts# Tailwind config└── tsconfig.json     # TypeScript config
-

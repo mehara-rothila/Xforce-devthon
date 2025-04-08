@@ -2,72 +2,75 @@
 import axios from 'axios';
 
 // Create axios instance with base URL
-// This line reads the environment variable set in Netlify.
-// For your deployed site, API_URL should be 'https://xforce-backend.fly.dev/api'
-// The fallback 'http://localhost:5000/api' is only used during local development if the env var isn't set.
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-console.log('[api.js] Using baseURL:', API_URL); // Add this line for debugging
-
 const api = axios.create({
-  baseURL: API_URL, // Correctly sets the base URL for all requests made with this instance
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
 // --- Interceptors ---
-// These modify requests (adding token) and responses (handling 401 errors)
 api.interceptors.request.use(
   config => {
+    // Add token to headers for requests that need authentication
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
+      // Define public auth routes that should NOT receive the token
       const publicAuthRoutes = [
           '/auth/register',
           '/auth/login',
           '/auth/forgot-password',
           '/auth/reset-password'
       ];
-      // Check if the RELATIVE URL part includes a public route
       const isPublicAuthRoute = publicAuthRoutes.some(route => config.url?.includes(route));
 
+      // Add token if it exists AND it's not a public auth route AND not FormData (unless specifically handled)
       if (token && !isPublicAuthRoute && !(config.data instanceof FormData)) {
          config.headers.Authorization = `Bearer ${token}`;
       } else if (token && config.url?.includes('/uploads/') && config.data instanceof FormData) {
+          // Example: Ensure token is added for specific FormData uploads if needed
           config.headers.Authorization = `Bearer ${token}`;
       }
+       // No token needed for public auth requests
     }
     return config;
   },
   error => Promise.reject(error)
 );
 
+
 api.interceptors.response.use(
   response => response,
   error => {
+    // Handle unauthorized errors (e.g., invalid token)
     if (typeof window !== 'undefined' && error.response && error.response.status === 401) {
+      // Define public auth routes where a 401 might be expected (e.g., wrong password) and shouldn't cause a redirect
        const publicAuthRoutes = [
-          '/auth/register',
-          '/auth/login',
-          '/auth/forgot-password',
-          '/auth/reset-password'
+          '/auth/register', // A 401/400 might mean user exists
+          '/auth/login', // 401 means wrong credentials
+          '/auth/forgot-password', // Shouldn't typically return 401, maybe 404 or 200
+          '/auth/reset-password' // 401/400 might mean invalid/expired OTP
       ];
-      // Check the ORIGINAL request config URL
+       // Check if the request URL that failed includes any of the public auth routes
       const isPublicAuthRoute = publicAuthRoutes.some(route => error.config.url?.includes(route));
 
+      // Only redirect if it's NOT a public auth route failure
       if (!isPublicAuthRoute) {
           console.error('Unauthorized request (401) - Redirecting to login');
           localStorage.removeItem('token');
-          window.location.href = '/login';
+          // Optionally clear other user state here (e.g., from context/zustand)
+          window.location.href = '/login'; // Force redirect
       }
     }
+    // Important: reject the promise so consuming code (.catch block) can handle the error
     return Promise.reject(error);
   }
 );
 
 
 // --- Group API functions ---
-// Each function here uses a RELATIVE path, which gets appended to the baseURL
 
 const auth = {
   register: (data) => api.post('/auth/register', data),
@@ -78,35 +81,35 @@ const auth = {
 };
 
 const subjects = {
-  getAll: () => api.get('/subjects'), // Request goes to baseURL + '/subjects'
+  getAll: () => api.get('/subjects'),
   getById: (id) => api.get(`/subjects/${id}`),
   getTopics: (id) => api.get(`/subjects/${id}/topics`),
   getProgress: (id) => api.get(`/subjects/${id}/progress`),
   getRecommendations: (id) => api.get(`/subjects/${id}/recommendations`),
   create: (data) => api.post('/subjects', data),
   update: (id, data) => api.patch(`/subjects/${id}`, data),
-  delete: (id) => api.delete(`/subjects/${id}`),
+  delete: (id) => api.delete(`/subjects/${id}`), // Soft delete
   addTopic: (id, data) => api.post(`/subjects/${id}/topics`, data),
   updateTopic: (id, topicId, data) => api.patch(`/subjects/${id}/topics/${topicId}`, data),
   deleteTopic: (id, topicId) => api.delete(`/subjects/${id}/topics/${topicId}`)
 };
 
 const resources = {
-  getAll: (params) => api.get('/resources', { params }), // Request goes to baseURL + '/resources'
+  getAll: (params) => api.get('/resources', { params }),
   getById: (id) => api.get(`/resources/${id}`),
   getBySubject: (subjectId) => api.get(`/resources/subject/${subjectId}`),
   getStudyMaterials: (subjectId) => api.get(`/resources/subject/${subjectId}/materials`),
   download: (id) => api.get(`/resources/${id}/download`, { responseType: 'blob' }),
-  getCategoryCounts: (params) => api.get('/resources/category-counts', { params }), // Request goes to baseURL + '/resources/category-counts'
+  getCategoryCounts: (params) => api.get('/resources/category-counts', { params }),
   create: (data) => api.post('/resources', data),
   update: (id, data) => api.patch(`/resources/${id}`, data),
   delete: (id) => api.delete(`/resources/${id}`)
 };
 
 const quizzes = {
-  getAll: (params) => api.get('/quizzes', { params }), // Request goes to baseURL + '/quizzes'
+  getAll: (params) => api.get('/quizzes', { params }),
   getById: (id) => api.get(`/quizzes/${id}`),
-  getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`), // Note: Path starts with /subjects/ here
+  getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`),
   getPracticeQuizzes: (subjectId, topic) => api.get(`/quizzes/subject/${subjectId}/practice${topic ? `?topic=${topic}` : ''}`),
   submitAttempt: (id, answers, timeTaken) => api.post(`/quizzes/${id}/attempts`, { answers, timeTaken }),
   getUserAttempts: (userId) => api.get(`/quizzes/user/${userId}/attempts`),
@@ -137,7 +140,7 @@ const uploads = {
 };
 
 const forum = {
-    getCategories: () => api.get('/forum/categories'), // Request goes to baseURL + '/forum/categories'
+    getCategories: () => api.get('/forum/categories'),
     getTopicsByCategory: (categoryId, params) => api.get(`/forum/categories/${categoryId}/topics`, { params }),
     getTopicById: (topicId) => api.get(`/forum/topics/${topicId}`),
     createTopic: (data) => api.post('/forum/topics', data),

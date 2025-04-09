@@ -983,7 +983,7 @@ export default function Home() {
             </div>
              <p className="mt-6 text-sm">
               Designed by
-              <a href="https://mehara.io" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> Mehara Haniffa </a>
+              <a href="https://mehara.io" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> Mehara Rothila </a>
               &amp;
               <a href="https://dinith-edirisinghe.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> Dinith Edirisinghe </a>
                for DEV{"{thon}"} 2.0

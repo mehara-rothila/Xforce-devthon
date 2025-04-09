@@ -3,10 +3,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image'; // Keep if used elsewhere, otherwise remove if unused
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, FormEvent } from 'react'; // Added FormEvent
+import { useRouter } from 'next/navigation'; // Added useRouter
 import api from '../utils/api'; // Import the API utility
-
-// Define Subject type (ensure this matches your API response)
+import { useAuth } from '@/app/context/AuthContext';
+// --- Define Interfaces ---
 interface Subject {
   _id: string;
   name: string;
@@ -15,25 +16,15 @@ interface Subject {
   gradientFrom: string;
   gradientTo: string;
   icon: string;
-  topics: { _id?: string; name: string }[]; // Basic topic structure
+  topics: { _id?: string; name: string }[];
 }
 
-// Define Particle type for canvas animation
 interface Particle {
-    x: number;
-    y: number;
-    size: number;
-    speedX: number;
-    speedY: number;
-    color: string;
-    update: () => void;
-    draw: () => void;
+    x: number; y: number; size: number; speedX: number; speedY: number; color: string;
+    update: () => void; draw: () => void;
 }
 
-
-// Icon component map (assuming SubjectIcon is defined elsewhere or inline)
-// IMPORTANT: Make sure this component correctly handles all icon names from your API
-// (atom, flask, calculator, book, globe, etc.) and doesn't throw an error.
+// --- SubjectIcon Component (Keep as is) ---
 const SubjectIcon = ({ iconName, color }: { iconName: string, color: string }) => {
   // Basic placeholder - Replace with your actual icon logic or import
   const icons: { [key: string]: JSX.Element } = {
@@ -64,12 +55,14 @@ const SubjectIcon = ({ iconName, color }: { iconName: string, color: string }) =
    ),
     // Add other icons as needed
   };
-  // Return default icon if specific one isn't found
   return icons[iconName] || icons['book'];
 };
 
 
 export default function Home() {
+  const router = useRouter(); // Initialize router
+  const { login } = useAuth(); // Get login function from context
+
   // Reference for the animated background canvas
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -78,7 +71,93 @@ export default function Home() {
   const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [subjectError, setSubjectError] = useState<string | null>(null);
 
-  // --- Particle Animation useEffect ---
+  // --- State for CTA Registration Form ---
+  const [ctaFormData, setCtaFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    passwordConfirm: '',
+    // Removed phone and subject from here as they aren't required by backend register endpoint
+  });
+  const [ctaIsLoading, setCtaIsLoading] = useState(false);
+  const [ctaError, setCtaError] = useState<string | null>(null);
+
+  // --- Input Handler for CTA Form ---
+  const handleCtaInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCtaFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error when user starts typing again
+    if (ctaError) setCtaError(null);
+  };
+
+  // --- Submit Handler for CTA Form ---
+  const handleCtaSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setCtaError(null);
+
+    // Client-side Validation
+    if (ctaFormData.password !== ctaFormData.passwordConfirm) {
+      setCtaError('Passwords do not match.');
+      return;
+    }
+    if (ctaFormData.password.length < 8) {
+      setCtaError('Password must be at least 8 characters long.');
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(ctaFormData.email)) {
+        setCtaError('Please enter a valid email address.');
+        return;
+    }
+    if (!ctaFormData.name) {
+        setCtaError('Please enter your name.');
+        return;
+    }
+
+    setCtaIsLoading(true);
+
+    try {
+      const payload = {
+        name: ctaFormData.name,
+        email: ctaFormData.email,
+        password: ctaFormData.password,
+        passwordConfirm: ctaFormData.passwordConfirm,
+      };
+
+      console.log('Sending CTA registration data:', { name: payload.name, email: payload.email });
+
+      const response = await api.auth.register(payload);
+
+      console.log('CTA Registration successful:', response.data);
+
+      if (response.data.token && response.data.data?.user && typeof window !== 'undefined') {
+        // Use the login function from AuthContext
+        login(response.data.token, response.data.data.user);
+        console.log('Token stored and user state updated via AuthContext.');
+        router.push('/dashboard'); // Redirect to dashboard
+      } else {
+          console.warn('Token or user data not found in registration response.');
+          setCtaError('Registration succeeded but failed to log in automatically. Please try logging in.');
+      }
+
+    } catch (err: any) {
+      console.error('CTA Registration failed:', err);
+      let errorMessage = 'Registration failed. Please try again.';
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setCtaError(errorMessage);
+    } finally {
+      setCtaIsLoading(false);
+    }
+  };
+
+
+  // --- Particle Animation useEffect (Keep as is) ---
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
@@ -104,7 +183,7 @@ export default function Home() {
     return () => { window.removeEventListener('resize', handleResize); cancelAnimationFrame(animationFrameId); };
   }, []);
 
-  // --- Intersection Observer useEffect ---
+  // --- Intersection Observer useEffect (Keep as is) ---
   useEffect(() => {
     const scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -165,7 +244,7 @@ export default function Home() {
   }, [subjects]); // Dependency array includes subjects
 
 
-  // --- Fetch subjects data useEffect ---
+  // --- Fetch subjects data useEffect (Keep as is) ---
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
@@ -191,14 +270,14 @@ export default function Home() {
     fetchSubjects();
   }, []);
 
-  // Helper function to validate hex color
+  // Helper function to validate hex color (Keep as is)
   const cleanColor = (hex: string | undefined, fallback = '#cccccc') =>
     hex && /^#[0-9A-F]{6}$/i.test(hex) ? hex : fallback;
 
 
   return (
     <main className="flex min-h-screen flex-col dark:bg-gray-900 transition-colors duration-300">
-      {/* Hero Section */}
+      {/* Hero Section (Keep as is) */}
       <section className="relative overflow-hidden py-20 md:py-32 px-6 min-h-[100vh] flex items-center justify-center">
         {/* Background, Canvas, Equations, Shapes */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950"></div>
@@ -289,7 +368,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section - NOW WITH BACKGROUND ICONS */}
+      {/* Features Section (Keep as is) */}
       <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="features">
         {/* Decorative elements */}
         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-purple-900/5 to-transparent dark:from-purple-900/10"></div>
@@ -306,18 +385,18 @@ export default function Home() {
           <div className="absolute top-[77%] right-[23%] text-yellow-500/20 dark:text-yellow-400/10 text-9xl floating-icon-slow">𝜙</div>
           <div className="absolute bottom-[31%] left-[8%] text-indigo-500/20 dark:text-indigo-400/10 text-10xl floating-icon-reverse">∫</div>
           <div className="absolute bottom-[12%] right-[42%] text-teal-500/20 dark:text-teal-400/10 text-9xl floating-icon">≈</div>
-          
+
           {/* Additional math symbols */}
           <div className="absolute top-[23%] left-[54%] text-fuchsia-500/20 dark:text-fuchsia-400/10 text-8xl floating-icon">Δ</div>
           <div className="absolute top-[44%] left-[38%] text-emerald-500/20 dark:text-emerald-400/10 text-7xl floating-icon-slow">λ</div>
           <div className="absolute top-[81%] left-[67%] text-cyan-500/20 dark:text-cyan-400/10 text-9xl floating-icon-reverse">θ</div>
-          
+
           {/* Science formulas */}
           <div className="absolute top-[14%] left-[31%] text-indigo-500/20 dark:text-indigo-400/10 text-6xl floating-icon-slow">E=mc²</div>
           <div className="absolute top-[58%] left-[48%] text-teal-500/20 dark:text-teal-400/10 text-5xl floating-icon">F=ma</div>
           <div className="absolute top-[39%] left-[76%] text-violet-500/20 dark:text-violet-400/10 text-6xl floating-icon-reverse">H₂O</div>
           <div className="absolute bottom-[17%] left-[52%] text-rose-500/20 dark:text-rose-400/10 text-6xl floating-icon">PV=nRT</div>
-          
+
           {/* Science icons */}
           <div className="absolute top-[41%] left-[8%] opacity-20 dark:opacity-10 floating-icon-slow">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -418,7 +497,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Subjects Section - RESTORED STYLING & WORKING ANIMATION */}
+      {/* Subjects Section (Keep as is) */}
       <section className="py-24 px-6 bg-gray-50 dark:bg-gray-800 relative scroll-mt-16">
         {/* Background elements */}
         <div className="absolute inset-0 bg-gradient-to-b from-white dark:from-gray-900 to-gray-50 dark:to-gray-800"></div>
@@ -450,7 +529,7 @@ export default function Home() {
             </div>
           )}
 
-         {/* --- Dynamic Subject Cards Grid (ENHANCED STYLING & ANIMATION) --- */}
+         {/* --- Dynamic Subject Cards Grid (Keep as is) --- */}
           {!loadingSubjects && !subjectError && Array.isArray(subjects) && subjects.length > 0 && (
             <div className="grid md:grid-cols-3 gap-10">
               {subjects.slice(0, 3).map((subject) => {
@@ -562,11 +641,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials Section - NOW WITH BACKGROUND ICONS */}
+      {/* Testimonials Section (Keep as is) */}
       <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="testimonials">
         {/* Decorative elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">{/* Blur circles */}</div>
-        
+
         {/* NEW: Math and Science Background Icons */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
           {/* Mathematical symbols */}
@@ -575,25 +654,25 @@ export default function Home() {
           <div className="absolute top-[35%] left-[17%] text-lime-500/20 dark:text-lime-400/10 text-8xl floating-icon-slow">γ</div>
           <div className="absolute top-[25%] right-[28%] text-blue-500/20 dark:text-blue-400/10 text-9xl floating-icon">δ</div>
           <div className="absolute bottom-[20%] left-[23%] text-purple-500/20 dark:text-purple-400/10 text-10xl floating-icon-slow">ε</div>
-          
+
           {/* Science formulas */}
           <div className="absolute top-[61%] right-[15%] text-emerald-500/20 dark:text-emerald-400/10 text-6xl floating-icon">V=IR</div>
           <div className="absolute bottom-[25%] right-[35%] text-orange-500/20 dark:text-orange-400/10 text-5xl floating-icon-reverse">E=hf</div>
-          
+
           {/* Science icons */}
           <div className="absolute top-[22%] right-[12%] opacity-20 dark:opacity-10 floating-icon-slow">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-purple-500 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
             </svg>
           </div>
-          
+
           <div className="absolute bottom-[15%] left-[10%] opacity-20 dark:opacity-10 floating-icon">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-indigo-500 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
         </div>
-        
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">What Students Say</h2>
@@ -641,7 +720,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section (Keep as is) */}
       <section className="py-20 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950 text-white relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute inset-0 bg-dots-pattern opacity-5 mix-blend-overlay"></div>
@@ -672,7 +751,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section - MODIFIED FORM */}
       <section className="py-24 px-6 bg-gradient-to-r from-purple-900 to-indigo-800 text-white relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute inset-0 bg-dots-pattern opacity-5 mix-blend-overlay"></div>
@@ -691,15 +770,98 @@ export default function Home() {
               </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-2xl border border-white/20">
-              {/* Form */}
+              {/* --- UPDATED FORM --- */}
               <h3 className="text-2xl font-bold mb-6 text-center">Get Started For Free</h3>
-              <form className="space-y-4">
-                <div><label htmlFor="name-cta" className="block text-sm font-medium mb-1">Full Name</label><input type="text" id="name-cta" className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter your name" /></div>
-                <div><label htmlFor="email-cta" className="block text-sm font-medium mb-1">Email Address</label><input type="email" id="email-cta" className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter your email" /></div>
-                <div><label htmlFor="phone-cta" className="block text-sm font-medium mb-1">Phone Number</label><input type="tel" id="phone-cta" className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Enter your phone number" /></div>
-                <div><label htmlFor="subject-cta" className="block text-sm font-medium mb-1">Preferred Subject</label><select id="subject-cta" className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none" style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em' }}><option value="" className="bg-gray-800">Select a subject</option><option value="physics" className="bg-gray-800">Physics</option><option value="chemistry" className="bg-gray-800">Chemistry</option><option value="math" className="bg-gray-800">Combined Mathematics</option><option value="biology" className="bg-gray-800">Biology</option></select></div>
-                <div className="pt-2"><button type="submit" className="w-full bg-white text-purple-900 font-medium py-3 px-4 rounded-lg hover:bg-purple-50 transition-colors duration-300 shadow-lg hover:shadow-white/20 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>Register Now</button></div>
+              <form className="space-y-4" onSubmit={handleCtaSubmit}> {/* Added onSubmit */}
+                {/* Name Input */}
+                <div>
+                  <label htmlFor="name-cta" className="block text-sm font-medium mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    id="name-cta"
+                    name="name" // Added name attribute
+                    required
+                    value={ctaFormData.name} // Bind value
+                    onChange={handleCtaInputChange} // Bind handler
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter your name"
+                  />
+                </div>
+                {/* Email Input */}
+                <div>
+                  <label htmlFor="email-cta" className="block text-sm font-medium mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    id="email-cta"
+                    name="email" // Added name attribute
+                    required
+                    value={ctaFormData.email} // Bind value
+                    onChange={handleCtaInputChange} // Bind handler
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter your email"
+                  />
+                </div>
+                {/* Password Input */}
+                <div>
+                  <label htmlFor="password-cta" className="block text-sm font-medium mb-1">Password</label>
+                  <input
+                    type="password"
+                    id="password-cta"
+                    name="password" // Added name attribute
+                    required
+                    minLength={8}
+                    value={ctaFormData.password} // Bind value
+                    onChange={handleCtaInputChange} // Bind handler
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter password (min 8 chars)"
+                  />
+                </div>
+                 {/* Confirm Password Input */}
+                 <div>
+                   <label htmlFor="passwordConfirm-cta" className="block text-sm font-medium mb-1">Confirm Password</label>
+                   <input
+                     type="password"
+                     id="passwordConfirm-cta"
+                     name="passwordConfirm" // Added name attribute
+                     required
+                     value={ctaFormData.passwordConfirm} // Bind value
+                     onChange={handleCtaInputChange} // Bind handler
+                     className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                     placeholder="Confirm your password"
+                   />
+                 </div>
+                {/* Removed Phone Number and Subject Select from this form */}
+
+                {/* --- Error Display --- */}
+                {ctaError && (
+                  <div className="p-3 bg-red-900/50 border border-red-700 rounded-md">
+                    <p className="text-sm text-red-200">{ctaError}</p>
+                  </div>
+                )}
+
+                {/* --- Submit Button --- */}
+                <div className="pt-2">
+                  <button
+                    type="submit" // Changed back to submit
+                    disabled={ctaIsLoading} // Disable when loading
+                    className={`w-full bg-white text-purple-900 font-medium py-3 px-4 rounded-lg hover:bg-purple-50 transition-colors duration-300 shadow-lg hover:shadow-white/20 flex items-center justify-center ${
+                      ctaIsLoading ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {ctaIsLoading ? (
+                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-purple-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                       </svg>
+                    ) : (
+                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
+                    )}
+                    {ctaIsLoading ? 'Registering...' : 'Register Now'}
+                  </button>
+                </div>
+                {/* --- End Submit Button --- */}
               </form>
+              {/* --- END UPDATED FORM --- */}
             </div>
           </div>
         </div>
@@ -709,7 +871,7 @@ export default function Home() {
         <div className="absolute top-[50%] right-[20%] w-16 h-16 bg-white opacity-5 rounded-lg transform rotate-45 animate-float" style={{ animationDuration: '12s', animationDelay: '1s' }}></div>
       </section>
 
-      {/* FAQ Section - NOW WITH BACKGROUND ICONS */}
+      {/* FAQ Section (Keep as is) */}
       <section className="py-24 px-6 bg-white dark:bg-gray-900 relative">
         {/* NEW: Math and Science Background Icons */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
@@ -718,18 +880,18 @@ export default function Home() {
           <div className="absolute top-[65%] right-[12%] text-green-500/20 dark:text-green-400/10 text-10xl floating-icon">τ</div>
           <div className="absolute top-[40%] left-[25%] text-yellow-500/20 dark:text-yellow-400/10 text-8xl floating-icon-reverse">μ</div>
           <div className="absolute bottom-[15%] left-[15%] text-blue-500/20 dark:text-blue-400/10 text-9xl floating-icon-slow">Ω</div>
-          
+
           {/* Science formulas */}
           <div className="absolute top-[25%] right-[20%] text-indigo-500/20 dark:text-indigo-400/10 text-6xl floating-icon-slow">F=G(m₁m₂/r²)</div>
           <div className="absolute bottom-[35%] right-[8%] text-teal-500/20 dark:text-teal-400/10 text-5xl floating-icon">c=λf</div>
-          
+
           {/* Science icons */}
           <div className="absolute top-[50%] right-[30%] opacity-20 dark:opacity-10 floating-icon">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
-          
+
           <div className="absolute top-[15%] left-[30%] opacity-20 dark:opacity-10 floating-icon-reverse">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -756,23 +918,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer - NOW WITH BACKGROUND ICONS */}
+      {/* Footer (Keep as is) */}
       <footer className="bg-gray-900 dark:bg-gray-950 text-white py-24 px-6 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">{/* Blur circles */}</div>
-        
+
         {/* NEW: Math and Science Background Symbols */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
           {/* Mathematical symbols */}
           <div className="absolute top-[10%] left-[7%] text-purple-500/10 dark:text-purple-400/5 text-9xl floating-icon">∞</div>
           <div className="absolute top-[60%] right-[10%] text-blue-500/10 dark:text-blue-400/5 text-8xl floating-icon-reverse">π</div>
           <div className="absolute bottom-[20%] left-[20%] text-green-500/10 dark:text-green-400/5 text-10xl floating-icon-slow">√</div>
-          
+
           {/* Science formulas */}
           <div className="absolute top-[30%] right-[15%] text-cyan-500/10 dark:text-cyan-400/5 text-6xl floating-icon-slow">E=mc²</div>
           <div className="absolute bottom-[30%] right-[25%] text-amber-500/10 dark:text-amber-400/5 text-5xl floating-icon">PV=nRT</div>
         </div>
-        
+
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
             {/* Footer Columns */}
@@ -817,9 +979,9 @@ export default function Home() {
             {/* Copyright & Bottom Links */}
             <div className="flex flex-col md:flex-row justify-between items-center"><p>© 2025 Team Xforce. All rights reserved.</p><div className="mt-4 md:mt-0"><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Terms</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Privacy</a><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Cookies</a></div></div>
             <p className="mt-6 text-sm">
-  Designed for DEV{"{thon}"} 2.0 | 
-  <a href="https://mehara.io" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> mehara.io </a> 
-  & 
+  Designed for DEV{"{thon}"} 2.0 |
+  <a href="https://mehara.io" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> mehara.io </a>
+  &
   <a href="https://dinith-edirisinghe.onrender.com/" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> Dinith Edirisinghe</a>
 </p>          </div>
         </div>
@@ -832,17 +994,17 @@ export default function Home() {
         .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
 
         /* Floating icons animations */
-        .floating-icon { 
-          animation: float 6s ease-in-out infinite; 
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        .floating-icon {
+          animation: float 6s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
         }
-        .floating-icon-reverse { 
-          animation: float-reverse 7s ease-in-out infinite; 
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        .floating-icon-reverse {
+          animation: float-reverse 7s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
         }
-        .floating-icon-slow { 
-          animation: float 10s ease-in-out infinite; 
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        .floating-icon-slow {
+          animation: float 10s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
         }
 
         @keyframes float {
@@ -858,23 +1020,58 @@ export default function Home() {
         }
 
         /* Enhanced animations */
-        .animate-fadeIn { 
-          animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        .animate-fadeIn {
+          animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        
-        .animate-fadeInUp { 
-          animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+
+        .animate-fadeInUp {
+          animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           will-change: transform, opacity;
         }
 
-        @keyframes fadeIn { 
-          from { opacity: 0; } 
-          to { opacity: 1; } 
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        
-        @keyframes fadeInUp { 
-          from { opacity: 0; transform: translateY(30px); } 
-          to { opacity: 1; transform: translateY(0); } 
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Added animation for rotate-slow */
+        .animate-rotate-slow {
+          animation: rotate-slow 20s linear infinite;
+        }
+        @keyframes rotate-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        /* Added animation for pulse-slow */
+        .animate-pulse-slow {
+          animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 0.3; }
+        }
+
+        /* Added shadow for game cards */
+        .shadow-game {
+          box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -4px rgba(147, 51, 234, 0.1);
+        }
+        .dark .shadow-game-dark {
+           box-shadow: 0 10px 15px -3px rgba(107, 33, 168, 0.3), 0 4px 6px -4px rgba(107, 33, 168, 0.3);
+        }
+
+        /* Background dots pattern */
+        .bg-dots-pattern {
+          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+          background-size: 15px 15px;
+        }
+        .dark .bg-dots-pattern {
+          background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
         }
       `}</style>
     </main>

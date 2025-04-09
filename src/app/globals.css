@@ -1,0 +1,799 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables for theming (optional, but can be useful) */
+:root {
+  --background: #ffffff;
+  --foreground: #171717; /* Dark gray for text */
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb; /* gray-200 */
+  --primary-light: #ddd6fe; /* purple-200 */
+  --hero-bg-start: #6d28d9; /* purple-700 */
+  --hero-bg-end: #4c1d95; /* purple-900 */
+}
+
+/* Dark theme overrides for CSS Variables */
+[data-theme="dark"] {
+  --background: #0a0a0a; /* Very dark gray */
+  --foreground: #ededed; /* Light gray for text */
+  --card-bg: #1a1a1a; /* Darker gray for cards */
+  --card-border: #2d2d2d; /* Even darker gray for borders */
+  --primary-light: #4c1d95; /* purple-900 */
+  --hero-bg-start: #4c1d95; /* purple-900 */
+  --hero-bg-end: #2e1065; /* purple-950 */
+}
+
+/* Apply base background and text color using variables */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  /* font-family removed - Inter font applied via className in layout.tsx */
+  /* Ensure smooth transitions */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Keyframes for animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes widthGrow {
+  from { width: 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+ @keyframes float-reverse { /* Added for variety */
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation utility classes */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-widthGrow {
+  animation: widthGrow 1s ease-out;
+}
+
+.animate-float, .floating-icon { /* Added alias */
+  animation: float 6s ease-in-out infinite;
+}
+ .floating-icon-reverse { /* Added for variety */
+  animation: float-reverse 7s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 20s linear infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+.animate-appear {
+  animation: appear 0.6s ease-out forwards;
+}
+
+
+/* Dark mode toggle styles - Updated for better alignment */
+.dark-mode-toggle {
+  @apply relative inline-flex items-center cursor-pointer p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-offset-gray-800;
+  /* Added vertical alignment to match other nav items */
+  height: 28px;
+  vertical-align: middle;
+}
+
+.dark-mode-toggle-track {
+  @apply w-10 h-5 bg-gray-300 dark:bg-gray-700 rounded-full transition-colors duration-300;
+}
+
+/* Style for the track when dark mode is active */
+.dark-mode-toggle-track.active {
+   @apply bg-purple-500 dark:bg-purple-600;
+}
+
+.dark-mode-toggle-thumb {
+  @apply absolute w-4 h-4 bg-white rounded-full transform transition-transform duration-300 flex items-center justify-center shadow-md;
+  /* Adjusted positioning */
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Style for the thumb when dark mode is active (moves right) */
+.dark-mode-toggle-thumb.active {
+  transform: translateY(-50%) translateX(20px);
+}
+
+/* Optional: Base styles for cards using CSS variables */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Example: Navigation Link base styles using @layer */
+@layer components {
+  .nav-link {
+    @apply text-gray-600 dark:text-gray-300 hover:text-purple-800 dark:hover:text-purple-400 transition-colors duration-200 font-medium text-sm;
+  }
+  .mobile-nav-link {
+     @apply flex items-center py-2.5 px-4 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors duration-200;
+     /* Add icons here if needed within the link content */
+  }
+  .mobile-login-button {
+    @apply block w-full text-center text-white bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-800 hover:to-purple-700 px-4 py-3 rounded-lg shadow-md hover:shadow-lg dark:shadow-purple-900/20 transition-all duration-200 font-medium;
+  }
+}
+
+
+/* Hero section enhancements */
+.hero-title {
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Card hover effects */
+.feature-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(107, 70, 193, 0.1), 0 10px 10px -5px rgba(107, 70, 193, 0.1);
+}
+
+.dark .feature-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.1), 0 10px 10px -5px rgba(139, 92, 246, 0.1);
+}
+
+/* Button effects */
+.btn-glow:hover {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+/* Enhanced scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Light mode track */
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Dark mode track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4b5fd; /* Light mode thumb */
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6d28d9; /* Dark mode thumb */
+   border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a78bfa; /* Light mode hover */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6; /* Dark mode hover */
+}
+
+/* Fancy link underline animation */
+.animated-link {
+  position: relative;
+  display: inline-block;
+}
+
+.animated-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: theme('colors.purple.500'); /* Use Tailwind theme color */
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s ease-out;
+}
+
+.animated-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400;
+}
+
+/* Responsive typography size example */
+@media (max-width: 640px) {
+  .responsive-heading {
+    /* Use Tailwind's responsive variants where possible, but this is an example */
+    font-size: 2.5rem !important; /* Example: Use Tailwind classes like text-4xl sm:text-5xl instead */
+  }
+
+  .responsive-subheading {
+    font-size: 1.25rem !important; /* Example: Use Tailwind classes like text-lg sm:text-xl instead */
+  }
+}
+
+/* --- Admin Panel Styling --- */
+/* Add these to your globals.css file */
+
+/* Admin theme variables - supplement existing theme variables */
+:root {
+  /* Admin panel specific colors */
+  --admin-primary: #6d28d9; /* purple-700 */
+  --admin-primary-hover: #5b21b6; /* purple-800 */
+  --admin-secondary: #4f46e5; /* indigo-600 */
+  --admin-secondary-hover: #4338ca; /* indigo-700 */
+  --admin-accent: #0d9488; /* teal-600 */
+  --admin-accent-hover: #0f766e; /* teal-700 */
+  --admin-info: #0891b2; /* cyan-600 */
+  --admin-info-hover: #0e7490; /* cyan-700 */
+
+  /* Semantic colors for consistent usage */
+  --admin-success: #10b981; /* emerald-500 */
+  --admin-success-light: #d1fae5; /* emerald-100 */
+  --admin-warning: #f59e0b; /* amber-500 */
+  --admin-warning-light: #fef3c7; /* amber-100 */
+  --admin-danger: #ef4444; /* red-500 */
+  --admin-danger-light: #fee2e2; /* red-100 */
+}
+
+[data-theme="dark"] {
+  /* Admin panel dark mode colors */
+  --admin-primary: #8b5cf6; /* purple-500 */
+  --admin-primary-hover: #7c3aed; /* purple-600 */
+  --admin-secondary: #6366f1; /* indigo-500 */
+  --admin-secondary-hover: #4f46e5; /* indigo-600 */
+  --admin-accent: #14b8a6; /* teal-500 */
+  --admin-accent-hover: #0d9488; /* teal-600 */
+  --admin-info: #06b6d4; /* cyan-500 */
+  --admin-info-hover: #0891b2; /* cyan-600 */
+
+  /* Semantic colors for dark mode */
+  --admin-success: #34d399; /* emerald-400 */
+  --admin-success-light: rgba(52, 211, 153, 0.2); /* emerald-400 with opacity */
+  --admin-warning: #fbbf24; /* amber-400 */
+  --admin-warning-light: rgba(251, 191, 36, 0.2); /* amber-400 with opacity */
+  --admin-danger: #f87171; /* red-400 */
+  --admin-danger-light: rgba(248, 113, 113, 0.2); /* red-400 with opacity */
+}
+
+/* Admin Card Components */
+.admin-card {
+  @apply bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700 
+  transition duration-300 ease-in-out overflow-hidden;
+}
+
+.admin-card-hover {
+  @apply hover:shadow-xl hover:border-purple-200 dark:hover:border-purple-900 transform hover:-translate-y-1 
+  transition-all duration-300;
+}
+
+/* Admin Section Headers */
+.admin-section-header {
+  @apply flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700;
+}
+
+.admin-section-title {
+  @apply text-xl sm:text-2xl font-semibold text-gray-800 dark:text-gray-100 flex items-center;
+}
+
+/* Admin Buttons */
+.admin-btn-primary {
+  @apply inline-flex items-center px-4 py-2 bg-purple-600 dark:bg-purple-700 hover:bg-purple-700 
+  dark:hover:bg-purple-600 text-white rounded-lg font-medium transition-colors shadow-md 
+  focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+  disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-secondary {
+  @apply inline-flex items-center px-4 py-2 bg-indigo-600 dark:bg-indigo-700 hover:bg-indigo-700 
+  dark:hover:bg-indigo-600 text-white rounded-lg font-medium transition-colors shadow-md 
+  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+  disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-accent {
+  @apply inline-flex items-center px-4 py-2 bg-teal-600 dark:bg-teal-700 hover:bg-teal-700 
+  dark:hover:bg-teal-600 text-white rounded-lg font-medium transition-colors shadow-md 
+  focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+  disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-info {
+  @apply inline-flex items-center px-4 py-2 bg-cyan-600 dark:bg-cyan-700 hover:bg-cyan-700 
+  dark:hover:bg-cyan-600 text-white rounded-lg font-medium transition-colors shadow-md 
+  focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+  disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-outline {
+  @apply inline-flex items-center px-4 py-2 bg-transparent border border-gray-300 dark:border-gray-600 
+  text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg font-medium 
+  transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 
+  focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-danger {
+  @apply inline-flex items-center px-4 py-2 bg-red-600 dark:bg-red-700 hover:bg-red-700 
+  dark:hover:bg-red-600 text-white rounded-lg font-medium transition-colors shadow-md 
+  focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+  disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.admin-btn-icon {
+  @apply p-2 text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 
+  hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors
+  focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+}
+
+/* Admin Form Inputs */
+.admin-input {
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 
+  dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 
+  dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400 transition-colors
+  disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500;
+}
+
+.admin-textarea {
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 
+  dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 
+  dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400 transition-colors
+  disabled:opacity-50 disabled:cursor-not-allowed placeholder-gray-400 dark:placeholder-gray-500;
+}
+
+.admin-select {
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 
+  dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 
+  dark:focus:ring-purple-400 focus:border-purple-500 dark:focus:border-purple-400 transition-colors
+  disabled:opacity-50 disabled:cursor-not-allowed appearance-none;
+}
+
+.admin-checkbox {
+  @apply h-4 w-4 text-purple-600 dark:text-purple-500 border-gray-300 dark:border-gray-600 
+  rounded focus:ring-purple-500 dark:focus:ring-purple-400 transition duration-150 ease-in-out;
+}
+
+.admin-radio {
+  @apply h-4 w-4 text-purple-600 dark:text-purple-500 border-gray-300 dark:border-gray-600 
+  focus:ring-purple-500 dark:focus:ring-purple-400 transition duration-150 ease-in-out;
+}
+
+/* Admin Tables */
+.admin-table-container {
+  @apply admin-card overflow-x-auto;
+}
+
+.admin-table {
+  @apply min-w-full divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.admin-thead {
+  @apply bg-gray-50 dark:bg-gray-700/50;
+}
+
+.admin-th {
+  @apply px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider;
+}
+
+.admin-tbody {
+  @apply bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.admin-tr {
+  @apply hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors;
+}
+
+.admin-td {
+  @apply px-4 py-4 text-sm text-gray-700 dark:text-gray-300;
+}
+
+/* Admin Badges */
+.admin-badge {
+  @apply px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full;
+}
+
+.admin-badge-primary {
+  @apply bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300;
+}
+
+.admin-badge-success {
+  @apply bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300;
+}
+
+.admin-badge-warning {
+  @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300;
+}
+
+.admin-badge-danger {
+  @apply bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300;
+}
+
+.admin-badge-info {
+  @apply bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300;
+}
+
+/* Admin Form Cards */
+.admin-form-card {
+  @apply admin-card p-6;
+}
+
+.admin-form-header {
+  @apply flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4 mb-6 sticky top-0 bg-white dark:bg-gray-800 z-10 pt-2;
+}
+
+.admin-form-title {
+  @apply text-xl font-semibold text-gray-800 dark:text-gray-100;
+}
+
+.admin-form-section {
+  @apply border-t border-gray-200 dark:border-gray-700 pt-6 mt-6;
+}
+
+.admin-form-section-title {
+  @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-4;
+}
+
+.admin-form-actions {
+  @apply flex justify-end space-x-3 border-t border-gray-200 dark:border-gray-700 pt-6 mt-8 sticky bottom-0 bg-white dark:bg-gray-800 pb-4 z-10;
+}
+
+/* Admin Icons with colors */
+.admin-icon-primary {
+  @apply text-purple-600 dark:text-purple-400;
+}
+
+.admin-icon-secondary {
+  @apply text-indigo-600 dark:text-indigo-400;
+}
+
+.admin-icon-accent {
+  @apply text-teal-600 dark:text-teal-400;
+}
+
+.admin-icon-info {
+  @apply text-cyan-600 dark:text-cyan-400;
+}
+
+.admin-icon-success {
+  @apply text-emerald-600 dark:text-emerald-400;
+}
+
+.admin-icon-warning {
+  @apply text-amber-600 dark:text-amber-400;
+}
+
+.admin-icon-danger {
+  @apply text-red-600 dark:text-red-400;
+}
+
+/* Admin Alerts/Messages */
+.admin-alert {
+  @apply px-4 py-3 rounded-lg border relative mb-4;
+}
+
+.admin-alert-error {
+  @apply bg-red-100 dark:bg-red-900/20 border-red-300 dark:border-red-800 text-red-700 dark:text-red-300;
+}
+
+.admin-alert-success {
+  @apply bg-green-100 dark:bg-green-900/20 border-green-300 dark:border-green-800 text-green-700 dark:text-green-300;
+}
+
+.admin-alert-warning {
+  @apply bg-yellow-100 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300;
+}
+
+.admin-alert-info {
+  @apply bg-blue-100 dark:bg-blue-900/20 border-blue-300 dark:border-blue-800 text-blue-700 dark:text-blue-300;
+}
+
+/* Admin Modal Backdrop */
+.admin-modal-backdrop {
+  @apply fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 z-40 flex justify-center items-start pt-10 overflow-y-auto;
+}
+
+.admin-modal {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-4xl z-50 my-auto max-h-[90vh] flex flex-col;
+}
+
+/* Admin Loading States */
+.admin-loading-container {
+  @apply text-center py-10;
+}
+
+.admin-loading-spinner {
+  @apply inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 dark:border-purple-400 mb-3;
+}
+
+.admin-loading-text {
+  @apply text-gray-600 dark:text-gray-300;
+}
+
+/* Admin Empty States */
+.admin-empty-state {
+  @apply text-center py-10 text-gray-500 dark:text-gray-400;
+}
+
+/* Admin Page Container */
+.admin-page-container {
+  @apply min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 transition-colors duration-300;
+}
+
+.admin-content-container {
+  @apply max-w-7xl mx-auto space-y-8;
+}
+
+.admin-page-title {
+  @apply text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 text-center mb-8 transition-colors duration-300;
+}
+
+/* Admin Actions Button Group */
+.admin-actions {
+  @apply flex items-center space-x-2;
+}
+
+/* Fancy select with custom dropdown arrow */
+.admin-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+}
+
+/* Custom scrollbar for admin panels */
+.admin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-primary) transparent;
+}
+
+.admin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--admin-primary);
+  border-radius: 3px;
+}
+
+/* Animation for form card rows */
+.admin-animate-in {
+  animation: adminFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes adminFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Admin Dashboard Cards */
+.admin-stats-card {
+  @apply admin-card p-6 transition-all duration-300 hover:shadow-lg border-l-4;
+}
+
+.admin-stats-card-primary {
+  @apply border-l-purple-500 dark:border-l-purple-600;
+}
+
+.admin-stats-card-secondary {
+  @apply border-l-indigo-500 dark:border-l-indigo-600;
+}
+
+.admin-stats-card-accent {
+  @apply border-l-teal-500 dark:border-l-teal-600;
+}
+
+.admin-stats-card-info {
+  @apply border-l-cyan-500 dark:border-l-cyan-600;
+}
+
+/* File upload zone */
+.admin-upload-zone {
+  @apply mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg transition-colors hover:border-purple-300 dark:hover:border-purple-500;
+}
+
+.admin-upload-text {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+.admin-upload-link {
+  @apply relative cursor-pointer bg-white dark:bg-transparent rounded-md font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-purple-500 dark:focus-within:ring-offset-gray-800;
+}
+
+/* Background Styles - Add these to globals.css */
+
+/* Subtle background patterns */
+.bg-pattern-dots {
+  background-image: radial-gradient(#d9d9d9 2px, transparent 2px);
+  background-size: 30px 30px;
+}
+
+.dark .bg-pattern-dots {
+  background-image: radial-gradient(#444 2px, transparent 2px);
+}
+
+.bg-pattern-grid {
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dark .bg-pattern-grid {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Animated background elements */
+.bg-floating-shapes {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-floating-shapes::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  right: -100px;
+  bottom: -100px;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(120, 120, 240, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 30%, rgba(240, 120, 120, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 50% 60%, rgba(120, 240, 120, 0.05) 0%, transparent 40%);
+  z-index: -1;
+  animation: shiftBg 20s ease-in-out infinite alternate;
+}
+
+.dark .bg-floating-shapes::before {
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(120, 120, 240, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 90% 30%, rgba(240, 120, 120, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 50% 60%, rgba(120, 240, 120, 0.07) 0%, transparent 40%);
+}
+
+@keyframes shiftBg {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(50px, 50px) scale(1.1); }
+}
+
+/* Subtle noise texture */
+.bg-noise {
+  position: relative;
+}
+
+.bg-noise::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.02;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.dark .bg-noise::after {
+  opacity: 0.03;
+}
+
+/* Gradient overlays */
+.bg-gradient-overlay-light {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.bg-gradient-overlay-dark {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), transparent);
+}
+
+.dark .bg-gradient-overlay-dark {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent);
+}
+
+/* Background wrappers for layering */
+.bg-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* Parallax background */
+.bg-parallax {
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+/* Animated wave background */
+.bg-wave {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-wave::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at 50% 150%, rgba(108, 99, 255, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse at 20% 70%, rgba(255, 108, 196, 0.05) 0%, transparent 70%);
+  z-index: -1;
+  animation: waveEffect 10s ease-in-out infinite alternate;
+}
+
+.dark .bg-wave::before {
+  background: 
+    radial-gradient(ellipse at 50% 150%, rgba(108, 99, 255, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse at 20% 70%, rgba(255, 108, 196, 0.07) 0%, transparent 70%);
+}
+
+@keyframes waveEffect {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.05) rotate(1deg); }
+}

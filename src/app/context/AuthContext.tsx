@@ -9,8 +9,9 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin' | 'moderator'; // Use specific roles
-  // Add other relevant fields: level, xp, points etc. if needed by frontend
+  // *** ADD 'premium' TO THE LIST OF POSSIBLE ROLES ***
+  role: 'user' | 'admin' | 'moderator' | 'premium';
+  // Add other relevant fields if needed
 }
 
 // Define the shape of the context data

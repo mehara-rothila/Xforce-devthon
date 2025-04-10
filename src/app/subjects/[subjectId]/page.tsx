@@ -225,7 +225,7 @@ export default function SubjectDetailPage() {
         };
 
         fetchAllData();
-    }, [subjectId, user, isAuthLoading]); // Removed user dependency for initial subject fetch
+    }, [subjectId, user, isAuthLoading]);
 
     // --- Render Logic ---
     if ((isLoadingSubject || isAuthLoading) && !subjectData && !error) { // Enhanced Initial Loader
@@ -244,6 +244,19 @@ export default function SubjectDetailPage() {
     const safeColor = subjectData?.color || '#8B5CF6'; // Default to purple if color missing
     const safeGradientFrom = subjectData?.gradientFrom || subjectStyle.gradientFrom || safeColor;
     const safeGradientTo = subjectData?.gradientTo || subjectStyle.gradientTo || safeColor;
+
+    // Helper function to determine if content should be locked
+    const isLocked = (isMaterialPremium: boolean) => {
+        // If the material isn't premium, it's never locked
+        if (!isMaterialPremium) return false;
+        // If auth is loading, assume locked to be safe
+        if (isAuthLoading) return true;
+        // If no user is logged in, premium material is locked
+        if (!user) return true;
+        // If user is logged in, check their role. Locked if NOT premium AND NOT admin.
+        // Assumes roles 'premium' and 'admin' grant access. Adjust if your roles differ.
+        return user.role !== 'premium' && user.role !== 'admin';
+    };
 
     return (
         <div className={`min-h-screen ${isDarkMode ? 'dark' : ''} bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black pb-16 transition-colors duration-300 relative overflow-hidden`}>
@@ -451,32 +464,35 @@ export default function SubjectDetailPage() {
                                         <div className="flex justify-center items-center py-4"> <Loader2 className="h-6 w-6 animate-spin text-purple-500" /> <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">Loading materials...</span> </div>
                                     ) : studyMaterials.length > 0 ? (
                                         <ul className="space-y-3">
-                                            {studyMaterials.slice(0, 5).map(material => (
-                                                <li key={material.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-lg border border-gray-100 dark:border-gray-700/30 bg-white/50 dark:bg-gray-700/10 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150">
-                                                    <div className="flex items-center min-w-0 flex-1">
-                                                        <span className="text-purple-500 mr-3 text-xl flex-shrink-0">{getResourceTypeIcon(material.type)}</span>
-                                                        <div className='min-w-0'>
-                                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200 block truncate" title={material.title}>{material.title}</span>
-                                                            <span className="text-xs text-gray-500 dark:text-gray-400">{material.fileSize} • Updated {material.lastUpdated}</span>
+                                            {studyMaterials.slice(0, 5).map(material => {
+                                                const locked = isLocked(material.isPremium);
+                                                return (
+                                                    <li key={material.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-lg border border-gray-100 dark:border-gray-700/30 bg-white/50 dark:bg-gray-700/10 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150">
+                                                        <div className="flex items-center min-w-0 flex-1">
+                                                            <span className="text-purple-500 mr-3 text-xl flex-shrink-0">{getResourceTypeIcon(material.type)}</span>
+                                                            <div className='min-w-0'>
+                                                                <span className="text-sm font-medium text-gray-800 dark:text-gray-200 block truncate" title={material.title}>{material.title}</span>
+                                                                <span className="text-xs text-gray-500 dark:text-gray-400">{material.fileSize} • Updated {material.lastUpdated}</span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center">
-                                                        {material.isPremium && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"><Star className='h-3 w-3 mr-1'/>Premium</span>}
-                                                        <a href={`${BASE_URL.replace('/api', '')}${material.filePath}`}
-                                                            className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-all duration-150 ${material.isPremium && (!user?.isPremium && user?.role !== 'admin') ? 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed' : `text-white hover:brightness-110`}`}
-                                                            style={{ background: material.isPremium && (!user?.isPremium && user?.role !== 'admin') ? undefined : safeColor }}
-                                                            title={material.isPremium && (!user?.isPremium && user?.role !== 'admin') ? "Requires Premium Subscription" : "Download"}
-                                                            aria-disabled={material.isPremium && (!user?.isPremium && user?.role !== 'admin')}
-                                                            onClick={(e) => material.isPremium && (!user?.isPremium && user?.role !== 'admin') && e.preventDefault()}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            download // Suggest downloading
-                                                        >
-                                                           <Download className="h-3.5 w-3.5 mr-1"/> {material.isPremium && (!user?.isPremium && user?.role !== 'admin') ? 'Locked' : 'Download'}
-                                                        </a>
-                                                    </div>
-                                                </li>
-                                            ))}
+                                                        <div className="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center">
+                                                            {material.isPremium && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"><Star className='h-3 w-3 mr-1'/>Premium</span>}
+                                                            <a href={locked ? undefined : `${BASE_URL.replace('/api', '')}${material.filePath}`}
+                                                                className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-all duration-150 ${locked ? 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed' : `text-white hover:brightness-110`}`}
+                                                                style={{ background: locked ? undefined : safeColor }}
+                                                                title={locked ? "Requires Premium Subscription" : "Download"}
+                                                                aria-disabled={locked}
+                                                                onClick={(e) => locked && e.preventDefault()}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                download={!locked} // Suggest downloading only if not locked
+                                                            >
+                                                            <Download className="h-3.5 w-3.5 mr-1"/> {locked ? 'Locked' : 'Download'}
+                                                            </a>
+                                                        </div>
+                                                    </li>
+                                                )
+                                            })}
                                         </ul>
                                     ) : <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">No study materials available for this subject yet.</p>}
                                 </div>

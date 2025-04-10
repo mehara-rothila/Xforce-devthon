@@ -251,321 +251,315 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col dark:bg-gray-900 transition-colors duration-300">
-      {/* ========================== Hero Section ========================== */}
-      {/* (Hero Section code remains the same) */}
-      <section className="relative overflow-hidden py-20 md:py-32 px-6 min-h-[100vh] flex items-center justify-center">
-        {/* Background, Canvas, Equations, Shapes */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950"></div>
-        <canvas ref={canvasRef} className="absolute inset-0 z-0" style={{ opacity: 0.7 }}></canvas>
-        
-        {/* --- ENHANCED Hero Floating Background Icons --- */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none select-none hero">
-            {/* Mathematical symbols - Randomly placed with better opacity for hero */}
-            <div className="absolute top-[7%] left-[13%] text-white/25 text-9xl floating-icon">∑</div>
-            <div className="absolute top-[33%] right-[17%] text-white/25 text-10xl floating-icon-reverse">π</div>
-            <div className="absolute top-[61%] left-[27%] text-white/25 text-8xl floating-icon-slow">∞</div>
-            <div className="absolute top-[19%] right-[38%] text-white/25 text-11xl floating-icon">⚛</div>
-            <div className="absolute top-[77%] right-[23%] text-white/25 text-9xl floating-icon-slow">𝜙</div>
-            <div className="absolute bottom-[31%] left-[8%] text-white/25 text-10xl floating-icon-reverse">∫</div>
-            <div className="absolute bottom-[12%] right-[42%] text-white/25 text-9xl floating-icon">≈</div>
-            <div className="absolute bottom-[47%] right-[9%] text-white/25 text-8xl floating-icon-slow">±</div>
+    {/* ========================== Hero Section ========================== */}
+<section className="relative overflow-hidden py-20 md:py-32 px-6 min-h-[100vh] flex items-center justify-center">
+  {/* Background, Canvas, Equations, Shapes */}
+  <div className="absolute inset-0 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950"></div>
+  <canvas ref={canvasRef} className="absolute inset-0 z-0" style={{ opacity: 0.7 }}></canvas>
+  
+  {/* --- ENHANCED Hero Floating Background Icons with Fixed Mobile Transparency --- */}
+  <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+      {/* Mathematical symbols - with improved opacity for mobile */}
+      <div className="absolute top-[7%] left-[13%] text-white/10 text-9xl floating-icon">∑</div>
+      <div className="absolute top-[33%] right-[17%] text-white/10 text-10xl floating-icon-reverse">π</div>
+      <div className="absolute top-[61%] left-[27%] text-white/10 text-8xl floating-icon-slow">∞</div>
+      <div className="absolute top-[19%] right-[38%] text-white/10 text-11xl floating-icon">⚛</div>
+      <div className="absolute top-[77%] right-[23%] text-white/10 text-9xl floating-icon-slow">𝜙</div>
+      <div className="absolute bottom-[31%] left-[8%] text-white/10 text-10xl floating-icon-reverse">∫</div>
+      <div className="absolute bottom-[12%] right-[42%] text-white/10 text-9xl floating-icon">≈</div>
+      <div className="absolute bottom-[47%] right-[9%] text-white/10 text-8xl floating-icon-slow">±</div>
 
-            {/* Additional math symbols */}
-            <div className="absolute top-[23%] left-[54%] text-white/25 text-8xl floating-icon">Δ</div>
-            <div className="absolute top-[44%] left-[38%] text-white/25 text-7xl floating-icon-slow">λ</div>
-            <div className="absolute top-[81%] left-[67%] text-white/25 text-9xl floating-icon-reverse">θ</div>
-            <div className="absolute top-[29%] left-[83%] text-white/25 text-8xl floating-icon">α</div>
-            <div className="absolute bottom-[63%] left-[6%] text-white/25 text-9xl floating-icon-slow">β</div>
-            <div className="absolute bottom-[19%] left-[71%] text-white/25 text-8xl floating-icon-reverse">μ</div>
-            <div className="absolute bottom-[28%] left-[32%] text-white/25 text-7xl floating-icon">ω</div>
+      {/* Additional math symbols - with improved opacity */}
+      <div className="absolute top-[23%] left-[54%] text-white/10 text-8xl floating-icon">Δ</div>
+      <div className="absolute top-[44%] left-[38%] text-white/10 text-7xl floating-icon-slow">λ</div>
+      <div className="absolute top-[81%] left-[67%] text-white/10 text-9xl floating-icon-reverse">θ</div>
+      <div className="absolute top-[29%] left-[83%] text-white/10 text-8xl floating-icon">α</div>
+      <div className="absolute bottom-[63%] left-[6%] text-white/10 text-9xl floating-icon-slow">β</div>
+      <div className="absolute bottom-[19%] left-[71%] text-white/10 text-8xl floating-icon-reverse">μ</div>
+      <div className="absolute bottom-[28%] left-[32%] text-white/10 text-7xl floating-icon">ω</div>
 
-            {/* Science formulas */}
-            <div className="absolute top-[14%] left-[31%] text-white/25 text-4xl floating-icon-slow">E=mc²</div>
-            <div className="absolute top-[58%] left-[48%] text-white/25 text-4xl floating-icon">F=ma</div>
-            <div className="absolute top-[39%] left-[76%] text-white/25 text-4xl floating-icon-reverse">H₂O</div>
-            <div className="absolute bottom-[17%] left-[52%] text-white/25 text-4xl floating-icon">PV=nRT</div>
-            <div className="absolute bottom-[53%] left-[24%] text-white/25 text-4xl floating-icon-slow">v=λf</div>
-            <div className="absolute top-[86%] left-[11%] text-white/25 text-4xl floating-icon-reverse">C₆H₁₂O₆</div>
-            <div className="absolute top-[68%] right-[31%] text-white/25 text-4xl floating-icon">E=hf</div>
+      {/* Science formulas - with improved opacity */}
+      <div className="absolute top-[14%] left-[31%] text-white/10 text-4xl floating-icon-slow">E=mc²</div>
+      <div className="absolute top-[58%] left-[48%] text-white/10 text-4xl floating-icon">F=ma</div>
+      <div className="absolute top-[39%] left-[76%] text-white/10 text-4xl floating-icon-reverse">H₂O</div>
+      <div className="absolute bottom-[17%] left-[52%] text-white/10 text-4xl floating-icon">PV=nRT</div>
+      <div className="absolute bottom-[53%] left-[24%] text-white/10 text-4xl floating-icon-slow">v=λf</div>
+      <div className="absolute top-[86%] left-[11%] text-white/10 text-4xl floating-icon-reverse">C₆H₁₂O₆</div>
+      <div className="absolute top-[68%] right-[31%] text-white/10 text-4xl floating-icon">E=hf</div>
 
-            {/* Science icons */}
-            <div className="absolute top-[41%] left-[8%] opacity-25 floating-icon-slow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-              </svg>
-            </div>
-            <div className="absolute top-[17%] right-[7%] opacity-25 floating-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <div className="absolute bottom-[7%] left-[36%] opacity-25 floating-icon-reverse">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="absolute top-[54%] right-[28%] opacity-25 floating-icon-slow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div className="absolute top-[23%] left-[67%] opacity-25 floating-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
-              </svg>
-            </div>
-            <div className="absolute bottom-[37%] right-[6%] opacity-25 floating-icon-reverse">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-              </svg>
-            </div>
-            <div className="absolute top-[71%] left-[13%] opacity-25 floating-icon-slow">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </div>
+      {/* Science icons - with fixed opacity for mobile consistency */}
+      <div className="absolute top-[41%] left-[8%] text-white floating-icon-slow opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+        </svg>
+      </div>
+      <div className="absolute top-[17%] right-[7%] text-white floating-icon opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </div>
+      <div className="absolute bottom-[7%] left-[36%] text-white floating-icon-reverse opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div className="absolute top-[54%] right-[28%] text-white floating-icon-slow opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <div className="absolute top-[23%] left-[67%] text-white floating-icon opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
+        </svg>
+      </div>
+      <div className="absolute bottom-[37%] right-[6%] text-white floating-icon-reverse opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        </svg>
+      </div>
+      <div className="absolute top-[71%] left-[13%] text-white floating-icon-slow opacity-10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
 
-            {/* Shapes */}
-            <div className="absolute top-[15%] left-[15%] w-32 h-32 border-2 border-white/10 rounded-lg animate-rotate-slow" style={{ animationDuration: '20s' }}></div>
-            <div className="absolute bottom-[20%] right-[15%] w-40 h-40 border-2 border-white/10 rounded-full animate-rotate-slow" style={{ animationDuration: '25s', animationDirection: 'reverse' }}></div>
-            <div className="absolute top-[60%] left-[25%] w-24 h-24 border-2 border-white/10 transform rotate-45 animate-float" style={{ animationDuration: '15s' }}></div>
-            <div className="absolute top-[30%] right-[25%] w-20 h-20 border-2 border-white/10 rounded-full animate-pulse-slow" style={{ animationDuration: '10s' }}></div>
-            <div className="absolute top-[40%] left-[55%] w-36 h-36 border-2 border-white/10 rounded-lg transform rotate-12 animate-float-reverse" style={{ animationDuration: '18s' }}></div>
-            <div className="absolute bottom-[35%] right-[40%] w-28 h-28 border-2 border-white/10 rounded-full animate-pulse-slow" style={{ animationDuration: '12s' }}></div>
-        </div>
-        
-        {/* Hero Content (Keep as is) */}
-         <div className="max-w-6xl mx-auto relative z-10">
-           <div className="text-center">
-             {/* Animated logo reveal */}
-             <div className="flex justify-center mb-12 animate-fadeIn" style={{ animationDuration: '1.5s' }}>
-               <div className="relative inline-block">
-                 <div className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-200 filter drop-shadow-xl" style={{ textShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
-                   DEV<span className="text-white">{"{thon}"}</span>
-                 </div>
-                 <span className="absolute" style={{ top: '-12px', right: '-40px', fontSize: '1.8rem', fontWeight: 'bold', color: 'white' }}>2.0</span>
-                 <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-400 rounded-lg blur-lg opacity-20 animate-pulse-slow"></div>
-               </div>
-             </div>
-             {/* Tagline */}
-             <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-10 text-white leading-tight animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '0.5s', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
-               Gamified Learning Experience <br className="hidden md:block" />
-               <span className="text-purple-300 inline-block mt-2">for Sri Lankan A/L Students</span>
-             </h2>
-             <p className="text-xl md:text-2xl text-purple-100 max-w-3xl mx-auto leading-relaxed mb-10 animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '0.8s' }}>
-               Transform your exam preparation with interactive quizzes, personalized AI feedback, and a collaborative learning community.
-             </p>
-             {/* Animated counter section */}
-             <div className="flex flex-wrap justify-center gap-8 my-12 animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '1.2s' }}>
-               <div className="text-center">
-                 <div className="text-4xl md:text-5xl font-bold text-white mb-2 counter" data-target="5000+">0+</div>
-                 <p className="text-purple-200">Active Students</p>
-               </div>
-               <div className="text-center">
-                 <div className="text-4xl md:text-5xl font-bold text-white mb-2 counter" data-target="200+">0+</div>
-                 <p className="text-purple-200">Practice Quizzes</p>
-               </div>
-               <div className="text-center">
-                 <div className="text-4xl md:text-5xl font-bold text-white mb-2 counter" data-target="95%">0%</div>
-                 <p className="text-purple-200">Satisfaction Rate</p>
-               </div>
-             </div>
-             {/* Buttons */}
-             <div className="mt-12 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '1.5s' }}>
-               <Link href="/register" className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-white text-purple-900 rounded-full overflow-hidden shadow-lg hover:shadow-purple-500/20 transition-all duration-300 transform hover:scale-105">
-                 <span className="absolute inset-0 w-0 bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-300 ease-out group-hover:w-full"></span>
-                 <span className="relative group-hover:text-white transition-colors duration-300 ease-out flex items-center">
-                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
-                   Get Started
-                 </span>
-                 <span className="absolute right-0 -mt-12 h-32 w-8 bg-white opacity-20 transform rotate-12 transition-all duration-1000 ease-out group-hover:translate-x-12"></span>
-               </Link>
-               <Link href="/login" className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-transparent border-2 border-white text-white rounded-full overflow-hidden hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20">
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                 Login
-               </Link>
-               <Link href="/dashboard" className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full overflow-hidden shadow-lg hover:shadow-purple-500/30 hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105">
-                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
-                 Dashboard
-                 <span className="absolute top-0 right-0 px-2 py-1 text-xs font-bold uppercase rounded-bl-lg bg-purple-800">Beta</span>
-               </Link>
-             </div>
+      {/* Shapes */}
+      <div className="absolute top-[15%] left-[15%] w-32 h-32 border-2 border-white/10 rounded-lg animate-rotate-slow" style={{ animationDuration: '20s' }}></div>
+      <div className="absolute bottom-[20%] right-[15%] w-40 h-40 border-2 border-white/10 rounded-full animate-rotate-slow" style={{ animationDuration: '25s', animationDirection: 'reverse' }}></div>
+      <div className="absolute top-[60%] left-[25%] w-24 h-24 border-2 border-white/10 transform rotate-45 animate-float" style={{ animationDuration: '15s' }}></div>
+      <div className="absolute top-[30%] right-[25%] w-20 h-20 border-2 border-white/10 rounded-full animate-pulse-slow" style={{ animationDuration: '10s' }}></div>
+      <div className="absolute top-[40%] left-[55%] w-36 h-36 border-2 border-white/10 rounded-lg transform rotate-12 animate-float-reverse" style={{ animationDuration: '18s' }}></div>
+      <div className="absolute bottom-[35%] right-[40%] w-28 h-28 border-2 border-white/10 rounded-full animate-pulse-slow" style={{ animationDuration: '12s' }}></div>
+  </div>
+  
+  {/* Hero Content */}
+   <div className="max-w-6xl mx-auto relative z-10">
+     <div className="text-center">
+       {/* Animated logo reveal */}
+       <div className="flex justify-center mb-12 animate-fadeIn" style={{ animationDuration: '1.5s' }}>
+         <div className="relative inline-block">
+           <div className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-200 filter drop-shadow-xl" style={{ textShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
+             DEV<span className="text-white">{"{thon}"}</span>
            </div>
+           <span className="absolute" style={{ top: '-12px', right: '-40px', fontSize: '1.8rem', fontWeight: 'bold', color: 'white' }}>2.0</span>
+           <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-400 rounded-lg blur-lg opacity-20 animate-pulse-slow"></div>
          </div>
-      </section>
-
-      {/* ========================== Features Section ========================== */}
-      <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="features">
-         {/* Decorative elements */}
-         <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-purple-900/5 to-transparent dark:from-purple-900/10"></div>
-         <div className="absolute left-0 top-1/4 w-64 h-64 bg-purple-300/10 dark:bg-purple-900/10 rounded-full filter blur-3xl"></div>
-         <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-indigo-300/10 dark:bg-indigo-900/10 rounded-full filter blur-3xl"></div>
-         
-         {/* --- ENHANCED Features Floating Background Icons --- */}
-         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-           {/* Mathematical symbols */}
-           <div className="absolute top-[7%] left-[13%] text-purple-500/20 dark:text-purple-400/10 text-9xl floating-icon">∑</div>
-           <div className="absolute top-[33%] right-[17%] text-blue-500/20 dark:text-blue-400/10 text-10xl floating-icon-reverse">π</div>
-           <div className="absolute top-[61%] left-[27%] text-green-500/20 dark:text-green-400/10 text-8xl floating-icon-slow">∞</div>
-           <div className="absolute top-[19%] right-[38%] text-red-500/20 dark:text-red-400/10 text-11xl floating-icon">⚛</div>
-           <div className="absolute top-[77%] right-[23%] text-yellow-500/20 dark:text-yellow-400/10 text-9xl floating-icon-slow">𝜙</div>
-           <div className="absolute bottom-[31%] left-[8%] text-indigo-500/20 dark:text-indigo-400/10 text-10xl floating-icon-reverse">∫</div>
-           <div className="absolute bottom-[12%] right-[42%] text-teal-500/20 dark:text-teal-400/10 text-9xl floating-icon">≈</div>
-           <div className="absolute bottom-[47%] right-[9%] text-pink-500/20 dark:text-pink-400/10 text-8xl floating-icon-slow">±</div>
-
-           {/* Additional math symbols - More random placements */}
-           <div className="absolute top-[23%] left-[54%] text-fuchsia-500/20 dark:text-fuchsia-400/10 text-8xl floating-icon">Δ</div>
-           <div className="absolute top-[44%] left-[38%] text-emerald-500/20 dark:text-emerald-400/10 text-7xl floating-icon-slow">λ</div>
-           <div className="absolute top-[81%] left-[67%] text-cyan-500/20 dark:text-cyan-400/10 text-9xl floating-icon-reverse">θ</div>
-           <div className="absolute top-[29%] left-[83%] text-rose-500/20 dark:text-rose-400/10 text-8xl floating-icon">α</div>
-           <div className="absolute bottom-[63%] left-[6%] text-amber-500/20 dark:text-amber-400/10 text-9xl floating-icon-slow">β</div>
-           <div className="absolute bottom-[19%] left-[71%] text-purple-500/20 dark:text-purple-400/10 text-8xl floating-icon-reverse">μ</div>
-           <div className="absolute bottom-[28%] left-[32%] text-blue-500/20 dark:text-blue-400/10 text-7xl floating-icon">ω</div>
-
-           {/* Additional symbols for more richness */}
-           <div className="absolute top-[52%] left-[18%] text-sky-500/20 dark:text-sky-400/10 text-8xl floating-icon-slow">γ</div>
-           <div className="absolute top-[37%] right-[29%] text-lime-500/20 dark:text-lime-400/10 text-9xl floating-icon">σ</div>
-           <div className="absolute bottom-[42%] right-[37%] text-orange-500/20 dark:text-orange-400/10 text-10xl floating-icon-reverse">δ</div>
-           <div className="absolute top-[73%] right-[13%] text-violet-500/20 dark:text-violet-400/10 text-8xl floating-icon-slow">ρ</div>
-
-           {/* Science formulas - Random positions */}
-           <div className="absolute top-[14%] left-[31%] text-indigo-500/20 dark:text-indigo-400/10 text-6xl floating-icon-slow">E=mc²</div>
-           <div className="absolute top-[58%] left-[48%] text-teal-500/20 dark:text-teal-400/10 text-5xl floating-icon">F=ma</div>
-           <div className="absolute top-[39%] left-[76%] text-violet-500/20 dark:text-violet-400/10 text-6xl floating-icon-reverse">H₂O</div>
-           <div className="absolute bottom-[17%] left-[52%] text-rose-500/20 dark:text-rose-400/10 text-6xl floating-icon">PV=nRT</div>
-           <div className="absolute bottom-[53%] left-[24%] text-emerald-500/20 dark:text-emerald-400/10 text-5xl floating-icon-slow">v=λf</div>
-           <div className="absolute top-[86%] left-[11%] text-sky-500/20 dark:text-sky-400/10 text-5xl floating-icon-reverse">C₆H₁₂O₆</div>
-           <div className="absolute top-[68%] right-[31%] text-amber-500/20 dark:text-amber-400/10 text-6xl floating-icon">E=hf</div>
-
-           {/* Science icons - Randomly positioned */}
-           <div className="absolute top-[41%] left-[8%] opacity-20 dark:opacity-10 floating-icon-slow">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-             </svg>
-           </div>
-           <div className="absolute top-[17%] right-[7%] opacity-20 dark:opacity-10 floating-icon">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-             </svg>
-           </div>
-           <div className="absolute bottom-[7%] left-[36%] opacity-20 dark:opacity-10 floating-icon-reverse">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-             </svg>
-           </div>
-           <div className="absolute top-[54%] right-[28%] opacity-20 dark:opacity-10 floating-icon-slow">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-             </svg>
-           </div>
-           <div className="absolute top-[23%] left-[67%] opacity-20 dark:opacity-10 floating-icon">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
-             </svg>
-           </div>
-           <div className="absolute bottom-[37%] right-[6%] opacity-15 dark:opacity-5 floating-icon-reverse">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-             </svg>
-           </div>
-           <div className="absolute top-[71%] left-[13%] opacity-15 dark:opacity-5 floating-icon-slow">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-             </svg>
-           </div>
+       </div>
+       {/* Tagline */}
+       <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-10 text-white leading-tight animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '0.5s', textShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+         Gamified Learning Experience <br className="hidden md:block" />
+         <span className="text-purple-300 inline-block mt-2">for Sri Lankan A/L Students</span>
+       </h2>
+       <p className="text-xl md:text-2xl text-purple-100 max-w-3xl mx-auto leading-relaxed mb-10 animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '0.8s' }}>
+         Transform your exam preparation with interactive quizzes, personalized AI feedback, and a collaborative learning community.
+       </p>
+       {/* Animated counter section */}
+       <div className="flex flex-wrap justify-center gap-8 my-12 animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '1.2s' }}>
+         <div className="text-center">
+           <div className="text-4xl md:text-5xl font-bold text-white mb-2 counter" data-target="5000+">0+</div>
+           <p className="text-purple-200">Active Students</p>
          </div>
-         
-         {/* Features Content (Keep as is) */}
-          <div className="max-w-6xl mx-auto relative">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">Engaging Features</h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-purple-400 mx-auto mb-6 rounded-full"></div>
-              <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 text-xl leading-relaxed">
-                Our platform combines gamification, social learning, and AI to create an interactive learning experience that makes studying enjoyable and effective.
-              </p>
-            </div>
-            {/* Feature Cards Grid (Keep as is) */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-               {/* Card 1 */}
-               <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0">
-                   {/* ... card content ... */}
-                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                   <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-                   <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-                   </div>
-                   <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Gamified Quizzes</h3>
-                   <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Earn points, unlock badges, and compete on leaderboards while mastering complex concepts.</p>
-                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg><span>400+ interactive questions</span></div></div>
-               </div>
-               {/* Card 2 */}
-               <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.1s'}}>
-                   {/* ... card content ... */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                   <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-                   <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
-                   </div>
-                   <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Discussion Forums</h3>
-                   <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Collaborate with peers to solve problems and discuss concepts in subject-specific forums.</p>
-                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" /><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" /></svg><span>Expert teacher moderation</span></div></div>
-               </div>
-               {/* Card 3 */}
-               <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.2s'}}>
-                   {/* ... card content ... */}
-                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                   <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-                   <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                   </div>
-                   <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">AI Recommendations</h3>
-                   <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Receive personalized study suggestions and focus on areas that need improvement.</p>
-                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg><span>Personalized learning paths</span></div></div>
-               </div>
-               {/* Card 4 */}
-               <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.3s'}}>
-                  {/* ... card content ... */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                   <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-                   <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                   </div>
-                   <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Resource Library</h3>
-                   <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Access a comprehensive collection of past papers, notes, and study materials.</p>
-                   <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg><span>Updated exam resources</span></div></div>
-               </div>
-            </div>
-            {/* Premium Features Subsection (Keep as is) */}
-            <div className="mt-24 text-center">
-             <h3 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Premium Features</h3>
-             <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 mb-12">Enhance your learning experience with these advanced tools and resources.</p>
-             <div className="grid md:grid-cols-3 gap-8 mt-12">
-               {/* Premium Card 1 */}
-               <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0">
-                 <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></div>
-                 <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Video Lessons</h4>
-                 <p className="text-gray-700 dark:text-gray-300 mb-4">Access high-quality video explanations for complex topics with step-by-step walkthroughs.</p>
-                 <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
-               </div>
-               {/* Premium Card 2 */}
-                <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0" style={{animationDelay: '0.1s'}}>
-                 <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
-                 <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Virtual Labs</h4>
-                 <p className="text-gray-700 dark:text-gray-300 mb-4">Interactive simulations for physics and chemistry experiments to enhance practical understanding.</p>
-                 <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
-               </div>
-               {/* Premium Card 3 */}
-               <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0" style={{animationDelay: '0.2s'}}>
-                 <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-                 <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Expert Q&A</h4>
-                 <p className="text-gray-700 dark:text-gray-300 mb-4">Direct access to qualified teachers for personalized help with challenging concepts and problems.</p>
-                 <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
-               </div>
-             </div>
-            </div>
-          </div>
-      </section>
+         <div className="text-center">
+           <div className="text-4xl md:text-5xl font-bold text-white mb-2 counter" data-target="200+">0+</div>
+           <p className="text-purple-200">Practice Quizzes</p>
+         </div>
+         <div className="text-center">
+           <div className="text-4xl md:text-5xl font-bold text-white mb-2 counter" data-target="95%">0%</div>
+           <p className="text-purple-200">Satisfaction Rate</p>
+         </div>
+       </div>
+       {/* Buttons */}
+       <div className="mt-12 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-fadeIn" style={{ animationDuration: '2s', animationDelay: '1.5s' }}>
+         <Link href="/register" className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-white text-purple-900 rounded-full overflow-hidden shadow-lg hover:shadow-purple-500/20 transition-all duration-300 transform hover:scale-105">
+           <span className="absolute inset-0 w-0 bg-gradient-to-r from-purple-500 to-purple-600 transition-all duration-300 ease-out group-hover:w-full"></span>
+           <span className="relative group-hover:text-white transition-colors duration-300 ease-out flex items-center">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
+             Get Started
+           </span>
+           <span className="absolute right-0 -mt-12 h-32 w-8 bg-white opacity-20 transform rotate-12 transition-all duration-1000 ease-out group-hover:translate-x-12"></span>
+         </Link>
+         <Link href="/login" className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-transparent border-2 border-white text-white rounded-full overflow-hidden hover:bg-white/10 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20">
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+           Login
+         </Link>
+         <Link href="/dashboard" className="relative inline-flex items-center justify-center px-8 py-4 text-lg font-medium bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-full overflow-hidden shadow-lg hover:shadow-purple-500/30 hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105">
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+           Dashboard
+           <span className="absolute top-0 right-0 px-2 py-1 text-xs font-bold uppercase rounded-bl-lg bg-purple-800">Beta</span>
+         </Link>
+       </div>
+     </div>
+   </div>
+</section>
 
+  {/* ========================== Features Section ========================== */}
+<section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="features">
+   {/* Decorative elements */}
+   <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-purple-900/5 to-transparent dark:from-purple-900/10"></div>
+   <div className="absolute left-0 top-1/4 w-64 h-64 bg-purple-300/10 dark:bg-purple-900/10 rounded-full filter blur-3xl"></div>
+   <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-indigo-300/10 dark:bg-indigo-900/10 rounded-full filter blur-3xl"></div>
+   
+   {/* --- ENHANCED Features Floating Background Icons with Fixed Mobile Transparency --- */}
+   <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+     {/* Mathematical symbols */}
+     <div className="absolute top-[7%] left-[13%] text-purple-500/10 dark:text-purple-400/5 text-9xl floating-icon">∑</div>
+     <div className="absolute top-[33%] right-[17%] text-blue-500/10 dark:text-blue-400/5 text-10xl floating-icon-reverse">π</div>
+     <div className="absolute top-[61%] left-[27%] text-green-500/10 dark:text-green-400/5 text-8xl floating-icon-slow">∞</div>
+     <div className="absolute top-[19%] right-[38%] text-red-500/10 dark:text-red-400/5 text-11xl floating-icon">⚛</div>
+     <div className="absolute top-[77%] right-[23%] text-yellow-500/10 dark:text-yellow-400/5 text-9xl floating-icon-slow">𝜙</div>
+     <div className="absolute bottom-[31%] left-[8%] text-indigo-500/10 dark:text-indigo-400/5 text-10xl floating-icon-reverse">∫</div>
+     <div className="absolute bottom-[12%] right-[42%] text-teal-500/10 dark:text-teal-400/5 text-9xl floating-icon">≈</div>
+     <div className="absolute bottom-[47%] right-[9%] text-pink-500/10 dark:text-pink-400/5 text-8xl floating-icon-slow">±</div>
+
+     {/* Additional math symbols - More random placements */}
+     <div className="absolute top-[23%] left-[54%] text-fuchsia-500/10 dark:text-fuchsia-400/5 text-8xl floating-icon">Δ</div>
+     <div className="absolute top-[44%] left-[38%] text-emerald-500/10 dark:text-emerald-400/5 text-7xl floating-icon-slow">λ</div>
+     <div className="absolute top-[81%] left-[67%] text-cyan-500/10 dark:text-cyan-400/5 text-9xl floating-icon-reverse">θ</div>
+     <div className="absolute top-[29%] left-[83%] text-rose-500/10 dark:text-rose-400/5 text-8xl floating-icon">α</div>
+     <div className="absolute bottom-[63%] left-[6%] text-amber-500/10 dark:text-amber-400/5 text-9xl floating-icon-slow">β</div>
+     <div className="absolute bottom-[19%] left-[71%] text-purple-500/10 dark:text-purple-400/5 text-8xl floating-icon-reverse">μ</div>
+     <div className="absolute bottom-[28%] left-[32%] text-blue-500/10 dark:text-blue-400/5 text-7xl floating-icon">ω</div>
+
+     {/* Additional symbols for more richness */}
+     <div className="absolute top-[52%] left-[18%] text-sky-500/10 dark:text-sky-400/5 text-8xl floating-icon-slow">γ</div>
+     <div className="absolute top-[37%] right-[29%] text-lime-500/10 dark:text-lime-400/5 text-9xl floating-icon">σ</div>
+     <div className="absolute bottom-[42%] right-[37%] text-orange-500/10 dark:text-orange-400/5 text-10xl floating-icon-reverse">δ</div>
+     <div className="absolute top-[73%] right-[13%] text-violet-500/10 dark:text-violet-400/5 text-8xl floating-icon-slow">ρ</div>
+
+     {/* Science formulas - Random positions */}
+     <div className="absolute top-[14%] left-[31%] text-indigo-500/10 dark:text-indigo-400/5 text-6xl floating-icon-slow">E=mc²</div>
+     <div className="absolute top-[58%] left-[48%] text-teal-500/10 dark:text-teal-400/5 text-5xl floating-icon">F=ma</div>
+     <div className="absolute top-[39%] left-[76%] text-violet-500/10 dark:text-violet-400/5 text-6xl floating-icon-reverse">H₂O</div>
+     <div className="absolute bottom-[17%] left-[52%] text-rose-500/10 dark:text-rose-400/5 text-6xl floating-icon">PV=nRT</div>
+     <div className="absolute bottom-[53%] left-[24%] text-emerald-500/10 dark:text-emerald-400/5 text-5xl floating-icon-slow">v=λf</div>
+     <div className="absolute top-[86%] left-[11%] text-sky-500/10 dark:text-sky-400/5 text-5xl floating-icon-reverse">C₆H₁₂O₆</div>
+     <div className="absolute top-[68%] right-[31%] text-amber-500/10 dark:text-amber-400/5 text-6xl floating-icon">E=hf</div>
+
+     {/* Science icons - with consistent opacity */}
+     <div className="absolute top-[41%] left-[8%] floating-icon-slow">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500/10 dark:text-cyan-400/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+       </svg>
+     </div>
+     <div className="absolute top-[17%] right-[7%] floating-icon">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40 text-amber-500/10 dark:text-amber-400/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+       </svg>
+     </div>
+     <div className="absolute bottom-[7%] left-[36%] floating-icon-reverse">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44 text-emerald-500/10 dark:text-emerald-400/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+     </div>
+     <div className="absolute top-[54%] right-[28%] floating-icon-slow">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-violet-500/10 dark:text-violet-400/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+       </svg>
+     </div>
+     <div className="absolute top-[23%] left-[67%] floating-icon">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500/10 dark:text-rose-400/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
+       </svg>
+     </div>
+     <div className="absolute bottom-[37%] right-[6%] floating-icon-reverse">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-blue-500/10 dark:text-blue-400/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+       </svg>
+     </div>
+     <div className="absolute top-[71%] left-[13%] floating-icon-slow">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-orange-500/10 dark:text-orange-400/5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+       </svg>
+     </div>
+   </div>
+   
+   {/* Features Content */}
+    <div className="max-w-6xl mx-auto relative">
+      <div className="text-center mb-20">
+        <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">Engaging Features</h2>
+        <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-purple-400 mx-auto mb-6 rounded-full"></div>
+        <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 text-xl leading-relaxed">
+          Our platform combines gamification, social learning, and AI to create an interactive learning experience that makes studying enjoyable and effective.
+        </p>
+      </div>
+      {/* Feature Cards Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+         {/* Card 1 */}
+         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0">
+             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
+             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+             </div>
+             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Gamified Quizzes</h3>
+             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Earn points, unlock badges, and compete on leaderboards while mastering complex concepts.</p>
+             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg><span>400+ interactive questions</span></div></div>
+         </div>
+         {/* Card 2 */}
+         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.1s'}}>
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
+             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+             </div>
+             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Discussion Forums</h3>
+             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Collaborate with peers to solve problems and discuss concepts in subject-specific forums.</p>
+             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" /><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" /></svg><span>Expert teacher moderation</span></div></div>
+         </div>
+         {/* Card 3 */}
+         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.2s'}}>
+             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
+             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+             </div>
+             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">AI Recommendations</h3>
+             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Receive personalized study suggestions and focus on areas that need improvement.</p>
+             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg><span>Personalized learning paths</span></div></div>
+         </div>
+         {/* Card 4 */}
+         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.3s'}}>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
+             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+             </div>
+             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Resource Library</h3>
+             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Access a comprehensive collection of past papers, notes, and study materials.</p>
+             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg><span>Updated exam resources</span></div></div>
+         </div>
+      </div>
+      {/* Premium Features Subsection */}
+      <div className="mt-24 text-center">
+       <h3 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Premium Features</h3>
+       <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 mb-12">Enhance your learning experience with these advanced tools and resources.</p>
+       <div className="grid md:grid-cols-3 gap-8 mt-12">
+         {/* Premium Card 1 */}
+         <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0">
+           <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></div>
+           <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Video Lessons</h4>
+           <p className="text-gray-700 dark:text-gray-300 mb-4">Access high-quality video explanations for complex topics with step-by-step walkthroughs.</p>
+           <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
+         </div>
+         {/* Premium Card 2 */}
+          <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0" style={{animationDelay: '0.1s'}}>
+           <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
+           <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Virtual Labs</h4>
+           <p className="text-gray-700 dark:text-gray-300 mb-4">Interactive simulations for physics and chemistry experiments to enhance practical understanding.</p>
+           <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
+         </div>
+         {/* Premium Card 3 */}
+         <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0" style={{animationDelay: '0.2s'}}>
+           <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+           <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Expert Q&A</h4>
+           <p className="text-gray-700 dark:text-gray-300 mb-4">Direct access to qualified teachers for personalized help with challenging concepts and problems.</p>
+           <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
+         </div>
+       </div>
+      </div>
+    </div>
+</section>
 
       {/* ========================== Subjects Section ========================== */}
       <section className="py-24 px-6 bg-gray-50 dark:bg-gray-800 relative scroll-mt-16">
@@ -1257,117 +1251,140 @@ export default function Home() {
          </div>
       </footer>
 
-      {/* ========================== Global Styles (Including Enhanced Subject Card styles) ========================== */}
-      <style jsx global>{`
-        /* General Animations (Enhanced with new effects) */
-        .text-10xl { font-size: 9rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        
-        /* Enhanced floating effects for math symbols and icons */
-        .floating-icon { 
-          animation: float 6s ease-in-out infinite;
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
-          will-change: transform;
-        }
-        .floating-icon-reverse { 
-          animation: float-reverse 7s ease-in-out infinite;
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
-          will-change: transform;
-        }
-        .floating-icon-slow { 
-          animation: float 10s ease-in-out infinite;
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
-          will-change: transform;
-        }
-        
-        /* Enhanced float animations with more movement */
-        @keyframes float { 
-          0% { transform: translateY(0px) rotate(0deg); } 
-          50% { transform: translateY(-15px) rotate(3deg); } 
-          100% { transform: translateY(0px) rotate(0deg); } 
-        }
-        @keyframes float-reverse { 
-          0% { transform: translateY(0) rotate(0deg) scale(1); } 
-          50% { transform: translateY(15px) rotate(-5deg) scale(1.03); } 
-          100% { transform: translateY(0) rotate(0deg) scale(1); } 
-        }
-        
-        /* Fade-in animations */
-        .animate-fadeIn { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-fadeInUp { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Rotation animations */
-        .animate-rotate-slow { animation: rotate-slow 20s linear infinite; }
-        @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        /* Pulse animations */
-        .animate-pulse-slow { animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse-slow { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.3; } }
-        .dark .animate-pulse-slow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.2; } }
-        .hero .animate-pulse-slow { animation: pulse-slow-hero 6s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse-slow-hero { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.05; } }
-        
-        /* Scroll animations */
-        .animate-on-scroll { 
-          opacity: 0; 
-          transform: translateY(20px); 
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out; 
-          will-change: opacity, transform; 
-        }
-        
-        /* Shadow effects */
-        .shadow-game { box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -4px rgba(147, 51, 234, 0.1); }
-        .dark .shadow-game-dark { box-shadow: 0 10px 15px -3px rgba(107, 33, 168, 0.3), 0 4px 6px -4px rgba(107, 33, 168, 0.3); }
-        
-        /* Background patterns */
-        .bg-dots-pattern { 
-          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); 
-          background-size: 15px 15px; 
-        }
-        .dark .bg-dots-pattern { 
-          background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px); 
-        }
-        
-        /* Text utilities */
-        .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
-        .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-        .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+      {/* ========================== Global Styles with Fixed Mobile Icon Transparency ========================== */}
+<style jsx global>{`
+  /* General Animations */
+  .text-10xl { font-size: 9rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+  .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+  
+  /* Enhanced floating effects with consistent opacity for mobile */
+  .floating-icon { 
+    animation: float 6s ease-in-out infinite;
+    filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
+    will-change: transform;
+  }
+  .floating-icon-reverse { 
+    animation: float-reverse 7s ease-in-out infinite;
+    filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
+    will-change: transform;
+  }
+  .floating-icon-slow { 
+    animation: float 10s ease-in-out infinite;
+    filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
+    will-change: transform;
+  }
+  
+  /* Make sure all icon opacities work consistently on mobile */
+  @media (max-width: 768px) {
+    /* Override any problematic opacity settings with more consistent values */
+    [class*="text-white/"] {
+      color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Ensure consistent SVG opacity on mobile */
+    .floating-icon svg,
+    .floating-icon-reverse svg,
+    .floating-icon-slow svg {
+      opacity: 0.1 !important;
+    }
+    
+    /* Reduce size of some icons on mobile for better layout */
+    .h-36, .w-36, .h-40, .w-40, .h-44, .w-44 {
+      height: 6rem !important;
+      width: 6rem !important;
+    }
+    
+    /* Adjust text sizes for smaller screens */
+    .text-9xl, .text-10xl, .text-11xl {
+      font-size: 5rem !important;
+    }
+    
+    .text-8xl, .text-7xl, .text-6xl {
+      font-size: 4rem !important;
+    }
+  }
+  
+  /* Enhanced float animations */
+  @keyframes float { 
+    0% { transform: translateY(0px) rotate(0deg); } 
+    50% { transform: translateY(-15px) rotate(3deg); } 
+    100% { transform: translateY(0px) rotate(0deg); } 
+  }
+  @keyframes float-reverse { 
+    0% { transform: translateY(0) rotate(0deg) scale(1); } 
+    50% { transform: translateY(15px) rotate(-5deg) scale(1.03); } 
+    100% { transform: translateY(0) rotate(0deg) scale(1); } 
+  }
+  
+  /* Fade-in animations */
+  .animate-fadeIn { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-fadeInUp { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  
+  /* Rotation animations */
+  .animate-rotate-slow { animation: rotate-slow 20s linear infinite; }
+  @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  
+  /* Pulse animations */
+  .animate-pulse-slow { animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  @keyframes pulse-slow { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.3; } }
+  .dark .animate-pulse-slow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.2; } }
+  
+  /* Hero-specific pulse animation with lower opacity */
+  @keyframes pulse-slow-hero { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.05; } }
+  .hero .animate-pulse-slow { animation: pulse-slow-hero 6s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  
+  /* Scroll animations */
+  .animate-on-scroll { 
+    opacity: 0; 
+    transform: translateY(20px); 
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out; 
+    will-change: opacity, transform; 
+  }
+  
+  /* Shadow effects */
+  .shadow-game { box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -4px rgba(147, 51, 234, 0.1); }
+  .dark .shadow-game-dark { box-shadow: 0 10px 15px -3px rgba(107, 33, 168, 0.3), 0 4px 6px -4px rgba(107, 33, 168, 0.3); }
+  
+  /* Background patterns */
+  .bg-dots-pattern { 
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); 
+    background-size: 15px 15px; 
+  }
+  .dark .bg-dots-pattern { 
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px); 
+  }
+  
+  /* Gradient animation (Slower) */
+  @keyframes gradient-animate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 
-        /* ================= START: Readability Enhanced Subject Card Styles ================= */
-        /* Gradient animation (Slower) */
-        @keyframes gradient-animate {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
+  /* Text utilities */
+  .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+  .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 
-        /* Base Card styles */
-        .subject-card {
-          /* perspective: 1000px; Remove if not doing 3D tilt */
-          will-change: transform, box-shadow; /* Optimize rendering for hover */
-          position: relative; /* Needed for pseudo-elements */
-        }
+  /* Subject Card styles */
+  .subject-card {
+    will-change: transform, box-shadow;
+    position: relative;
+  }
 
-        /* Icon container hover - just scale */
-        .subject-icon-container {
-          /* Icon hover remains: transition-transform duration-400 group-hover:scale-110 */
-        }
-
-        /* Hover Border using Pseudo-element and CSS Variables */
-        .subject-card .card-hover-border {
-            content: ''; /* Necessary for pseudo-element */
-        }
-        .subject-card:hover .card-hover-border {
-          border-color: var(--hover-border-color, #e5e7eb); /* Use variable with fallback */
-        }
-        .dark .subject-card:hover .card-hover-border {
-            border-color: var(--dark-hover-border-color, #4b5563); /* Use dark variable */
-        }
-        /* ================== END: Readability Enhanced Subject Card Styles ================== */
-
-      `}</style>
-    </main>
+  /* Hover Border using CSS Variables */
+  .subject-card .card-hover-border {
+    content: '';
+  }
+  .subject-card:hover .card-hover-border {
+    border-color: var(--hover-border-color, #e5e7eb);
+  }
+  .dark .subject-card:hover .card-hover-border {
+    border-color: var(--dark-hover-border-color, #4b5563);
+  }
+`}</style>
+   </main>
   );
 }

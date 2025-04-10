@@ -1,5 +1,3 @@
-
-// app/page.tsx
 'use client';
 
 import Link from 'next/link';
@@ -259,28 +257,83 @@ export default function Home() {
         {/* Background, Canvas, Equations, Shapes */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950"></div>
         <canvas ref={canvasRef} className="absolute inset-0 z-0" style={{ opacity: 0.7 }}></canvas>
-        {/* --- Hero Floating Background Icons (Subtle) --- */}
+        
+        {/* --- ENHANCED Hero Floating Background Icons --- */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none hero">
-             {/* Equations */}
-             <div className="absolute top-[5%] right-[15%] text-white text-3xl opacity-10 animate-float" style={{ animationDuration: '8s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>a² + b² = c²</div>
-             <div className="absolute top-[12%] left-[10%] text-white text-3xl opacity-10 animate-float" style={{ animationDuration: '9s', animationDelay: '1s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>E = mc²</div>
-             <div className="absolute top-[20%] right-[30%] text-white text-2xl opacity-10 animate-float" style={{ animationDuration: '10s', animationDelay: '0.5s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>Δx·Δp ≥ ℏ/2</div>
-             <div className="absolute top-[35%] left-[8%] text-white text-2xl opacity-10 animate-pulse-slow" style={{ animationDuration: '7s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>F = ma</div>
-             <div className="absolute top-[40%] right-[10%] text-white text-2xl opacity-10 animate-pulse-slow" style={{ animationDuration: '10s', animationDelay: '2s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>PV = nRT</div>
-             <div className="absolute top-[60%] left-[15%] text-white text-2xl opacity-10 animate-float" style={{ animationDuration: '11s', animationDelay: '1.5s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∇ × E = -∂B/∂t</div>
-             <div className="absolute top-[70%] right-[20%] text-white text-2xl opacity-10 animate-float" style={{ animationDuration: '12s', animationDelay: '0.8s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>f(x) = ∫ g(t) dt</div>
-             <div className="absolute top-[25%] left-[30%] text-white text-4xl opacity-10 animate-pulse-slow" style={{ animationDuration: '15s', animationDelay: '1.5s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∫</div>
-             <div className="absolute bottom-[20%] right-[25%] text-white text-4xl opacity-10 animate-pulse-slow" style={{ animationDuration: '14s', animationDelay: '0.7s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∑</div>
-             <div className="absolute bottom-[30%] left-[40%] text-white text-4xl opacity-10 animate-float" style={{ animationDuration: '16s', animationDelay: '1.2s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>∞</div>
-             <div className="absolute top-[45%] left-[60%] text-white text-4xl opacity-10 animate-pulse-slow" style={{ animationDuration: '13s', animationDelay: '2s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>π</div>
-             <div className="absolute bottom-[5%] right-[40%] text-white text-3xl opacity-10 animate-float" style={{ animationDuration: '10s', animationDelay: '0.5s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>ΔG = ΔH - TΔS</div>
-             <div className="absolute top-[55%] right-[55%] text-white text-3xl opacity-10 animate-pulse-slow" style={{ animationDuration: '12s', animationDelay: '1s', textShadow: '0 0 15px rgba(255,255,255,0.3)' }}>V=IR</div>
-             {/* Shapes */}
-             <div className="absolute top-[15%] left-[15%] w-32 h-32 border-2 border-white/5 rounded-lg animate-rotate-slow" style={{ animationDuration: '20s' }}></div>
-             <div className="absolute bottom-[20%] right-[15%] w-40 h-40 border-2 border-white/5 rounded-full animate-rotate-slow" style={{ animationDuration: '25s', animationDirection: 'reverse' }}></div>
-             <div className="absolute top-[60%] left-[25%] w-24 h-24 border-2 border-white/5 transform rotate-45 animate-float" style={{ animationDuration: '15s' }}></div>
-             <div className="absolute top-[30%] right-[25%] w-20 h-20 border-2 border-white/3 rounded-full animate-pulse-slow" style={{ animationDuration: '10s' }}></div>
+            {/* Mathematical symbols - Randomly placed with better opacity for hero */}
+            <div className="absolute top-[7%] left-[13%] text-white/25 text-9xl floating-icon">∑</div>
+            <div className="absolute top-[33%] right-[17%] text-white/25 text-10xl floating-icon-reverse">π</div>
+            <div className="absolute top-[61%] left-[27%] text-white/25 text-8xl floating-icon-slow">∞</div>
+            <div className="absolute top-[19%] right-[38%] text-white/25 text-11xl floating-icon">⚛</div>
+            <div className="absolute top-[77%] right-[23%] text-white/25 text-9xl floating-icon-slow">𝜙</div>
+            <div className="absolute bottom-[31%] left-[8%] text-white/25 text-10xl floating-icon-reverse">∫</div>
+            <div className="absolute bottom-[12%] right-[42%] text-white/25 text-9xl floating-icon">≈</div>
+            <div className="absolute bottom-[47%] right-[9%] text-white/25 text-8xl floating-icon-slow">±</div>
+
+            {/* Additional math symbols */}
+            <div className="absolute top-[23%] left-[54%] text-white/25 text-8xl floating-icon">Δ</div>
+            <div className="absolute top-[44%] left-[38%] text-white/25 text-7xl floating-icon-slow">λ</div>
+            <div className="absolute top-[81%] left-[67%] text-white/25 text-9xl floating-icon-reverse">θ</div>
+            <div className="absolute top-[29%] left-[83%] text-white/25 text-8xl floating-icon">α</div>
+            <div className="absolute bottom-[63%] left-[6%] text-white/25 text-9xl floating-icon-slow">β</div>
+            <div className="absolute bottom-[19%] left-[71%] text-white/25 text-8xl floating-icon-reverse">μ</div>
+            <div className="absolute bottom-[28%] left-[32%] text-white/25 text-7xl floating-icon">ω</div>
+
+            {/* Science formulas */}
+            <div className="absolute top-[14%] left-[31%] text-white/25 text-4xl floating-icon-slow">E=mc²</div>
+            <div className="absolute top-[58%] left-[48%] text-white/25 text-4xl floating-icon">F=ma</div>
+            <div className="absolute top-[39%] left-[76%] text-white/25 text-4xl floating-icon-reverse">H₂O</div>
+            <div className="absolute bottom-[17%] left-[52%] text-white/25 text-4xl floating-icon">PV=nRT</div>
+            <div className="absolute bottom-[53%] left-[24%] text-white/25 text-4xl floating-icon-slow">v=λf</div>
+            <div className="absolute top-[86%] left-[11%] text-white/25 text-4xl floating-icon-reverse">C₆H₁₂O₆</div>
+            <div className="absolute top-[68%] right-[31%] text-white/25 text-4xl floating-icon">E=hf</div>
+
+            {/* Science icons */}
+            <div className="absolute top-[41%] left-[8%] opacity-25 floating-icon-slow">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+            </div>
+            <div className="absolute top-[17%] right-[7%] opacity-25 floating-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div className="absolute bottom-[7%] left-[36%] opacity-25 floating-icon-reverse">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="absolute top-[54%] right-[28%] opacity-25 floating-icon-slow">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div className="absolute top-[23%] left-[67%] opacity-25 floating-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
+              </svg>
+            </div>
+            <div className="absolute bottom-[37%] right-[6%] opacity-25 floating-icon-reverse">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <div className="absolute top-[71%] left-[13%] opacity-25 floating-icon-slow">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+
+            {/* Shapes */}
+            <div className="absolute top-[15%] left-[15%] w-32 h-32 border-2 border-white/10 rounded-lg animate-rotate-slow" style={{ animationDuration: '20s' }}></div>
+            <div className="absolute bottom-[20%] right-[15%] w-40 h-40 border-2 border-white/10 rounded-full animate-rotate-slow" style={{ animationDuration: '25s', animationDirection: 'reverse' }}></div>
+            <div className="absolute top-[60%] left-[25%] w-24 h-24 border-2 border-white/10 transform rotate-45 animate-float" style={{ animationDuration: '15s' }}></div>
+            <div className="absolute top-[30%] right-[25%] w-20 h-20 border-2 border-white/10 rounded-full animate-pulse-slow" style={{ animationDuration: '10s' }}></div>
+            <div className="absolute top-[40%] left-[55%] w-36 h-36 border-2 border-white/10 rounded-lg transform rotate-12 animate-float-reverse" style={{ animationDuration: '18s' }}></div>
+            <div className="absolute bottom-[35%] right-[40%] w-28 h-28 border-2 border-white/10 rounded-full animate-pulse-slow" style={{ animationDuration: '12s' }}></div>
         </div>
+        
         {/* Hero Content (Keep as is) */}
          <div className="max-w-6xl mx-auto relative z-10">
            <div className="text-center">
@@ -342,13 +395,13 @@ export default function Home() {
       </section>
 
       {/* ========================== Features Section ========================== */}
-      {/* (Features Section code remains the same) */}
       <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="features">
          {/* Decorative elements */}
          <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-purple-900/5 to-transparent dark:from-purple-900/10"></div>
          <div className="absolute left-0 top-1/4 w-64 h-64 bg-purple-300/10 dark:bg-purple-900/10 rounded-full filter blur-3xl"></div>
          <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-indigo-300/10 dark:bg-indigo-900/10 rounded-full filter blur-3xl"></div>
-         {/* --- Features Floating Background Icons --- */}
+         
+         {/* --- ENHANCED Features Floating Background Icons --- */}
          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
            {/* Mathematical symbols */}
            <div className="absolute top-[7%] left-[13%] text-purple-500/20 dark:text-purple-400/10 text-9xl floating-icon">∑</div>
@@ -360,7 +413,7 @@ export default function Home() {
            <div className="absolute bottom-[12%] right-[42%] text-teal-500/20 dark:text-teal-400/10 text-9xl floating-icon">≈</div>
            <div className="absolute bottom-[47%] right-[9%] text-pink-500/20 dark:text-pink-400/10 text-8xl floating-icon-slow">±</div>
 
-           {/* Additional math symbols */}
+           {/* Additional math symbols - More random placements */}
            <div className="absolute top-[23%] left-[54%] text-fuchsia-500/20 dark:text-fuchsia-400/10 text-8xl floating-icon">Δ</div>
            <div className="absolute top-[44%] left-[38%] text-emerald-500/20 dark:text-emerald-400/10 text-7xl floating-icon-slow">λ</div>
            <div className="absolute top-[81%] left-[67%] text-cyan-500/20 dark:text-cyan-400/10 text-9xl floating-icon-reverse">θ</div>
@@ -369,7 +422,13 @@ export default function Home() {
            <div className="absolute bottom-[19%] left-[71%] text-purple-500/20 dark:text-purple-400/10 text-8xl floating-icon-reverse">μ</div>
            <div className="absolute bottom-[28%] left-[32%] text-blue-500/20 dark:text-blue-400/10 text-7xl floating-icon">ω</div>
 
-           {/* Science formulas */}
+           {/* Additional symbols for more richness */}
+           <div className="absolute top-[52%] left-[18%] text-sky-500/20 dark:text-sky-400/10 text-8xl floating-icon-slow">γ</div>
+           <div className="absolute top-[37%] right-[29%] text-lime-500/20 dark:text-lime-400/10 text-9xl floating-icon">σ</div>
+           <div className="absolute bottom-[42%] right-[37%] text-orange-500/20 dark:text-orange-400/10 text-10xl floating-icon-reverse">δ</div>
+           <div className="absolute top-[73%] right-[13%] text-violet-500/20 dark:text-violet-400/10 text-8xl floating-icon-slow">ρ</div>
+
+           {/* Science formulas - Random positions */}
            <div className="absolute top-[14%] left-[31%] text-indigo-500/20 dark:text-indigo-400/10 text-6xl floating-icon-slow">E=mc²</div>
            <div className="absolute top-[58%] left-[48%] text-teal-500/20 dark:text-teal-400/10 text-5xl floating-icon">F=ma</div>
            <div className="absolute top-[39%] left-[76%] text-violet-500/20 dark:text-violet-400/10 text-6xl floating-icon-reverse">H₂O</div>
@@ -378,7 +437,7 @@ export default function Home() {
            <div className="absolute top-[86%] left-[11%] text-sky-500/20 dark:text-sky-400/10 text-5xl floating-icon-reverse">C₆H₁₂O₆</div>
            <div className="absolute top-[68%] right-[31%] text-amber-500/20 dark:text-amber-400/10 text-6xl floating-icon">E=hf</div>
 
-           {/* Science icons */}
+           {/* Science icons - Randomly positioned */}
            <div className="absolute top-[41%] left-[8%] opacity-20 dark:opacity-10 floating-icon-slow">
              <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
@@ -394,27 +453,28 @@ export default function Home() {
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
              </svg>
            </div>
-            <div className="absolute top-[54%] right-[28%] opacity-20 dark:opacity-10 floating-icon-slow">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-               </svg>
-            </div>
-            <div className="absolute top-[23%] left-[67%] opacity-20 dark:opacity-10 floating-icon">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
-               </svg>
-            </div>
-             <div className="absolute bottom-[37%] right-[6%] opacity-15 dark:opacity-5 floating-icon-reverse">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-               </svg>
-             </div>
-             <div className="absolute top-[71%] left-[13%] opacity-15 dark:opacity-5 floating-icon-slow">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-               </svg>
-             </div>
+           <div className="absolute top-[54%] right-[28%] opacity-20 dark:opacity-10 floating-icon-slow">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+             </svg>
+           </div>
+           <div className="absolute top-[23%] left-[67%] opacity-20 dark:opacity-10 floating-icon">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
+             </svg>
+           </div>
+           <div className="absolute bottom-[37%] right-[6%] opacity-15 dark:opacity-5 floating-icon-reverse">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+             </svg>
+           </div>
+           <div className="absolute top-[71%] left-[13%] opacity-15 dark:opacity-5 floating-icon-slow">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+             </svg>
+           </div>
          </div>
+         
          {/* Features Content (Keep as is) */}
           <div className="max-w-6xl mx-auto relative">
             <div className="text-center mb-20">
@@ -513,15 +573,32 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-white dark:from-gray-900 to-gray-50 dark:to-gray-800"></div>
         <div className="absolute left-0 top-1/3 w-72 h-72 bg-blue-200/20 dark:bg-blue-900/10 rounded-full filter blur-3xl"></div>
         <div className="absolute right-0 bottom-1/3 w-72 h-72 bg-green-200/20 dark:bg-green-900/10 rounded-full filter blur-3xl"></div>
-         {/* --- Subjects Floating Background Icons --- */}
+        
+        {/* --- ENHANCED Subjects Floating Background Icons --- */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+             {/* Mathematical symbols - New additions */}
              <div className="absolute top-[10%] left-[60%] text-amber-500/15 dark:text-amber-400/5 text-7xl floating-icon">µ</div>
              <div className="absolute top-[65%] right-[20%] text-lime-500/15 dark:text-lime-400/5 text-9xl floating-icon-reverse">Δ</div>
              <div className="absolute top-[35%] left-[5%] text-teal-500/15 dark:text-teal-400/5 text-8xl floating-icon-slow">Σ</div>
              <div className="absolute bottom-[10%] left-[35%] text-fuchsia-500/15 dark:text-fuchsia-400/5 text-10xl floating-icon">Π</div>
              <div className="absolute top-[50%] left-[45%] text-orange-500/15 dark:text-orange-400/5 text-7xl floating-icon-reverse">λ</div>
              <div className="absolute bottom-[55%] right-[5%] text-red-500/15 dark:text-red-400/5 text-9xl floating-icon-slow">∇</div>
-             <div className="absolute top-[25%] right-[10%] opacity-15 dark:opacity-5 floating-icon-slow">
+             
+             {/* Additional math symbols */}
+             <div className="absolute top-[15%] right-[40%] text-violet-500/15 dark:text-violet-400/5 text-8xl floating-icon">Ψ</div>
+             <div className="absolute top-[75%] left-[20%] text-sky-500/15 dark:text-sky-400/5 text-9xl floating-icon-reverse">ξ</div>
+             <div className="absolute bottom-[40%] left-[50%] text-emerald-500/15 dark:text-emerald-400/5 text-10xl floating-icon-slow">φ</div>
+             <div className="absolute top-[5%] left-[25%] text-indigo-500/15 dark:text-indigo-400/5 text-7xl floating-icon">τ</div>
+             
+             {/* Science formulas */}
+             <div className="absolute top-[25%] right-[15%] text-cyan-500/15 dark:text-cyan-400/5 text-5xl floating-icon-slow">F = kx</div><div className="absolute top-[25%] right-[15%] text-cyan-500/15 dark:text-cyan-400/5 text-5xl floating-icon-slow">F = kx</div>
+             <div className="absolute bottom-[25%] right-[30%] text-rose-500/15 dark:text-rose-400/5 text-5xl floating-icon">Pₚ = mv</div>
+             <div className="absolute top-[45%] right-[50%] text-purple-500/15 dark:text-purple-400/5 text-5xl floating-icon-reverse">∮E·dl = -dΦ/dt</div>
+             <div className="absolute bottom-[60%] left-[25%] text-amber-500/15 dark:text-amber-400/5 text-4xl floating-icon-slow">T = 2π√(l/g)</div>
+             <div className="absolute top-[75%] right-[8%] text-lime-500/15 dark:text-lime-400/5 text-5xl floating-icon">W = F·d</div>
+
+             {/* Science icons */}
+             <div className="absolute top-[25%] left-[15%] opacity-15 dark:opacity-5 floating-icon-slow">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-purple-500 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -531,6 +608,19 @@ export default function Home() {
                  <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                  </svg>
+             </div>
+             
+             {/* Additional science icons */}
+             <div className="absolute top-[55%] right-[10%] opacity-15 dark:opacity-5 floating-icon-reverse">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+             </div>
+             <div className="absolute bottom-[15%] right-[25%] opacity-15 dark:opacity-5 floating-icon-slow">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                </svg>
              </div>
         </div>
         {/* --- End Subjects Floating Icons --- */}
@@ -711,13 +801,12 @@ export default function Home() {
 
 
       {/* ========================== Testimonials Section ========================== */}
-      {/* (Testimonials Section code remains the same) */}
-       <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="testimonials">
+      <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="testimonials">
          {/* Decorative elements */}
          <div className="absolute left-0 top-1/4 w-72 h-72 bg-yellow-200/10 dark:bg-yellow-900/10 rounded-full filter blur-3xl"></div>
          <div className="absolute right-0 bottom-1/4 w-96 h-96 bg-pink-200/10 dark:bg-pink-900/10 rounded-full filter blur-3xl"></div>
 
-         {/* --- Testimonials Floating Background Icons --- */}
+         {/* --- ENHANCED Testimonials Floating Background Icons --- */}
          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
            {/* Mathematical symbols */}
            <div className="absolute top-[12%] left-[8%] text-amber-500/20 dark:text-amber-400/10 text-9xl floating-icon">α</div>
@@ -727,10 +816,21 @@ export default function Home() {
            <div className="absolute bottom-[20%] left-[23%] text-purple-500/20 dark:text-purple-400/10 text-10xl floating-icon-slow">ε</div>
            <div className="absolute bottom-[50%] right-[5%] text-green-500/20 dark:text-green-400/10 text-8xl floating-icon-reverse">ζ</div>
 
+           {/* New mathematical symbols */}
+           <div className="absolute top-[42%] right-[38%] text-cyan-500/20 dark:text-cyan-400/10 text-10xl floating-icon">χ</div>
+           <div className="absolute bottom-[35%] left-[40%] text-violet-500/20 dark:text-violet-400/10 text-11xl floating-icon-reverse">υ</div>
+           <div className="absolute top-[5%] right-[45%] text-teal-500/20 dark:text-teal-400/10 text-8xl floating-icon-slow">κ</div>
+           <div className="absolute bottom-[5%] right-[15%] text-orange-500/20 dark:text-orange-400/10 text-9xl floating-icon">ψ</div>
+
            {/* Science formulas */}
            <div className="absolute top-[61%] right-[15%] text-emerald-500/20 dark:text-emerald-400/10 text-6xl floating-icon">V=IR</div>
            <div className="absolute bottom-[25%] right-[35%] text-orange-500/20 dark:text-orange-400/10 text-5xl floating-icon-reverse">E=hf</div>
            <div className="absolute top-[80%] left-[30%] text-rose-500/20 dark:text-rose-400/10 text-5xl floating-icon-slow">C₆H₁₂O₆</div>
+           
+           {/* New science formulas */}
+           <div className="absolute top-[18%] left-[45%] text-indigo-500/20 dark:text-indigo-400/10 text-5xl floating-icon">ΔG = ΔH - TΔS</div>
+           <div className="absolute bottom-[65%] right-[25%] text-rose-500/20 dark:text-rose-400/10 text-5xl floating-icon-reverse">F = qvB</div>
+           <div className="absolute top-[55%] left-[10%] text-yellow-500/20 dark:text-yellow-400/10 text-5xl floating-icon-slow">c² = a² + b²</div>
 
            {/* Science icons */}
            <div className="absolute top-[22%] right-[12%] opacity-20 dark:opacity-10 floating-icon-slow">
@@ -744,7 +844,20 @@ export default function Home() {
                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
              </svg>
            </div>
+           
+           {/* New science icons */}
+           <div className="absolute top-[45%] left-[35%] opacity-20 dark:opacity-10 floating-icon-slow">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+             </svg>
+           </div>
+           <div className="absolute bottom-[35%] right-[18%] opacity-20 dark:opacity-10 floating-icon-reverse">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+             </svg>
+           </div>
          </div>
+         
          {/* Testimonials Content (Keep as is) */}
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="text-center mb-16">
@@ -798,22 +911,38 @@ export default function Home() {
 
 
       {/* ========================== Stats Section ========================== */}
-      {/* (Stats Section code remains the same) */}
-       <section className="py-20 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950 text-white relative overflow-hidden">
          {/* Background elements */}
          <div className="absolute inset-0 bg-dots-pattern opacity-10 mix-blend-overlay"></div>
          <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white/10 to-transparent"></div>
          <div className="absolute left-0 top-1/4 w-80 h-80 bg-white/5 rounded-full filter blur-3xl"></div>
          <div className="absolute right-0 bottom-1/4 w-64 h-64 bg-white/5 rounded-full filter blur-3xl"></div>
-         {/* --- Stats Floating Background Icons --- */}
+         
+         {/* --- ENHANCED Stats Floating Background Icons --- */}
          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+           {/* Stats elements */}
            <div className="absolute top-[20%] left-[10%] text-white/10 text-7xl floating-icon-slow">+15%</div>
            <div className="absolute bottom-[30%] right-[15%] text-white/10 text-8xl floating-icon">9.8</div>
            <div className="absolute top-[50%] left-[30%] text-white/10 text-6xl floating-icon-reverse">📊</div>
            <div className="absolute bottom-[10%] right-[30%] text-white/10 text-9xl floating-icon-slow">💯</div>
-            <div className="absolute top-[15%] right-[25%] text-white/10 text-7xl floating-icon">📈</div>
-            <div className="absolute bottom-[50%] left-[5%] text-white/10 text-8xl floating-icon-reverse">✔️</div>
+           <div className="absolute top-[15%] right-[25%] text-white/10 text-7xl floating-icon">📈</div>
+           <div className="absolute bottom-[50%] left-[5%] text-white/10 text-8xl floating-icon-reverse">✔️</div>
+           
+           {/* New stats elements */}
+           <div className="absolute top-[35%] right-[8%] text-white/10 text-7xl floating-icon-slow">87%</div>
+           <div className="absolute bottom-[15%] left-[25%] text-white/10 text-6xl floating-icon">+50%</div>
+           <div className="absolute top-[8%] left-[40%] text-white/10 text-8xl floating-icon-reverse">A+</div>
+           <div className="absolute bottom-[60%] right-[40%] text-white/10 text-7xl floating-icon-slow">📝</div>
+           <div className="absolute top-[60%] right-[60%] text-white/10 text-9xl floating-icon">🔍</div>
+           <div className="absolute bottom-[25%] right-[55%] text-white/10 text-6xl floating-icon-reverse">🧠</div>
+           
+           {/* Mathematical symbols */}
+           <div className="absolute top-[45%] left-[15%] text-white/10 text-8xl floating-icon-slow">∑</div>
+           <div className="absolute bottom-[40%] right-[20%] text-white/10 text-7xl floating-icon">∫</div>
+           <div className="absolute top-[75%] left-[50%] text-white/10 text-6xl floating-icon-reverse">π</div>
+           <div className="absolute top-[28%] right-[45%] text-white/10 text-9xl floating-icon-slow">√</div>
          </div>
+         
          {/* Stats Content (Keep as is) */}
          <div className="max-w-6xl mx-auto px-6 relative z-10">
            <div className="text-center mb-16">
@@ -842,20 +971,38 @@ export default function Home() {
        </section>
 
       {/* ========================== CTA Section ========================== */}
-      {/* (CTA Section code remains the same) */}
       <section className="py-24 px-6 bg-gradient-to-r from-purple-900 to-indigo-800 text-white relative overflow-hidden">
          {/* Background elements */}
          <div className="absolute inset-0 bg-dots-pattern opacity-10 mix-blend-overlay"></div>
          <div className="absolute left-0 top-0 w-1/2 h-full bg-gradient-to-r from-purple-900/0 via-purple-900/20 to-transparent filter blur-3xl"></div>
          <div className="absolute right-0 bottom-0 w-1/2 h-1/2 bg-gradient-to-t from-indigo-900/20 to-transparent filter blur-3xl"></div>
-          {/* --- CTA Floating Background Icons --- */}
+          
+         {/* --- ENHANCED CTA Floating Background Icons --- */}
          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
            <div className="absolute top-[20%] left-[5%] w-24 h-24 bg-white/5 rounded-full animate-float" style={{ animationDuration: '15s' }}></div>
            <div className="absolute bottom-[20%] right-[10%] w-32 h-32 bg-white/5 rounded-full animate-float" style={{ animationDuration: '18s', animationDelay: '2s' }}></div>
            <div className="absolute top-[50%] right-[20%] w-16 h-16 bg-white/5 rounded-lg transform rotate-45 animate-float" style={{ animationDuration: '12s', animationDelay: '1s' }}></div>
+           
+           {/* Additional CTA elements */}
+           <div className="absolute top-[10%] right-[35%] w-48 h-48 bg-white/5 rounded-full animate-float-reverse" style={{ animationDuration: '20s' }}></div>
+           <div className="absolute bottom-[35%] left-[15%] w-40 h-40 bg-white/5 rounded-full animate-float" style={{ animationDuration: '16s', animationDelay: '3s' }}></div>
+           <div className="absolute top-[60%] left-[30%] w-20 h-20 bg-white/5 rounded-lg transform rotate-12 animate-float-reverse" style={{ animationDuration: '14s', animationDelay: '1.5s' }}></div>
+            
+            {/* Emoji and icons */}
             <div className="absolute top-[30%] left-[45%] text-white/5 text-6xl floating-icon-reverse">🚀</div>
             <div className="absolute bottom-[10%] left-[55%] text-white/5 text-8xl floating-icon">🎓</div>
+            <div className="absolute top-[15%] right-[15%] text-white/5 text-7xl floating-icon-slow">🔥</div>
+            <div className="absolute bottom-[40%] right-[30%] text-white/5 text-6xl floating-icon-reverse">💡</div>
+            <div className="absolute top-[75%] right-[45%] text-white/5 text-7xl floating-icon">✨</div>
+            <div className="absolute bottom-[15%] left-[25%] text-white/5 text-8xl floating-icon-slow">📚</div>
+            
+            {/* Mathematical symbols and formulas */}
+            <div className="absolute top-[25%] left-[15%] text-white/5 text-9xl floating-icon">∞</div>
+            <div className="absolute bottom-[30%] right-[10%] text-white/5 text-8xl floating-icon-reverse">∑</div>
+            <div className="absolute top-[55%] right-[25%] text-white/5 text-7xl floating-icon-slow">E=mc²</div>
+            <div className="absolute bottom-[55%] left-[40%] text-white/5 text-6xl floating-icon">F=ma</div>
          </div>
+         
          {/* CTA Content & Form (Keep as is) */}
          <div className="max-w-6xl mx-auto relative z-10">
            <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -907,9 +1054,8 @@ export default function Home() {
       </section>
 
       {/* ========================== FAQ Section ========================== */}
-      {/* (FAQ Section code remains the same) */}
        <section className="py-24 px-6 bg-white dark:bg-gray-900 relative">
-          {/* --- FAQ Floating Background Icons --- */}
+          {/* --- ENHANCED FAQ Floating Background Icons --- */}
          <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
            {/* Mathematical symbols */}
            <div className="absolute top-[10%] left-[10%] text-red-500/20 dark:text-red-400/10 text-9xl floating-icon-slow">σ</div>
@@ -918,10 +1064,22 @@ export default function Home() {
            <div className="absolute bottom-[15%] left-[15%] text-blue-500/20 dark:text-blue-400/10 text-9xl floating-icon-slow">Ω</div>
            <div className="absolute top-[5%] right-[20%] text-pink-500/20 dark:text-pink-400/10 text-7xl floating-icon">η</div>
 
+           {/* New mathematical symbols */}
+           <div className="absolute top-[30%] right-[35%] text-teal-500/20 dark:text-teal-400/10 text-9xl floating-icon-reverse">φ</div>
+           <div className="absolute bottom-[48%] left-[35%] text-orange-500/20 dark:text-orange-400/10 text-8xl floating-icon">ξ</div>
+           <div className="absolute top-[75%] right-[30%] text-purple-500/20 dark:text-purple-400/10 text-7xl floating-icon-slow">ψ</div>
+           <div className="absolute bottom-[10%] right-[50%] text-lime-500/20 dark:text-lime-400/10 text-9xl floating-icon-reverse">υ</div>
+           <div className="absolute top-[50%] left-[50%] text-sky-500/20 dark:text-sky-400/10 text-8xl floating-icon">ζ</div>
+
            {/* Science formulas */}
            <div className="absolute top-[25%] right-[20%] text-indigo-500/20 dark:text-indigo-400/10 text-6xl floating-icon-slow">F=G(m₁m₂/r²)</div>
            <div className="absolute bottom-[35%] right-[8%] text-teal-500/20 dark:text-teal-400/10 text-5xl floating-icon">c=λf</div>
            <div className="absolute bottom-[70%] left-[12%] text-sky-500/20 dark:text-sky-400/10 text-5xl floating-icon-reverse">E=kQ/r²</div>
+
+           {/* New science formulas */}
+           <div className="absolute top-[85%] left-[45%] text-rose-500/20 dark:text-rose-400/10 text-5xl floating-icon">W = Fd·cosθ</div>
+           <div className="absolute bottom-[85%] right-[40%] text-emerald-500/20 dark:text-emerald-400/10 text-5xl floating-icon-slow">p = mv</div>
+           <div className="absolute top-[40%] right-[60%] text-amber-500/20 dark:text-amber-400/10 text-5xl floating-icon-reverse">T = 2π√(l/g)</div>
 
            {/* Science icons */}
            <div className="absolute top-[50%] right-[30%] opacity-20 dark:opacity-10 floating-icon">
@@ -937,6 +1095,18 @@ export default function Home() {
             <div className="absolute bottom-[5%] left-[40%] opacity-20 dark:opacity-10 floating-icon-slow">
              <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-lime-500 dark:text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+             </svg>
+           </div>
+           
+           {/* New science icons */}
+           <div className="absolute top-[60%] left-[10%] opacity-20 dark:opacity-10 floating-icon">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+             </svg>
+           </div>
+           <div className="absolute bottom-[25%] right-[15%] opacity-20 dark:opacity-10 floating-icon-reverse">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
              </svg>
            </div>
          </div>
@@ -961,31 +1131,56 @@ export default function Home() {
        </section>
 
       {/* ========================== Footer ========================== */}
-      {/* (Footer code remains the same) */}
       <footer className="bg-gray-900 dark:bg-gray-950 text-white py-24 px-6 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute inset-0 bg-dots-pattern opacity-5 mix-blend-overlay"></div>
         <div className="absolute left-0 bottom-0 w-96 h-96 bg-purple-900/30 rounded-full filter blur-3xl opacity-50"></div>
         <div className="absolute right-0 top-0 w-80 h-80 bg-indigo-900/20 rounded-full filter blur-3xl opacity-50"></div>
-        {/* --- Footer Floating Background Icons --- */}
+        
+        {/* --- ENHANCED Footer Floating Background Icons --- */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
            {/* Mathematical symbols */}
            <div className="absolute top-[10%] left-[7%] text-purple-500/10 dark:text-purple-400/5 text-9xl floating-icon">∞</div>
            <div className="absolute top-[60%] right-[10%] text-blue-500/10 dark:text-blue-400/5 text-8xl floating-icon-reverse">π</div>
            <div className="absolute bottom-[20%] left-[20%] text-green-500/10 dark:text-green-400/5 text-10xl floating-icon-slow">√</div>
-            <div className="absolute top-[25%] left-[40%] text-red-500/10 dark:text-red-400/5 text-8xl floating-icon">χ²</div>
+           <div className="absolute top-[25%] left-[40%] text-red-500/10 dark:text-red-400/5 text-8xl floating-icon">χ²</div>
+
+           {/* New mathematical symbols */}
+           <div className="absolute top-[45%] right-[25%] text-indigo-500/10 dark:text-indigo-400/5 text-9xl floating-icon-slow">Φ</div>
+           <div className="absolute bottom-[45%] left-[30%] text-teal-500/10 dark:text-teal-400/5 text-7xl floating-icon">θ</div>
+           <div className="absolute top-[15%] right-[40%] text-pink-500/10 dark:text-pink-400/5 text-8xl floating-icon-reverse">γ</div>
+           <div className="absolute bottom-[25%] right-[15%] text-lime-500/10 dark:text-lime-400/5 text-10xl floating-icon-slow">Δ</div>
+           <div className="absolute top-[75%] left-[10%] text-sky-500/10 dark:text-sky-400/5 text-7xl floating-icon">ζ</div>
 
            {/* Science formulas */}
            <div className="absolute top-[30%] right-[15%] text-cyan-500/10 dark:text-cyan-400/5 text-6xl floating-icon-slow">E=mc²</div>
            <div className="absolute bottom-[30%] right-[25%] text-amber-500/10 dark:text-amber-400/5 text-5xl floating-icon">PV=nRT</div>
            <div className="absolute top-[75%] left-[30%] text-violet-500/10 dark:text-violet-400/5 text-4xl floating-icon-reverse">a = F/m</div>
 
+           {/* New science formulas */}
+           <div className="absolute top-[20%] left-[20%] text-emerald-500/10 dark:text-emerald-400/5 text-5xl floating-icon-slow">ΔG = ΔH - TΔS</div>
+           <div className="absolute bottom-[15%] left-[45%] text-orange-500/10 dark:text-orange-400/5 text-5xl floating-icon">v = u + at</div>
+           <div className="absolute top-[60%] right-[35%] text-rose-500/10 dark:text-rose-400/5 text-4xl floating-icon-reverse">H₂O + CO₂ → C₆H₁₂O₆</div>
+
             <div className="absolute bottom-[5%] left-[50%] opacity-5 floating-icon-slow">
                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                </svg>
            </div>
+           
+           {/* New science icons */}
+           <div className="absolute top-[35%] left-[5%] opacity-5 floating-icon">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+               </svg>
+           </div>
+           <div className="absolute bottom-[25%] right-[5%] opacity-5 floating-icon-reverse">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+               </svg>
+           </div>
          </div>
+        
         {/* Footer Content (Keep as is) */}
          <div className="max-w-6xl mx-auto relative z-10">
            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
@@ -1064,31 +1259,81 @@ export default function Home() {
 
       {/* ========================== Global Styles (Including Enhanced Subject Card styles) ========================== */}
       <style jsx global>{`
-        /* General Animations (Keep as is) */
+        /* General Animations (Enhanced with new effects) */
         .text-10xl { font-size: 9rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
         .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        .floating-icon { animation: float 6s ease-in-out infinite; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); }
-        .floating-icon-reverse { animation: float-reverse 7s ease-in-out infinite; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); }
-        .floating-icon-slow { animation: float 10s ease-in-out infinite; filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); }
-        @keyframes float { 0% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-15px) rotate(3deg); } 100% { transform: translateY(0px) rotate(0deg); } }
-        @keyframes float-reverse { 0% { transform: translateY(0) rotate(0deg) scale(1); } 50% { transform: translateY(15px) rotate(-5deg) scale(1.03); } 100% { transform: translateY(0) rotate(0deg) scale(1); } }
+        
+        /* Enhanced floating effects for math symbols and icons */
+        .floating-icon { 
+          animation: float 6s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
+          will-change: transform;
+        }
+        .floating-icon-reverse { 
+          animation: float-reverse 7s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
+          will-change: transform;
+        }
+        .floating-icon-slow { 
+          animation: float 10s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
+          will-change: transform;
+        }
+        
+        /* Enhanced float animations with more movement */
+        @keyframes float { 
+          0% { transform: translateY(0px) rotate(0deg); } 
+          50% { transform: translateY(-15px) rotate(3deg); } 
+          100% { transform: translateY(0px) rotate(0deg); } 
+        }
+        @keyframes float-reverse { 
+          0% { transform: translateY(0) rotate(0deg) scale(1); } 
+          50% { transform: translateY(15px) rotate(-5deg) scale(1.03); } 
+          100% { transform: translateY(0) rotate(0deg) scale(1); } 
+        }
+        
+        /* Fade-in animations */
         .animate-fadeIn { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fadeInUp { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Rotation animations */
         .animate-rotate-slow { animation: rotate-slow 20s linear infinite; }
         @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* Pulse animations */
         .animate-pulse-slow { animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse-slow { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.3; } }
         .dark .animate-pulse-slow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.2; } }
         .hero .animate-pulse-slow { animation: pulse-slow-hero 6s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse-slow-hero { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.05; } }
-        .animate-on-scroll { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; will-change: opacity, transform; }
+        
+        /* Scroll animations */
+        .animate-on-scroll { 
+          opacity: 0; 
+          transform: translateY(20px); 
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out; 
+          will-change: opacity, transform; 
+        }
+        
+        /* Shadow effects */
         .shadow-game { box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -4px rgba(147, 51, 234, 0.1); }
         .dark .shadow-game-dark { box-shadow: 0 10px 15px -3px rgba(107, 33, 168, 0.3), 0 4px 6px -4px rgba(107, 33, 168, 0.3); }
-        .bg-dots-pattern { background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); background-size: 15px 15px; }
-        .dark .bg-dots-pattern { background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px); }
-        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Background patterns */
+        .bg-dots-pattern { 
+          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); 
+          background-size: 15px 15px; 
+        }
+        .dark .bg-dots-pattern { 
+          background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px); 
+        }
+        
+        /* Text utilities */
+        .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+        .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+        .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 
         /* ================= START: Readability Enhanced Subject Card Styles ================= */
         /* Gradient animation (Slower) */
@@ -1120,12 +1365,6 @@ export default function Home() {
         .dark .subject-card:hover .card-hover-border {
             border-color: var(--dark-hover-border-color, #4b5563); /* Use dark variable */
         }
-
-        /* Adjust perspective if you re-introduce 3D icon tilt */
-        /* .subject-card { perspective: 1000px; } */
-        /* .subject-card:hover .subject-icon-container {
-             transform: scale(1.1) rotateY(10deg); Add translate if needed
-           } */
         /* ================== END: Readability Enhanced Subject Card Styles ================== */
 
       `}</style>

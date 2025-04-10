@@ -101,6 +101,9 @@ function TakeQuizContent({ quizId }: { quizId: string | null }) {
   const [animateQuestion, setAnimateQuestion] = useState<boolean>(false);
   const [quizResults, setQuizResults] = useState<QuizResults | null>(null);
 
+  // Determine if user passed (typically 60% or higher is passing)
+  const PASSING_SCORE = 60; // Define passing threshold
+
   // Fetch and Format Quiz Data
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -318,6 +321,9 @@ function TakeQuizContent({ quizId }: { quizId: string | null }) {
   // This is for the "Check Answer" button functionality only
   const isCurrentSelectionCorrect = quizData?.questions[currentQuestion]?.correctAnswer === selectedOption;
 
+  // Determine if user passed the quiz based on percentageScore
+  const isPassing = quizResults ? quizResults.percentageScore >= PASSING_SCORE : false;
+
   // Render Quiz Interface OR Results Screen
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 transition-colors duration-300 relative overflow-hidden">
@@ -430,11 +436,11 @@ function TakeQuizContent({ quizId }: { quizId: string | null }) {
             <div className="px-4 sm:px-8 py-10">
               <div className="text-center mb-8">
                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 mb-4 text-white text-3xl shadow-lg">
-                  {quizResults.passed ? '🎉' : '🤔'} {/* Different icon based on pass/fail */}
+                  {isPassing ? '🎉' : '🤔'} {/* Different icon based on pass/fail */}
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-1">Quiz Completed!</h2>
                 <p className="text-gray-600">You've completed the {quizData?.title || 'quiz'}.</p>
-                 {quizResults.passed ? (
+                 {isPassing ? (
                     <p className="mt-2 text-lg font-semibold text-green-600">Congratulations, you passed!</p>
                 ) : (
                     <p className="mt-2 text-lg font-semibold text-red-600">Keep practicing!</p>

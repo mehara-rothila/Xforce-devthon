@@ -27,7 +27,7 @@ interface Quiz {
   rating: number;
   createdAt?: string;
   // Include questions array if needed by Quiz Card, otherwise keep lean
-   questions?: { _id: string }[]; // Minimal questions if needed for length calculation fallback
+  questions?: { _id: string }[]; // Minimal questions if needed for length calculation fallback
 }
 
 interface SubjectFilter {
@@ -73,8 +73,10 @@ export default function Quizzes() {
   const [statsError, setStatsError] = useState<string | null>(null);
 
   const { isDarkMode } = useDarkMode();
-  // Get isLoading state from useAuth, rename to avoid conflict with quiz loading state
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  // Get user and isLoading state from useAuth, rename to avoid conflict with quiz loading state
+  const { user, isLoading: isAuthLoading } = useAuth();
+  // Derive authentication state from user object
+  const isAuthenticated = !!user;
 
   // Animation on mount
   useEffect(() => {

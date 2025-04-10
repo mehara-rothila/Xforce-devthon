@@ -163,6 +163,13 @@ const rewards = {
     getUserRewards: (userId) => api.get(`/users/${userId}/rewards`),
 };
 
+const achievements = {
+    getAll: () => api.get('/achievements'),
+    create: (data) => api.post('/achievements', data),
+    update: (id, data) => api.patch(`/achievements/${id}`, data),
+    delete: (id) => api.delete(`/achievements/${id}`),
+};
+
 // Export all API services grouped together
 export default {
   auth,
@@ -172,5 +179,6 @@ export default {
   users,
   uploads,
   forum,
-  rewards
+  rewards,
+  achievements
 };

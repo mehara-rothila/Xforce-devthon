@@ -1,3 +1,4 @@
+// D:\Academic\04\devthon\Xforce-devthon\src\app\forum\new\page.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -8,7 +9,7 @@ import api from '@/utils/api';
 import SubjectIcon from '@/components/icons/SubjectIcon';
 import { Loader2, AlertCircle, Layout, Edit } from 'lucide-react';
 
-// Static fallback data
+// Static fallback data (Should ideally be removed once API is reliable)
 const STATIC_CATEGORIES: ForumCategory[] = [
   { _id: '1', name: 'Physics Discussions' },
   { _id: '2', name: 'Chemistry Corner' },
@@ -49,12 +50,11 @@ export default function NewTopicPage() {
 
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(STATIC_CATEGORIES[0]?._id || '');
+  // Initialize selectedCategory to an empty string to avoid sending "1" by default
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
-  const [categories, setCategories] = useState<ForumCategory[]>(STATIC_CATEGORIES.map(cat => ({
-    ...cat,
-    ...getCategoryStyles(cat.name)
-  })));
+  // Initialize categories as empty array, rely on fetch
+  const [categories, setCategories] = useState<ForumCategory[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,37 +63,48 @@ export default function NewTopicPage() {
   // Fetch categories dynamically on the client side
   useEffect(() => {
     const fetchCategories = async () => {
+      console.log('[NewTopicPage] useEffect: Fetching categories...'); // Log start
       setIsLoading(true);
       setError(null);
       try {
         const response = await api.forum.getCategories();
         if (response.data?.status === 'success' && Array.isArray(response.data.data?.categories)) {
           const fetchedCategories = response.data.data.categories;
+          // *** ADDED LOG ***
+          console.log('[NewTopicPage] Fetched Categories:', JSON.stringify(fetchedCategories, null, 2));
+          // *** END ADDED LOG ***
+
           const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({
             ...cat,
             ...getCategoryStyles(cat.name)
           }));
           setCategories(enhancedCategories);
+
+          // Set the default selected category ONLY if categories were fetched successfully
           if (enhancedCategories.length > 0) {
+            // *** ADDED LOG ***
+            console.log('[NewTopicPage] Setting initial selectedCategory to:', enhancedCategories[0]._id);
+            // *** END ADDED LOG ***
             setSelectedCategory(enhancedCategories[0]._id);
+          } else {
+            console.warn('[NewTopicPage] Fetched categories successfully, but the array is empty.');
+            setError('No forum categories available to post in.'); // Inform user
+            setSelectedCategory(''); // Ensure no category is selected
           }
         } else {
-          console.error("Failed to fetch categories or invalid format:", response.data);
-          setError(response.data?.message || 'Failed to fetch categories');
-          setCategories(STATIC_CATEGORIES.map(cat => ({
-            ...cat,
-            ...getCategoryStyles(cat.name)
-          })));
+          console.error("[NewTopicPage] Failed to fetch categories or invalid format:", response.data);
+          setError(response.data?.message || 'Failed to fetch categories. Please try refreshing.');
+          setCategories([]); // Set to empty array on failure
+          setSelectedCategory(''); // Ensure no category is selected
         }
       } catch (err: any) {
-        console.error('Error fetching categories:', err);
+        console.error('[NewTopicPage] Error fetching categories:', err);
         setError(err.response?.data?.message || err.message || 'Error connecting to the server.');
-        setCategories(STATIC_CATEGORIES.map(cat => ({
-          ...cat,
-          ...getCategoryStyles(cat.name)
-        })));
+        setCategories([]); // Set to empty array on error
+        setSelectedCategory(''); // Ensure no category is selected
       } finally {
         setIsLoading(false);
+        console.log('[NewTopicPage] useEffect: Finished fetching categories.'); // Log end
       }
     };
     fetchCategories();
@@ -106,25 +117,34 @@ export default function NewTopicPage() {
 
     if (!title.trim()) { setSubmitError('Title is required'); return; }
     if (!content.trim()) { setSubmitError('Content is required'); return; }
+    // Check if a valid category is selected (should be a non-empty string now)
     if (!selectedCategory) { setSubmitError('Please select a category'); return; }
 
     setIsSubmitting(true);
 
     try {
       const payload = { title: title.trim(), content: content.trim(), category: selectedCategory };
+      // *** ADDED LOG ***
+      console.log('[NewTopicPage] Submitting Topic Payload:', JSON.stringify(payload, null, 2));
+      // *** END ADDED LOG ***
+
       const response = await api.forum.createTopic(payload);
 
       if (response.data?.status === 'success' && response.data.data?.topic?._id) {
+        console.log('[NewTopicPage] Topic created successfully, redirecting...');
         router.push(`/forum/topic/${response.data.data.topic._id}`);
       } else {
+        // Use the error message from the backend response if available
         throw new Error(response.data?.message || "Failed to create topic.");
       }
     } catch (err: any) {
-      console.error('Error creating topic:', err);
+      console.error('[NewTopicPage] Error creating topic:', err);
       let errorMessage = `Failed to create topic: ${err.message || 'Unknown error'}`;
+      // Extract specific backend error message if present
       if (err.response?.data?.message) {
         errorMessage = `Failed to create topic: ${err.response.data.message}`;
       } else if (err.response?.data?.errors) {
+        // Handle potential validation errors from backend (if structured that way)
         const errorDetails = Object.values(err.response.data.errors).map((e: any) => e.message).join(', ');
         errorMessage = `Validation failed: ${errorDetails}`;
       }
@@ -134,14 +154,15 @@ export default function NewTopicPage() {
     }
   };
 
-  // Render markdown preview
+  // Render markdown preview (basic implementation)
   const renderPreview = () => {
+    // Basic replacements - consider a dedicated markdown library (like 'marked' or 'react-markdown') for better results
     let formattedContent = content
-      .replace(/</g, "<").replace(/>/g, ">")
-      .replace(/\n/g, '<br />')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm">$1</code>');
+      .replace(/</g, "<").replace(/>/g, ">") // Basic HTML escaping
+      .replace(/\n/g, '<br />') // New lines to <br>
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+      .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic
+      .replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded text-sm">$1</code>'); // Inline code
     return { __html: formattedContent };
   };
 
@@ -149,11 +170,11 @@ export default function NewTopicPage() {
   const selectedCategoryData = categories.find(c => c._id === selectedCategory);
   const categoryStyle = selectedCategoryData
     ? getCategoryStyles(selectedCategoryData.name)
-    : getCategoryStyles('');
+    : getCategoryStyles(''); // Default style if no category selected or found
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
-      {/* Background elements */}
+      {/* Background elements (kept as is) */}
       <div id="new-topic-page-background" className="absolute inset-0 z-0 opacity-30 pointer-events-none overflow-hidden">
         <div className="absolute top-[7%] left-[13%] text-purple-500 dark:text-purple-400 text-9xl opacity-75 floating-icon">∑</div>
         <div className="absolute top-[33%] right-[17%] text-blue-500 dark:text-blue-400 text-10xl opacity-70 floating-icon-reverse">π</div>
@@ -205,7 +226,7 @@ export default function NewTopicPage() {
             <span className="ml-3 text-lg text-gray-600 dark:text-gray-400">Loading categories...</span>
           </div>
         )}
-        {error && (
+        {error && !isLoading && ( // Show error only if not loading
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-8 animate-fadeIn">
             <div className="flex items-center">
               <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 mr-3" />
@@ -217,6 +238,7 @@ export default function NewTopicPage() {
           </div>
         )}
 
+        {/* Main Form Content (Show only if not loading and no error) */}
         {!isLoading && !error && (
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-filter backdrop-blur-sm rounded-xl shadow-xl overflow-hidden animate-fadeIn hover:shadow-2xl transition-all duration-300">
             <div className="p-1 bg-gradient-to-r from-purple-400 to-purple-600 dark:from-purple-600 dark:to-purple-800"></div>
@@ -258,42 +280,51 @@ export default function NewTopicPage() {
                   <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {categories.map((cat, index) => {
-                      const catStyle = cat as ForumCategory & { color: string; lightBg: string; iconName: string };
-                      return (
-                        <div
-                          key={cat._id}
-                          className={`p-3 border rounded-lg cursor-pointer transition-all duration-300 flex items-center animate-fadeIn transform hover:scale-105 hover:shadow-md ${
-                            selectedCategory === cat._id
-                              ? `${catStyle.lightBg} border-${catStyle.color}-300 shadow-sm dark:bg-${catStyle.color}-900/20 dark:border-${catStyle.color}-700`
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                          }`}
-                          style={{ animationDelay: `${index * 0.05}s` }}
-                          onClick={() => setSelectedCategory(cat._id)}
-                        >
+                  {categories.length === 0 ? (
+                     <p className="text-sm text-gray-500 dark:text-gray-400 italic">No categories available.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {categories.map((cat, index) => {
+                        // Ensure catStyle has expected properties, provide defaults if needed
+                        const catStyle = cat as ForumCategory & { color?: string; lightBg?: string; iconName?: string };
+                        const color = catStyle.color || 'gray'; // Default color
+                        const lightBg = catStyle.lightBg || 'bg-gray-50 dark:bg-gray-900/20';
+                        const iconName = catStyle.iconName || 'book';
+
+                        return (
                           <div
-                            className={`p-2 mr-3 rounded-md ${
+                            key={cat._id}
+                            className={`p-3 border rounded-lg cursor-pointer transition-all duration-300 flex items-center animate-fadeIn transform hover:scale-105 hover:shadow-md ${
                               selectedCategory === cat._id
-                                ? `bg-${catStyle.color}-100 text-${catStyle.color}-600 dark:bg-${catStyle.color}-900/30 dark:text-${catStyle.color}-400`
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                ? `${lightBg} border-${color}-300 shadow-sm dark:border-${color}-700` // Use dynamic color
+                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                             }`}
+                            style={{ animationDelay: `${index * 0.05}s` }}
+                            onClick={() => setSelectedCategory(cat._id)}
                           >
-                            <SubjectIcon iconName={catStyle.iconName || 'book'} className="h-5 w-5" color={selectedCategory === cat._id ? catStyle.color : undefined} />
-                          </div>
-                          <div>
-                            <span
-                              className={`font-medium ${
-                                selectedCategory === cat._id ? `text-${catStyle.color}-700 dark:text-${catStyle.color}-400` : 'text-gray-700 dark:text-gray-300'
+                            <div
+                              className={`p-2 mr-3 rounded-md ${
+                                selectedCategory === cat._id
+                                  ? `bg-${color}-100 text-${color}-600 dark:bg-${color}-900/30 dark:text-${color}-400` // Use dynamic color
+                                  : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                               }`}
                             >
-                              {cat.name}
-                            </span>
+                              <SubjectIcon iconName={iconName} className="h-5 w-5" color={selectedCategory === cat._id ? color : undefined} />
+                            </div>
+                            <div>
+                              <span
+                                className={`font-medium ${
+                                  selectedCategory === cat._id ? `text-${color}-700 dark:text-${color}-400` : 'text-gray-700 dark:text-gray-300' // Use dynamic color
+                                }`}
+                              >
+                                {cat.name}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Editor tabs */}
@@ -333,8 +364,8 @@ export default function NewTopicPage() {
                         title="Bold"
                         onClick={() => setContent(prev => prev + '**bold text**')}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /> {/* Example Icon */}
                         </svg>
                       </button>
                       <button
@@ -343,9 +374,9 @@ export default function NewTopicPage() {
                         title="Italic"
                         onClick={() => setContent(prev => prev + '*italic text*')}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                        </svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                           <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /> {/* Example Icon */}
+                         </svg>
                       </button>
                       <button
                         type="button"
@@ -353,9 +384,9 @@ export default function NewTopicPage() {
                         title="Code"
                         onClick={() => setContent(prev => prev + '`code`')}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4-4M6 16l-4-4 4-4" />
-                        </svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                           <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4-4M6 16l-4-4 4-4" /> {/* Example Icon */}
+                         </svg>
                       </button>
                     </div>
                   </div>
@@ -441,6 +472,7 @@ export default function NewTopicPage() {
               </form>
             </div>
 
+            {/* Posting Guidelines */}
             <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800 border-t border-gray-100 dark:border-gray-700">
               <div className="flex items-center mb-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500 dark:text-purple-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -478,7 +510,7 @@ export default function NewTopicPage() {
           </div>
         )}
 
-        {/* Quick help section */}
+        {/* Quick help section (Show only if not loading and no error) */}
         {!isLoading && !error && (
           <div className="mt-6 bg-white/90 dark:bg-gray-800/90 backdrop-filter backdrop-blur-sm rounded-xl shadow-xl overflow-hidden animate-fadeIn hover:shadow-2xl transition-all duration-300" style={{ animationDelay: '0.2s' }}>
             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-750">
@@ -515,7 +547,7 @@ export default function NewTopicPage() {
         )}
       </div>
 
-      {/* Enhanced Global styles */}
+      {/* Enhanced Global styles (kept as is) */}
       <style jsx global>{`
         .text-10xl { font-size: 9rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
         .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }

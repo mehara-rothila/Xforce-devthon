@@ -407,7 +407,7 @@ export default function Home() {
      <div className="absolute top-[7%] left-[13%] text-purple-500/20 dark:text-purple-400/10 text-9xl floating-icon">∑</div>
      <div className="absolute top-[33%] right-[17%] text-blue-500/20 dark:text-blue-400/10 text-10xl floating-icon-reverse">π</div>
      <div className="absolute top-[61%] left-[27%] text-green-500/20 dark:text-green-400/10 text-8xl floating-icon-slow">∞</div>
-     <div className="absolute top-[19%] right-[38%] text-red-500/20 dark:text-red-400/10 text-11xl floating-icon">⚛</div>
+     {/* Removed the React atom symbol */}
      <div className="absolute top-[77%] right-[23%] text-yellow-500/20 dark:text-yellow-400/10 text-9xl floating-icon-slow">𝜙</div>
      <div className="absolute bottom-[31%] left-[8%] text-indigo-500/20 dark:text-indigo-400/10 text-10xl floating-icon-reverse">∫</div>
      <div className="absolute bottom-[12%] right-[42%] text-teal-500/20 dark:text-teal-400/10 text-9xl floating-icon">≈</div>
@@ -565,7 +565,6 @@ export default function Home() {
       </div>
     </div>
 </section>
-
 
 {/* ========================== Subjects Section ========================== */}
 <section className="py-24 px-6 bg-gray-50 dark:bg-gray-800 relative scroll-mt-16">

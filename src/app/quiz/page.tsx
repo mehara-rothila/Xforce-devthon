@@ -74,7 +74,8 @@ export default function Quizzes() {
 
   const { isDarkMode } = useDarkMode();
   // Get isLoading state from useAuth, rename to avoid conflict with quiz loading state
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  // FIX 1: Removed 'isAuthenticated' from the destructuring below
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   // Animation on mount
   useEffect(() => {
@@ -112,7 +113,7 @@ export default function Quizzes() {
             case 'popular': params.sort = '-attempts'; break;
             case 'newest': params.sort = '-createdAt'; break;
             case 'rating': params.sort = '-rating'; break;
-            case 'easy-to-hard': params.sort = 'difficulty'; break; // Mongoose sorts 'easy', 'hard', 'medium' correctly? Check if custom sort needed
+            case 'easy-to-hard': params.sort = 'difficulty'; // Mongoose sorts 'easy', 'hard', 'medium' correctly? Check if custom sort needed
             case 'hard-to-easy': params.sort = '-difficulty'; break;
             default: params.sort = '-attempts';
         }
@@ -155,8 +156,9 @@ export default function Quizzes() {
          return; // Don't fetch yet
       }
 
-      // --- Now check authentication status ---
-      if (isAuthenticated && user?._id) {
+      // --- FIX 2: Now check authentication status using the user object ---
+      // If user exists and has an _id, they are considered authenticated
+      if (user?._id) {
         console.log(`[QuizPage Stats] Auth loaded. Fetching stats for user: ${user._id}`);
         setStatsLoading(true); // Set loading true for the API call
         setStatsError(null);
@@ -188,7 +190,7 @@ export default function Quizzes() {
           setStatsLoading(false); // API call finished
         }
       } else {
-          // --- Auth loaded, but user is not authenticated ---
+          // --- Auth loaded, but user is not authenticated (user object is null/undefined) ---
           console.log("[QuizPage Stats] Auth loaded. User not authenticated.");
           setStatsLoading(false); // Not loading stats
           setDynamicStats(null);  // No stats to show
@@ -197,8 +199,8 @@ export default function Quizzes() {
     };
 
     fetchUserStats();
-  // --- Add isAuthLoading to dependency array ---
-  }, [user, isAuthenticated, isAuthLoading]); // Re-run when auth state changes
+  // --- FIX 3: Update dependency array ---
+  }, [user, isAuthLoading]); // Re-run when user or auth loading state changes
 
   // --- Event Handlers ---
   const handleSubjectFilter = (subjectId: string) => setActiveSubjectId(subjectId);
@@ -269,7 +271,7 @@ export default function Quizzes() {
         <div className="absolute bottom-[31%] left-[8%] text-indigo-500 dark:text-indigo-400 text-10xl opacity-70 floating-icon-reverse">∫</div>
         <div className="absolute bottom-[12%] right-[42%] text-teal-500 dark:text-teal-400 text-9xl opacity-75 floating-icon">≈</div>
         <div className="absolute bottom-[47%] right-[9%] text-pink-500 dark:text-pink-400 text-8xl opacity-65 floating-icon-slow">±</div>
-        
+
         {/* Additional math symbols - More random placements */}
         <div className="absolute top-[23%] left-[54%] text-fuchsia-500 dark:text-fuchsia-400 text-8xl opacity-70 floating-icon">Δ</div>
         <div className="absolute top-[44%] left-[38%] text-emerald-500 dark:text-emerald-400 text-7xl opacity-65 floating-icon-slow">λ</div>
@@ -278,13 +280,13 @@ export default function Quizzes() {
         <div className="absolute bottom-[63%] left-[6%] text-amber-500 dark:text-amber-400 text-9xl opacity-70 floating-icon-slow">β</div>
         <div className="absolute bottom-[19%] left-[71%] text-purple-500 dark:text-purple-400 text-8xl opacity-65 floating-icon-reverse">μ</div>
         <div className="absolute bottom-[28%] left-[32%] text-blue-500 dark:text-blue-400 text-7xl opacity-70 floating-icon">ω</div>
-        
+
         {/* Additional symbols for more richness */}
         <div className="absolute top-[52%] left-[18%] text-sky-500 dark:text-sky-400 text-8xl opacity-60 floating-icon-slow">γ</div>
         <div className="absolute top-[37%] right-[29%] text-lime-500 dark:text-lime-400 text-9xl opacity-55 floating-icon">σ</div>
         <div className="absolute bottom-[42%] right-[37%] text-orange-500 dark:text-orange-400 text-10xl opacity-50 floating-icon-reverse">δ</div>
         <div className="absolute top-[73%] right-[13%] text-violet-500 dark:text-violet-400 text-8xl opacity-60 floating-icon-slow">ρ</div>
-        
+
         {/* Science formulas - Random positions */}
         <div className="absolute top-[14%] left-[31%] text-indigo-500 dark:text-indigo-400 text-6xl opacity-65 floating-icon-slow">E=mc²</div>
         <div className="absolute top-[58%] left-[48%] text-teal-500 dark:text-teal-400 text-5xl opacity-60 floating-icon">F=ma</div>
@@ -293,45 +295,45 @@ export default function Quizzes() {
         <div className="absolute bottom-[53%] left-[24%] text-emerald-500 dark:text-emerald-400 text-5xl opacity-65 floating-icon-slow">v=λf</div>
         <div className="absolute top-[86%] left-[11%] text-sky-500 dark:text-sky-400 text-5xl opacity-55 floating-icon-reverse">C₆H₁₂O₆</div>
         <div className="absolute top-[68%] right-[31%] text-amber-500 dark:text-amber-400 text-6xl opacity-60 floating-icon">E=hf</div>
-        
+
         {/* Science icons - Randomly positioned */}
         <div className="absolute top-[41%] left-[8%] opacity-60 floating-icon-slow">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
           </svg>
         </div>
-        
+
         <div className="absolute top-[17%] right-[7%] opacity-60 floating-icon">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-40 w-40 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
         </div>
-        
+
         <div className="absolute bottom-[7%] left-[36%] opacity-60 floating-icon-reverse">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-44 w-44 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        
+
         <div className="absolute top-[54%] right-[28%] opacity-60 floating-icon-slow">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
         </div>
-        
+
         <div className="absolute top-[23%] left-[67%] opacity-60 floating-icon">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-rose-500 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
           </svg>
         </div>
-        
+
         {/* Additional science icons */}
         <div className="absolute bottom-[37%] right-[6%] opacity-55 floating-icon-reverse">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-blue-500 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
           </svg>
         </div>
-        
+
         <div className="absolute top-[71%] left-[13%] opacity-55 floating-icon-slow">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -392,7 +394,6 @@ export default function Quizzes() {
                 <div className="flex flex-wrap gap-2">
                    {['all', 'easy', 'medium', 'hard'].map((diff) => {
                      const isActive = activeDifficulty === diff;
-                     // ... logic to determine active/inactive class based on diff ... (refer previous code)
                       let activeClass = '';
                       let inactiveClass = isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200';
                       let label = diff.charAt(0).toUpperCase() + diff.slice(1);
@@ -516,7 +517,7 @@ export default function Quizzes() {
             ))}
           </div>
         )}
-        
+
         {/* Featured Quiz - Brain Card (Moved after the quiz grid) */}
         <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-xl overflow-hidden mb-12 transform transition-transform duration-300 hover:scale-[1.01] animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <div className="p-8">
@@ -610,7 +611,7 @@ export default function Quizzes() {
                     </div>
                   </div>
                 </>
-              /* Not Logged In State */
+              /* Not Logged In State (user object is null/undefined) */
               ) : (
                   <div className="text-center text-gray-500 dark:text-gray-400 text-sm p-4 bg-gray-50 dark:bg-gray-700/30 rounded border border-gray-200 dark:border-gray-600">
                      <Link href="/login" className="text-purple-600 hover:underline font-medium">Log in</Link> to view your stats.

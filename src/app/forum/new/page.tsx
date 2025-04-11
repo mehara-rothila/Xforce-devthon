@@ -83,39 +83,60 @@ export default function NewTopicPage() {
     }
   }, []);
 
-  // useEffect for fetching categories (keep as is from previous correction)
-   useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoading(true);
-      setError(null); // Clear general error
-      try {
-        const response = await api.forum.getCategories();
-        if (response.data?.status === 'success') {
-          const fetchedCategories = response.data.data?.categories || [];
-          const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({
-            ...cat,
-            ...getCategoryStyles(cat.name)
-          }));
-          setCategories(enhancedCategories);
-
-          const urlCategoryId = searchParams.get('category');
-          if (urlCategoryId && enhancedCategories.some((c: any) => c._id === urlCategoryId)) {
-            setSelectedCategory(urlCategoryId);
-          } else if (enhancedCategories.length > 0) {
-            setSelectedCategory(enhancedCategories[0]._id);
+    // useEffect for fetching categories (FIXED: Removed searchParams dependency)
+    useEffect(() => {
+      const fetchCategories = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await api.forum.getCategories();
+          if (response.data?.status === 'success') {
+            const fetchedCategories = response.data.data?.categories || [];
+            const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({
+              ...cat,
+              ...getCategoryStyles(cat.name)
+            }));
+            setCategories(enhancedCategories);
+  
+            // Set a default category *without* using searchParams here
+            // This ensures the build has a deterministic initial state
+            if (enhancedCategories.length > 0) {
+               // Check if a category isn't already selected (e.g., by the other effect)
+               // This check might be redundant now but safe to keep
+               if (!selectedCategory) {
+                  setSelectedCategory(enhancedCategories[0]._id);
+               }
+            }
+          } else {
+            throw new Error(response.data?.message || 'Failed to load categories');
           }
-        } else {
-          throw new Error(response.data?.message || 'Failed to load categories');
+        } catch (err: any) {
+          console.error('Error fetching categories:', err);
+          setError('Failed to load categories. Please try again later.');
+        } finally {
+          setIsLoading(false);
         }
-      } catch (err: any) {
-        console.error('Error fetching categories:', err);
-        setError('Failed to load categories. Please try again later.');
-      } finally {
-        setIsLoading(false);
+      };
+      fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // No dependencies needed for initial fetch
+  
+  
+    // Separate useEffect to handle searchParams *after* categories are loaded
+    useEffect(() => {
+      // Ensure categories are loaded and we are on the client
+      if (categories.length > 0 && typeof window !== 'undefined') {
+          const urlCategoryId = searchParams.get('category');
+          if (urlCategoryId && categories.some((c: any) => c._id === urlCategoryId)) {
+              // Only update if the URL param is different from the current selection
+              // to avoid unnecessary re-renders if the default was already correct.
+              if (urlCategoryId !== selectedCategory) {
+                   setSelectedCategory(urlCategoryId);
+              }
+          }
+          // If no valid category in URL, the default from the first effect remains.
       }
-    };
-    fetchCategories();
-  }, [searchParams]);
+    }, [searchParams, categories, selectedCategory]); // Depend on params and categories
 
 
   // handleSubmit (use selectedCategory, setSubmitError)

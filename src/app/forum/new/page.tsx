@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react'; // Import Suspense
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/utils/api';
 import { MessageSquare, Clock, ArrowLeft, Loader2, AlertCircle, Layout, Edit } from 'lucide-react';
-import PendingNotification from '../PendingNotification'; // Assuming this component exists
-import SubjectIcon from '@/components/icons/SubjectIcon'; // Ensure path is correct
+import PendingNotification from '../PendingNotification';
+import SubjectIcon from '@/components/icons/SubjectIcon';
 
 // Interfaces
 interface ForumCategory {
@@ -33,9 +33,18 @@ const getCategoryStyles = (categoryName: string = '') => {
   }
 };
 
+// --- Loading Component for Suspense Fallback ---
+function LoadingFallback() {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+            <Loader2 className="h-10 w-10 animate-spin text-purple-600 dark:text-purple-400" />
+        </div>
+    );
+}
 
-export default function NewTopicPage() {
-  // Hooks that need client-side context MUST be called unconditionally at the top level
+// --- Main Component Logic ---
+function NewTopicFormContent() {
+  // Hooks are now safe inside this component because it will be wrapped in Suspense
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -44,7 +53,7 @@ export default function NewTopicPage() {
   const [content, setContent] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [categories, setCategories] = useState<ForumCategory[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Loading categories
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -53,20 +62,14 @@ export default function NewTopicPage() {
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('user');
-
-  // --- FIX FOR STATIC EXPORT ---
-  // State to track client-side mounting
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // Keep for localStorage guard
 
   useEffect(() => {
-    // This effect runs only on the client, after initial render
     setIsMounted(true);
   }, []);
-  // --- END FIX ---
 
-  // useEffect for user info (Guarded by isMounted or typeof window)
+  // useEffect for user info (Guarded by isMounted)
   useEffect(() => {
-    // Ensure this runs only on the client after mount
     if (isMounted) {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
@@ -87,16 +90,19 @@ export default function NewTopicPage() {
         }
       }
     }
-  }, [isMounted]); // Depend on isMounted
+  }, [isMounted]);
 
-  // useEffect for fetching categories (Runs once)
+  // useEffect for fetching categories and setting initial state
    useEffect(() => {
-    // Can run immediately, API call is safe server/client side
-    const fetchCategories = async () => {
+    let isCancelled = false; // Flag to prevent state update on unmount
+
+    const fetchAndSetCategories = async () => {
       setIsLoading(true);
       setError(null);
       try {
         const response = await api.forum.getCategories();
+        if (isCancelled) return; // Don't update state if component unmounted
+
         if (response.data?.status === 'success') {
           const fetchedCategories = response.data.data?.categories || [];
           const enhancedCategories = fetchedCategories.map((cat: ForumCategory) => ({
@@ -104,40 +110,42 @@ export default function NewTopicPage() {
             ...getCategoryStyles(cat.name)
           }));
           setCategories(enhancedCategories);
-          // Set default category selection here, it's safe
-          if (enhancedCategories.length > 0 && !selectedCategory) {
-             setSelectedCategory(enhancedCategories[0]._id);
+
+          // Determine initial category *after* fetch
+          const urlCategoryId = searchParams.get('category'); // Now safe to call inside useEffect
+          let initialCategory = '';
+          if (urlCategoryId && enhancedCategories.some((c: any) => c._id === urlCategoryId)) {
+            initialCategory = urlCategoryId;
+          } else if (enhancedCategories.length > 0) {
+            initialCategory = enhancedCategories[0]._id;
           }
+          setSelectedCategory(initialCategory);
+
         } else {
           throw new Error(response.data?.message || 'Failed to load categories');
         }
       } catch (err: any) {
+        if (isCancelled) return;
         console.error('Error fetching categories:', err);
         setError('Failed to load categories. Please try again later.');
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     };
-    fetchCategories();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Fetch once
 
-  // useEffect to handle searchParams (Guarded by isMounted)
-  useEffect(() => {
-    // Ensure this runs only on the client after mount and categories are loaded
-    if (isMounted && categories.length > 0) {
-        const urlCategoryId = searchParams.get('category');
-        if (urlCategoryId && categories.some((c: any) => c._id === urlCategoryId)) {
-            if (urlCategoryId !== selectedCategory) {
-                 setSelectedCategory(urlCategoryId);
-            }
-        }
-    }
-  // Depend on isMounted, searchParams, categories, selectedCategory
-  }, [isMounted, searchParams, categories, selectedCategory]);
+    fetchAndSetCategories();
+
+    // Cleanup function to set the flag if the component unmounts
+    return () => {
+        isCancelled = true;
+    };
+  // searchParams is now a dependency because we read it inside the effect
+  }, [searchParams]);
 
 
-  // handleSubmit (No changes needed here, runs on client interaction)
+  // handleSubmit (No changes needed)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
@@ -240,20 +248,7 @@ export default function NewTopicPage() {
      </div>
   );
 
-  // --- FIX FOR STATIC EXPORT ---
-  // Render null or a loading indicator until mounted on the client
-  if (!isMounted) {
-    // You can return null or a placeholder/spinner
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-            {/* Optional: Add a loading indicator */}
-            <Loader2 className="h-10 w-10 animate-spin text-purple-600 dark:text-purple-400" />
-        </div>
-    );
-  }
-  // --- END FIX ---
-
-  // --- Main component render (only happens client-side) ---
+  // --- Main component render ---
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 transition-colors duration-300 relative overflow-hidden py-8 px-4 sm:px-6 lg:px-8">
       {backgroundElements}
@@ -283,7 +278,8 @@ export default function NewTopicPage() {
                  <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400 mr-3" />
                  <p className="text-red-800 dark:text-red-200">{error}</p>
                </div>
-               <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300">
+               {/* Avoid window access if possible, maybe use router.refresh() or similar */}
+               <button onClick={() => router.refresh()} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-300">
                  Try Again
                </button>
              </div>
@@ -368,7 +364,6 @@ export default function NewTopicPage() {
                   {categories.length > 0 ? (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {categories.map((cat, index) => {
-                        // Ensure cat has the necessary style properties, provide fallback
                         const styles = (cat.color && cat.lightBg && cat.iconName)
                                         ? cat as ForumCategory & { color: string; lightBg: string; iconName: string }
                                         : { ...cat, ...getCategoryStyles(cat.name) };
@@ -406,7 +401,6 @@ export default function NewTopicPage() {
                       })}
                     </div>
                   ) : (
-                    // Show placeholder if categories are empty but not loading
                     !isLoading && <div className="text-center text-gray-500 dark:text-gray-400 py-4">
                       No categories available.
                     </div>
@@ -680,5 +674,15 @@ export default function NewTopicPage() {
 
       `}</style>
     </div>
+  );
+}
+
+
+// --- Wrapper Component with Suspense ---
+export default function NewTopicPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <NewTopicFormContent />
+    </Suspense>
   );
 }

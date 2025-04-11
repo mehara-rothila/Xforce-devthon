@@ -35,34 +35,39 @@ const getCategoryStyles = (categoryName: string = '') => {
 
 
 export default function NewTopicPage() {
+  // Hooks that need client-side context MUST be called unconditionally at the top level
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Form state
+  // State
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-
-  // Data state
   const [categories, setCategories] = useState<ForumCategory[]>([]);
-
-  // UI state
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Loading categories
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [isPending, setIsPending] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
-
-  // User state
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('user');
 
-  // useEffect for user info (FIXED)
+  // --- FIX FOR STATIC EXPORT ---
+  // State to track client-side mounting
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-    // Only run on the client
-    if (typeof window !== 'undefined') {
+    // This effect runs only on the client, after initial render
+    setIsMounted(true);
+  }, []);
+  // --- END FIX ---
+
+  // useEffect for user info (Guarded by isMounted or typeof window)
+  useEffect(() => {
+    // Ensure this runs only on the client after mount
+    if (isMounted) {
       const storedToken = localStorage.getItem('token');
       if (storedToken) {
         const userInfo = localStorage.getItem('userInfo');
@@ -73,19 +78,20 @@ export default function NewTopicPage() {
             setUserRole(parsedInfo?.role || 'user');
           } catch (e) {
             console.error("Error parsing user info from localStorage", e);
-            setCurrentUserId('mock-user-id'); // Fallback
-            setUserRole('user'); // Fallback
+            setCurrentUserId('mock-user-id');
+            setUserRole('user');
           }
         } else {
-          setCurrentUserId('mock-user-id'); // Fallback
-          setUserRole('user'); // Fallback
+          setCurrentUserId('mock-user-id');
+          setUserRole('user');
         }
       }
     }
-  }, []); // Run once on mount
+  }, [isMounted]); // Depend on isMounted
 
-  // useEffect for fetching categories (FIXED: Removed searchParams dependency)
+  // useEffect for fetching categories (Runs once)
    useEffect(() => {
+    // Can run immediately, API call is safe server/client side
     const fetchCategories = async () => {
       setIsLoading(true);
       setError(null);
@@ -98,12 +104,9 @@ export default function NewTopicPage() {
             ...getCategoryStyles(cat.name)
           }));
           setCategories(enhancedCategories);
-
-          // Set a default category *without* using searchParams here
-          if (enhancedCategories.length > 0) {
-             if (!selectedCategory) { // Avoid overwriting if already set by the other effect
-                setSelectedCategory(enhancedCategories[0]._id);
-             }
+          // Set default category selection here, it's safe
+          if (enhancedCategories.length > 0 && !selectedCategory) {
+             setSelectedCategory(enhancedCategories[0]._id);
           }
         } else {
           throw new Error(response.data?.message || 'Failed to load categories');
@@ -117,26 +120,24 @@ export default function NewTopicPage() {
     };
     fetchCategories();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // No dependencies needed for initial fetch
+  }, []); // Fetch once
 
-
-  // Separate useEffect to handle searchParams *after* categories are loaded (FIXED)
+  // useEffect to handle searchParams (Guarded by isMounted)
   useEffect(() => {
-    // Ensure categories are loaded and we are on the client
-    if (categories.length > 0 && typeof window !== 'undefined') {
+    // Ensure this runs only on the client after mount and categories are loaded
+    if (isMounted && categories.length > 0) {
         const urlCategoryId = searchParams.get('category');
         if (urlCategoryId && categories.some((c: any) => c._id === urlCategoryId)) {
-            // Only update if the URL param is different from the current selection
             if (urlCategoryId !== selectedCategory) {
                  setSelectedCategory(urlCategoryId);
             }
         }
     }
-  // Depend on searchParams and categories. Add selectedCategory to prevent potential loops if needed.
-  }, [searchParams, categories, selectedCategory]);
+  // Depend on isMounted, searchParams, categories, selectedCategory
+  }, [isMounted, searchParams, categories, selectedCategory]);
 
 
-  // handleSubmit (use selectedCategory, setSubmitError)
+  // handleSubmit (No changes needed here, runs on client interaction)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
@@ -239,6 +240,20 @@ export default function NewTopicPage() {
      </div>
   );
 
+  // --- FIX FOR STATIC EXPORT ---
+  // Render null or a loading indicator until mounted on the client
+  if (!isMounted) {
+    // You can return null or a placeholder/spinner
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+            {/* Optional: Add a loading indicator */}
+            <Loader2 className="h-10 w-10 animate-spin text-purple-600 dark:text-purple-400" />
+        </div>
+    );
+  }
+  // --- END FIX ---
+
+  // --- Main component render (only happens client-side) ---
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 transition-colors duration-300 relative overflow-hidden py-8 px-4 sm:px-6 lg:px-8">
       {backgroundElements}
@@ -253,7 +268,7 @@ export default function NewTopicPage() {
           </ol>
         </nav>
 
-        {/* Loading state */}
+        {/* Loading state (for categories) */}
         {isLoading && (
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-filter backdrop-blur-sm rounded-xl shadow-xl p-12 mb-8 flex justify-center items-center animate-fadeIn">
             <Loader2 className="h-8 w-8 animate-spin text-purple-600 dark:text-purple-400" />
@@ -277,7 +292,6 @@ export default function NewTopicPage() {
         {/* Success Message & Pending Notification */}
         {submitSuccess && (
           <div className="mb-6 animate-fadeIn">
-            {/* ... success message JSX ... */}
              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 mb-4 shadow-md">
               <div className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600 dark:text-green-400 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -307,7 +321,6 @@ export default function NewTopicPage() {
         {/* === Main Form Card === */}
         {!isLoading && !error && !submitSuccess && (
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-filter backdrop-blur-sm rounded-xl shadow-xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-300 animate-fadeIn">
-            {/* ... form header ... */}
              <div className="p-0.5 bg-gradient-to-r from-purple-400 to-purple-600 dark:from-purple-600 dark:to-purple-800"></div>
              <div className="p-6 border-b border-gray-100 dark:border-gray-700">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center text-shadow">
@@ -321,7 +334,6 @@ export default function NewTopicPage() {
               <form onSubmit={handleSubmit}>
                 {/* Title input */}
                 <div className="mb-6">
-                   {/* ... title input JSX ... */}
                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Topic Title <span className="text-red-500">*</span>
                   </label>
@@ -350,14 +362,16 @@ export default function NewTopicPage() {
 
                 {/* Category selection */}
                 <div className="mb-6">
-                   {/* ... category selection JSX ... */}
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Category <span className="text-red-500">*</span>
                   </label>
                   {categories.length > 0 ? (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {categories.map((cat, index) => {
-                        const styles = cat as ForumCategory & { color: string; lightBg: string; iconName: string };
+                        // Ensure cat has the necessary style properties, provide fallback
+                        const styles = (cat.color && cat.lightBg && cat.iconName)
+                                        ? cat as ForumCategory & { color: string; lightBg: string; iconName: string }
+                                        : { ...cat, ...getCategoryStyles(cat.name) };
                         return (
                           <div
                             key={cat._id}
@@ -392,7 +406,8 @@ export default function NewTopicPage() {
                       })}
                     </div>
                   ) : (
-                    <div className="text-center text-gray-500 dark:text-gray-400 py-4">
+                    // Show placeholder if categories are empty but not loading
+                    !isLoading && <div className="text-center text-gray-500 dark:text-gray-400 py-4">
                       No categories available.
                     </div>
                   )}
@@ -400,7 +415,6 @@ export default function NewTopicPage() {
 
                 {/* Editor Tabs */}
                 <div className="flex border-b border-gray-200 dark:border-gray-700 mb-0">
-                   {/* ... editor tabs JSX ... */}
                     <button
                     type="button"
                     className={`py-2 px-4 font-medium text-sm ${
@@ -420,7 +434,7 @@ export default function NewTopicPage() {
                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                     } transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
                     onClick={() => setActiveTab('preview')}
-                    disabled={!content || isSubmitting} // Disable if no content or submitting
+                    disabled={!content || isSubmitting}
                   >
                     Preview
                   </button>
@@ -429,16 +443,14 @@ export default function NewTopicPage() {
                 {/* Editor Toolbar */}
                 {activeTab === 'write' && (
                   <div className="flex items-center border-x border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-4 py-2 text-sm rounded-t-lg">
-                     {/* ... editor toolbar JSX ... */}
                       <div className="flex space-x-2">
-                      {/* Basic Toolbar Buttons */}
                       <button
                         type="button"
                         className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"
                         title="Bold (Ctrl+B)"
                         onClick={() => setContent(prev => prev + '**bold text**')}
                         disabled={isSubmitting}
-                      > B </button> {/* Simple text for now */}
+                      > B </button>
                        <button
                         type="button"
                         className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300"
@@ -459,7 +471,6 @@ export default function NewTopicPage() {
 
                 {/* Content input or preview */}
                 <div className="mb-6">
-                   {/* ... content/preview JSX ... */}
                     {activeTab === 'write' ? (
                     <textarea
                       id="content"
@@ -497,7 +508,6 @@ export default function NewTopicPage() {
 
                 {/* Submit buttons area */}
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pt-4">
-                   {/* ... submit area JSX ... */}
                     <div className="text-sm text-gray-600 dark:text-gray-400 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-100 dark:border-yellow-800 flex items-start hover:shadow-md transition-all duration-200 transform hover:scale-101 flex-1 min-w-0">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500 dark:text-yellow-400 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -538,7 +548,6 @@ export default function NewTopicPage() {
 
             {/* Posting Guidelines */}
             <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800/60 dark:to-gray-800/80 border-t border-gray-100 dark:border-gray-700/50">
-               {/* ... posting guidelines JSX ... */}
                 <div className="flex items-center mb-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500 dark:text-purple-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -578,7 +587,6 @@ export default function NewTopicPage() {
         {/* Quick Help Section */}
         {!isLoading && !error && !submitSuccess && (
           <div className="mt-8 bg-white/90 dark:bg-gray-800/90 backdrop-filter backdrop-blur-sm rounded-xl shadow-xl overflow-hidden animate-fadeIn hover:shadow-2xl transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50" style={{ animationDelay: '0.2s' }}>
-             {/* ... quick help JSX ... */}
               <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-750">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-500 dark:text-purple-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

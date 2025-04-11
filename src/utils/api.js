@@ -112,10 +112,14 @@ const quizzes = {
   getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`),
   getPracticeQuizzes: (subjectId, topic) => api.get(`/quizzes/subject/${subjectId}/practice${topic ? `?topic=${topic}` : ''}`),
   submitAttempt: (id, answers, timeTaken) => api.post(`/quizzes/${id}/attempts`, { answers, timeTaken }),
-  getUserAttempts: (userId) => api.get(`/quizzes/user/${userId}/attempts`),
+  getUserAttempts: (userId, params) => api.get(`/quizzes/user/${userId}/attempts`, { params }), // Added params for pagination
   create: (data) => api.post('/quizzes', data),
   update: (id, data) => api.patch(`/quizzes/${id}`, data),
-  delete: (id) => api.delete(`/quizzes/${id}`)
+  delete: (id) => api.delete(`/quizzes/${id}`),
+  // --- ADDED API FUNCTIONS ---
+  rate: (quizId, data) => api.post(`/quizzes/${quizId}/rate`, data), // data should be { rating: number, attemptId: string }
+  getAttemptById: (attemptId) => api.get(`/quizzes/attempts/${attemptId}`) // Route defined in quizRoutes.js
+  // --- END ADDED API FUNCTIONS ---
 };
 
 const users = {
@@ -160,14 +164,15 @@ const rewards = {
     create: (data) => api.post('/rewards', data),
     update: (id, data) => api.patch(`/rewards/${id}`, data),
     delete: (id) => api.delete(`/rewards/${id}`),
-    getUserRewards: (userId) => api.get(`/users/${userId}/rewards`),
+    getUserRewards: (userId) => api.get(`/users/${userId}/rewards`), // Assuming this route exists
 };
 
 const achievements = {
-    getAll: () => api.get('/achievements'),
-    create: (data) => api.post('/achievements', data),
-    update: (id, data) => api.patch(`/achievements/${id}`, data),
-    delete: (id) => api.delete(`/achievements/${id}`),
+    getAll: () => api.get('/achievements'), // Assuming admin route
+    create: (data) => api.post('/achievements', data), // Assuming admin route
+    update: (id, data) => api.patch(`/achievements/${id}`, data), // Assuming admin route
+    delete: (id) => api.delete(`/achievements/${id}`), // Assuming admin route
+    // Note: getUserAchievements is under the 'users' service
 };
 
 // Export all API services grouped together
@@ -175,7 +180,7 @@ export default {
   auth,
   subjects,
   resources,
-  quizzes,
+  quizzes, // Ensure quizzes object is exported
   users,
   uploads,
   forum,

@@ -38,22 +38,12 @@ export default function Login() {
       console.log('Login API successful:', response.data);
 
       // --- Handle successful login ---
-      // Check if token and user data exist in the response
       if (response.data.token && response.data.data?.user && typeof window !== 'undefined') {
-
-          // **IMPORTANT: Call the login function from AuthContext**
-          // This function should handle setting localStorage AND updating context state.
-          // Ensure your AuthContext provides a login function like this.
           await auth.login(response.data.token, response.data.data.user);
           console.log('Auth context updated via auth.login()');
-
-          // Redirect AFTER context is updated
           console.log("Redirecting to /dashboard...");
           router.replace('/dashboard');
-          // No need to set isLoggingIn = false here
-
       } else {
-          // Handle case where token or user data might be missing in response
           console.warn('Token or user data not found in login response.');
           setLoginError('Login completed but essential data missing. Please try again.');
           setIsLoggingIn(false);
@@ -69,7 +59,7 @@ export default function Login() {
 
 
   return (
-    // --- JSX for the Login Form (Remains the same) ---
+    // --- JSX for the Login Form ---
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300 font-['Inter',_sans-serif]">
       {/* Enhanced background with mathematical/scientific elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0" id="login-page-background">
@@ -77,7 +67,8 @@ export default function Login() {
         <div className="absolute top-[7%] left-[13%] text-purple-500 dark:text-purple-400 text-9xl opacity-75 floating-icon">∑</div>
         <div className="absolute top-[33%] right-[17%] text-blue-500 dark:text-blue-400 text-10xl opacity-70 floating-icon-reverse">π</div>
         <div className="absolute top-[61%] left-[27%] text-green-500 dark:text-green-400 text-8xl opacity-75 floating-icon-slow">∞</div>
-        <div className="absolute top-[19%] right-[38%] text-red-500 dark:text-red-400 text-11xl opacity-65 floating-icon">⚛</div>
+        {/* --- React Atom Icon Removed --- */}
+        {/* <div className="absolute top-[19%] right-[38%] text-red-500 dark:text-red-400 text-11xl opacity-65 floating-icon">⚛</div> */}
         <div className="absolute top-[77%] right-[23%] text-yellow-500 dark:text-yellow-400 text-9xl opacity-70 floating-icon-slow">𝜙</div>
         <div className="absolute bottom-[31%] left-[8%] text-indigo-500 dark:text-indigo-400 text-10xl opacity-70 floating-icon-reverse">∫</div>
         <div className="absolute bottom-[12%] right-[42%] text-teal-500 dark:text-teal-400 text-9xl opacity-75 floating-icon">≈</div>
@@ -272,23 +263,23 @@ export default function Login() {
         .animate-float {
           animation: float ease-in-out infinite;
         }
-        
+
         /* Enhanced text sizes for larger symbols */
         .text-10xl { font-size: 9rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
         .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
 
         /* Enhanced background floating icons animations */
-        .floating-icon { 
-          animation: float 6s ease-in-out infinite; 
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        .floating-icon {
+          animation: float 6s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
         }
-        .floating-icon-reverse { 
-          animation: float-reverse 7s ease-in-out infinite; 
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        .floating-icon-reverse {
+          animation: float-reverse 7s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
         }
-        .floating-icon-slow { 
-          animation: float 10s ease-in-out infinite; 
-          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1)); 
+        .floating-icon-slow {
+          animation: float 10s ease-in-out infinite;
+          filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
         }
 
         @keyframes float-reverse {
@@ -298,32 +289,32 @@ export default function Login() {
         }
 
         /* Enhanced animations */
-        .animate-pulse-slow { 
+        .animate-pulse-slow {
           animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        
-        @keyframes pulse-slow { 
-          0%, 100% { opacity: 1; transform: scale(1); } 
-          50% { opacity: 0.7; transform: scale(0.98); } 
+
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(0.98); }
         }
 
-        .animate-fade-in { 
-          animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        .animate-fade-in {
+          animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        
-        .animate-fade-in-up { 
-          animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+
+        .animate-fade-in-up {
+          animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           will-change: transform, opacity;
         }
 
-        @keyframes fadeIn { 
-          from { opacity: 0; } 
-          to { opacity: 1; } 
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        
-        @keyframes fadeInUp { 
-          from { opacity: 0; transform: translateY(30px); } 
-          to { opacity: 1; transform: translateY(0); } 
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

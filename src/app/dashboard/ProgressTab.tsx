@@ -128,7 +128,15 @@ export default function ProgressTab() {
       }
     };
 
-    fetchProgressData();
+    // For now, don't fetch data, just set loading to false after a delay
+    const mockFetch = setTimeout(() => {
+        setIsLoading(false);
+        // setError("Feature under development."); // Optionally set an error message
+    }, 500); // Simulate network delay
+
+    // fetchProgressData(); // Uncomment this line to enable actual data fetching
+    return () => clearTimeout(mockFetch); // Cleanup timeout
+
   }, [activeSubjectId]); // Re-run effect when activeSubjectId changes
 
   // Get color styles for the currently active subject
@@ -157,14 +165,8 @@ export default function ProgressTab() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium shadow-md transition-all duration-200 transform ${
                   activeSubjectId === subject.id
                     ? `bg-gradient-to-r ${getSubjectColorStyles(subject.color).selected}`
-                    : `bg-white ${getSubjectColorStyles(subject.color).text} hover:bg-${subject.color}-50` // Note: Tailwind needs full class names, dynamic generation like this might require config or adjustments
+                    : `bg-white ${getSubjectColorStyles(subject.color).text} hover:bg-${subject.color}-50` // Note: Tailwind needs full class names
                 }`}
-                // Safer approach for hover background:
-                // className={`px-4 py-2 rounded-lg text-sm font-medium shadow-md transition-all duration-200 transform ${
-                //   activeSubjectId === subject.id
-                //     ? `bg-gradient-to-r ${getSubjectColorStyles(subject.color).selected}`
-                //     : `bg-white ${getSubjectColorStyles(subject.color).text} hover:bg-opacity-50 ${getSubjectColorStyles(subject.color).light.replace('from-','bg-')}` // Example using bg-color-50
-                // }`}
               >
                 {subject.name}
               </button>
@@ -189,122 +191,118 @@ export default function ProgressTab() {
             </div>
           )}
 
-          {!isLoading && !error && progressData && (
-            <div className="space-y-8">
-              {/* Overall Progress Section */}
-              <div className={`bg-gradient-to-r ${colors.light} rounded-xl p-6 border ${colors.border}`}>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div className="mb-4 md:mb-0">
-                    <h3 className="text-xl font-bold text-gray-900">{progressData.subjectName} Overall Progress</h3>
-                    <p className="text-gray-600 mt-1">
-                      {/* Calculate high mastery count */}
-                      Mastered {progressData.topics.filter(t => t.mastery === 'high' || t.mastery === 'mastered').length} out of {progressData.topics.length} topics
-                    </p>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mr-3 shadow-md">
-                      <span className={`text-2xl font-bold ${colors.text}`}>{progressData.overallProgress}%</span>
-                    </div>
-                    <Link
-                      href={`/subjects/${progressData.subjectId}`} // Link to the specific subject page
-                      className={`px-4 py-2 rounded-lg text-sm text-white font-medium shadow-sm ${colors.button} transition-all duration-200 transform hover:scale-105`}
-                    >
-                      Continue Learning
-                    </Link>
-                  </div>
-                </div>
-                 <div className="mt-6">
-                  <div className="w-full h-3 bg-white/50 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full bg-gradient-to-r ${colors.progressBar} rounded-full relative`}
-                      style={{ width: `${progressData.overallProgress}%`, transition: 'width 1s ease-in-out' }}
-                    >
-                      <div className="absolute inset-0 bg-white opacity-30 animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {!isLoading && !error && (
+            // --- Placeholder for Development ---
+            <div className="text-center py-16 bg-gradient-to-br from-indigo-50 to-purple-100 rounded-lg border border-indigo-200">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-indigo-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /> {/* Simple plus/construction icon */}
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.438 11.944c.083.56.122 1.125.122 1.706 0 5.225-4.275 9.5-9.5 9.5S.562 18.874.562 13.65c0-.58.04-1.146.122-1.706" /> {/* Part of a gear/settings icon */}
+                </svg>
+                <h3 className="text-xl font-bold text-indigo-800">Feature Under Development</h3>
+                <p className="text-indigo-600 mt-2 max-w-md mx-auto">
+                    We're working hard on bringing you detailed progress tracking and analytics. Stay tuned for updates!
+                </p>
+                <Link href="/dashboard" className="mt-6 inline-block px-6 py-2.5 bg-indigo-600 text-white font-medium text-sm rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 ease-in-out">
+                    Back to Overview
+                </Link>
+            </div>
+            // --- End Placeholder ---
 
-              {/* Topics Progress Section */}
-              <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Topic-by-Topic Breakdown</h3>
-                {progressData.topics.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {progressData.topics.map((topic) => (
-                        <div
-                        key={topic.id} // Use topic ID as key
-                        className={`bg-white rounded-xl border border-gray-200 p-5 transition-all duration-300 hover:shadow-md hover:${colors.border} transform hover:-translate-y-1`}
+
+            /* --- Original Content (Commented Out) ---
+            {progressData ? (
+                <div className="space-y-8">
+                {/* Overall Progress Section * /}
+                <div className={`bg-gradient-to-r ${colors.light} rounded-xl p-6 border ${colors.border}`}>
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div className="mb-4 md:mb-0">
+                        <h3 className="text-xl font-bold text-gray-900">{progressData.subjectName} Overall Progress</h3>
+                        <p className="text-gray-600 mt-1">
+                        Mastered {progressData.topics.filter(t => t.mastery === 'high' || t.mastery === 'mastered').length} out of {progressData.topics.length} topics
+                        </p>
+                    </div>
+                    <div className="flex items-center">
+                        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mr-3 shadow-md">
+                        <span className={`text-2xl font-bold ${colors.text}`}>{progressData.overallProgress}%</span>
+                        </div>
+                        <Link
+                        href={`/subjects/${progressData.subjectId}`} // Link to the specific subject page
+                        className={`px-4 py-2 rounded-lg text-sm text-white font-medium shadow-sm ${colors.button} transition-all duration-200 transform hover:scale-105`}
                         >
-                        <div className="flex justify-between items-start mb-3">
-                            <h4 className="text-base font-bold text-gray-900">{topic.name}</h4>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${getMasteryColor(topic.mastery)}`}>
-                            {/* Display more descriptive mastery */}
-                            {topic.mastery === 'high' || topic.mastery === 'mastered' ? 'High Mastery' : topic.mastery === 'medium' ? 'Medium Mastery' : 'Needs Work'}
-                            </span>
-                        </div>
-
-                        <div className="mb-4">
-                            <div className="flex justify-between text-sm mb-1">
-                            <span className="text-gray-500">Progress</span>
-                            <span className="text-gray-700 font-medium">{topic.progress}%</span>
-                            </div>
-                            <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div
-                                className={`h-full bg-gradient-to-r ${colors.progressBar} rounded-full relative`}
-                                style={{ width: `${topic.progress}%`, transition: 'width 1s ease-in-out' }}
-                            >
-                                {/* Optional pulse effect on progress bar */}
-                                {/* <div className="absolute inset-0 bg-white opacity-30 animate-pulse"></div> */}
-                            </div>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between items-center">
-                            {/* Optional: Display Test Score if available */}
-                            {/* {topic.testScore && (
-                                <div className="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${colors.text} mr-1`} viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" /></svg>
-                                <span className="text-sm text-gray-600">Test Score: <span className="font-medium">{topic.testScore}%</span></span>
-                                </div>
-                            )} */}
-                            {/* Ensure spacer if test score isn't shown */}
-                            {/* {!topic.testScore && <div></div>} */}
-                             <div></div> {/* Spacer */}
-
-
-                            <Link
-                            href={`/subjects/${progressData.subjectId}/${topic.name.toLowerCase().replace(/\s+/g, '-')}`} // Link to specific topic page (adjust slug logic if needed)
-                            className={`text-sm ${colors.text} hover:underline font-medium flex items-center`}
-                            >
-                            Practice
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-                            </Link>
-                        </div>
-                        </div>
-                    ))}
+                        Continue Learning
+                        </Link>
                     </div>
-                ) : (
-                    <div className="text-center py-6 text-gray-500">No topic progress data available for this subject yet.</div>
-                )}
-              </div>
+                    </div>
+                    <div className="mt-6">
+                    <div className="w-full h-3 bg-white/50 rounded-full overflow-hidden">
+                        <div
+                        className={`h-full bg-gradient-to-r ${colors.progressBar} rounded-full relative`}
+                        style={{ width: `${progressData.overallProgress}%`, transition: 'width 1s ease-in-out' }}
+                        >
+                        <div className="absolute inset-0 bg-white opacity-30 animate-pulse"></div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
 
-              {/* --- Analytics Sections Removed For Initial Integration --- */}
-              {/* TODO: Add back Learning Analytics, Performance Comparison, Suggested Path later */}
-              {/* You will need separate API calls or include this data in the getDetailedProgress response */}
+                {/* Topics Progress Section * /}
+                <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">Topic-by-Topic Breakdown</h3>
+                    {progressData.topics.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {progressData.topics.map((topic) => (
+                            <div
+                            key={topic.id} // Use topic ID as key
+                            className={`bg-white rounded-xl border border-gray-200 p-5 transition-all duration-300 hover:shadow-md hover:${colors.border} transform hover:-translate-y-1`}
+                            >
+                            <div className="flex justify-between items-start mb-3">
+                                <h4 className="text-base font-bold text-gray-900">{topic.name}</h4>
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${getMasteryColor(topic.mastery)}`}>
+                                {topic.mastery === 'high' || topic.mastery === 'mastered' ? 'High Mastery' : topic.mastery === 'medium' ? 'Medium Mastery' : 'Needs Work'}
+                                </span>
+                            </div>
 
-              {/* Example placeholder for where analytics might go */}
-               {/* <div className="mt-8">
-                 <h3 className="text-lg font-bold text-gray-900 mb-4">Learning Analytics</h3>
-                 <div className="p-5 bg-gray-50 rounded-lg border border-gray-200 text-center text-gray-500">
-                   Analytics data (Time Spent, Accuracy, Weak Areas) will be shown here soon.
-                 </div>
-               </div> */}
+                            <div className="mb-4">
+                                <div className="flex justify-between text-sm mb-1">
+                                <span className="text-gray-500">Progress</span>
+                                <span className="text-gray-700 font-medium">{topic.progress}%</span>
+                                </div>
+                                <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full bg-gradient-to-r ${colors.progressBar} rounded-full relative`}
+                                    style={{ width: `${topic.progress}%`, transition: 'width 1s ease-in-out' }}
+                                >
+                                </div>
+                                </div>
+                            </div>
 
-            </div> // Closes space-y-8
+                            <div className="flex justify-between items-center">
+                                <div></div> {/* Spacer * /}
+                                <Link
+                                href={`/subjects/${progressData.subjectId}/${topic.name.toLowerCase().replace(/\s+/g, '-')}`} // Link to specific topic page (adjust slug logic if needed)
+                                className={`text-sm ${colors.text} hover:underline font-medium flex items-center`}
+                                >
+                                Practice
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                                </Link>
+                            </div>
+                            </div>
+                        ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-6 text-gray-500">No topic progress data available for this subject yet.</div>
+                    )}
+                </div>
+
+                </div> // Closes space-y-8
+            ) : (
+                 // Handle case where data is null even after loading (e.g., initial state before first fetch)
+                 <div className="text-center py-10 text-gray-500">Select a subject to view progress.</div>
+            )}
+            */ // --- End Original Content ---
           )}
         </div> {/* Closes p-6 */}
       </div> {/* Closes main card */}
     </div> // Closes outer transition div
   );
 }
-

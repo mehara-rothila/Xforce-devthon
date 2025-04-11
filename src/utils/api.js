@@ -112,14 +112,12 @@ const quizzes = {
   getBySubject: (subjectId) => api.get(`/subjects/${subjectId}/quizzes`),
   getPracticeQuizzes: (subjectId, topic) => api.get(`/quizzes/subject/${subjectId}/practice${topic ? `?topic=${topic}` : ''}`),
   submitAttempt: (id, answers, timeTaken) => api.post(`/quizzes/${id}/attempts`, { answers, timeTaken }),
-  getUserAttempts: (userId, params) => api.get(`/quizzes/user/${userId}/attempts`, { params }), // Added params for pagination
+  getUserAttempts: (userId, params) => api.get(`/quizzes/user/${userId}/attempts`, { params }),
   create: (data) => api.post('/quizzes', data),
   update: (id, data) => api.patch(`/quizzes/${id}`, data),
   delete: (id) => api.delete(`/quizzes/${id}`),
-  // --- ADDED API FUNCTIONS ---
-  rate: (quizId, data) => api.post(`/quizzes/${quizId}/rate`, data), // data should be { rating: number, attemptId: string }
-  getAttemptById: (attemptId) => api.get(`/quizzes/attempts/${attemptId}`) // Route defined in quizRoutes.js
-  // --- END ADDED API FUNCTIONS ---
+  rate: (quizId, data) => api.post(`/quizzes/${quizId}/rate`, data),
+  getAttemptById: (attemptId) => api.get(`/quizzes/attempts/${attemptId}`)
 };
 
 const users = {
@@ -130,7 +128,7 @@ const users = {
   getLeaderboard: () => api.get('/users/leaderboard'),
   getUserProfile: (userId) => api.get(`/users/${userId}`),
   updateUserProfile: (userId, data) => api.patch(`/users/${userId}`, data),
-  getUserProgress: (userId) => api.get(`/users/${userId}/progress`),
+  getUserProgress: (userId) => api.get(`/users/${userId}/progress`)
 };
 
 const uploads = {
@@ -144,6 +142,7 @@ const uploads = {
 };
 
 const forum = {
+    // General forum endpoints
     getCategories: () => api.get('/forum/categories'),
     getTopicsByCategory: (categoryId, params) => api.get(`/forum/categories/${categoryId}/topics`, { params }),
     getTopicById: (topicId) => api.get(`/forum/topics/${topicId}`),
@@ -152,9 +151,23 @@ const forum = {
     addReply: (topicId, data) => api.post(`/forum/topics/${topicId}/replies`, data),
     voteReply: (replyId, voteType) => api.post(`/forum/replies/${replyId}/vote`, { vote: voteType }),
     markBestAnswer: (replyId) => api.patch(`/forum/replies/${replyId}/best`),
+    
+    // Category management endpoints
     createCategory: (data) => api.post('/forum/categories', data),
     updateCategory: (id, data) => api.patch(`/forum/categories/${id}`, data),
     deleteCategory: (id) => api.delete(`/forum/categories/${id}`),
+    
+    // Moderation endpoints - UPDATED to match backend routes
+    getPendingTopics: (params) => api.get('/forum/moderation/pending-topics', { params }),
+    getPendingReplies: (params) => api.get('/forum/moderation/pending-replies', { params }),
+    approveTopic: (id) => api.patch(`/forum/moderation/topics/${id}/approve`),
+    rejectTopic: (id, reason) => api.delete(`/forum/moderation/topics/${id}/reject`, { 
+        data: { reason } 
+    }),
+    approveReply: (id) => api.patch(`/forum/moderation/replies/${id}/approve`),
+    rejectReply: (id, reason) => api.delete(`/forum/moderation/replies/${id}/reject`, { 
+        data: { reason } 
+    })
 };
 
 const rewards = {
@@ -164,15 +177,14 @@ const rewards = {
     create: (data) => api.post('/rewards', data),
     update: (id, data) => api.patch(`/rewards/${id}`, data),
     delete: (id) => api.delete(`/rewards/${id}`),
-    getUserRewards: (userId) => api.get(`/users/${userId}/rewards`), // Assuming this route exists
+    getUserRewards: (userId) => api.get(`/users/${userId}/rewards`)
 };
 
 const achievements = {
-    getAll: () => api.get('/achievements'), // Assuming admin route
-    create: (data) => api.post('/achievements', data), // Assuming admin route
-    update: (id, data) => api.patch(`/achievements/${id}`, data), // Assuming admin route
-    delete: (id) => api.delete(`/achievements/${id}`), // Assuming admin route
-    // Note: getUserAchievements is under the 'users' service
+    getAll: () => api.get('/achievements'),
+    create: (data) => api.post('/achievements', data),
+    update: (id, data) => api.patch(`/achievements/${id}`, data),
+    delete: (id) => api.delete(`/achievements/${id}`)
 };
 
 // Export all API services grouped together
@@ -180,7 +192,7 @@ export default {
   auth,
   subjects,
   resources,
-  quizzes, // Ensure quizzes object is exported
+  quizzes,
   users,
   uploads,
   forum,

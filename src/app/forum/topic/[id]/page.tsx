@@ -1,12 +1,12 @@
 "use client";
 
 import Link from 'next/link';
-import { useState, useEffect, useCallback } from 'react'; // Added useCallback
+import { useState, useEffect, useCallback } from 'react'; 
 import { useDarkMode } from '../../../DarkModeContext';
-import api from '@/utils/api'; // <-- Use shared API utility
-import SubjectIcon from '@/components/icons/SubjectIcon'; // <-- Import shared icon component
-import { ThumbsUp, ThumbsDown, Check, Award, X, Loader2, AlertCircle, List, MessageSquare } from 'lucide-react'; // <-- Import icons
-import { useParams } from 'next/navigation'; // <-- Import useParams
+import api from '@/utils/api'; 
+import PendingNotification from '../../PendingNotification';
+import { ThumbsUp, ThumbsDown, Check, Award, X, Loader2, AlertCircle, List, MessageSquare, Clock } from 'lucide-react'; 
+import { useParams } from 'next/navigation'; 
 
 // Type definitions
 interface ForumCategory {
@@ -60,9 +60,11 @@ export default function TopicPage({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
-
-  // --- State for Current User ID ---
+  const [isPending, setIsPending] = useState<boolean>(false);
+  
+  // User-related state - in a real app, would come from auth context
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('user');
 
   useEffect(() => {
     // Attempt to get user ID from localStorage on client-side mount
@@ -74,17 +76,19 @@ export default function TopicPage({ params }: { params: { id: string } }) {
             try {
                 const parsedInfo = JSON.parse(userInfo);
                 setCurrentUserId(parsedInfo?._id || 'mock-user-id'); // Use mock as fallback if needed
+                setUserRole(parsedInfo?.role || 'user');
             } catch (e) {
                 console.error("Error parsing user info from localStorage", e);
                 setCurrentUserId('mock-user-id'); // Fallback
+                setUserRole('user'); // Default role
             }
         } else {
              // Fallback if only token exists but not user info
              setCurrentUserId('mock-user-id'); // Or null if login strictly required
+             setUserRole('user');
         }
     }
   }, []);
-  // ---
 
   // --- Helper Functions ---
   const formatDate = (dateString: string): string => {
@@ -109,7 +113,6 @@ export default function TopicPage({ params }: { params: { id: string } }) {
       default: return { color: 'purple', badgeBg: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400', hoverBg: 'hover:bg-purple-50 dark:hover:bg-purple-900/10' };
     }
   };
-  // ---
 
   // Fetch topic and replies data using api.js
   useEffect(() => {
@@ -136,30 +139,64 @@ export default function TopicPage({ params }: { params: { id: string } }) {
     else { setError("Invalid Topic ID"); setIsLoading(false); }
   }, [topicId]);
 
-  // Handle reply submission using api.js
+  // Handle reply submission with pending notification
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!replyContent.trim()) { setSubmitError('Reply content cannot be empty'); return; }
-    if (!currentUserId) { setSubmitError('You must be logged in to reply.'); return; }
+    if (!replyContent.trim()) {
+      setSubmitError('Reply content cannot be empty');
+      return;
+    }
+    if (!currentUserId) {
+      setSubmitError('You must be logged in to reply.');
+      return;
+    }
 
-    setIsSubmittingReply(true); setSubmitError(null); setSubmitSuccess(false);
+    setIsSubmittingReply(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+    setIsPending(false);
 
     try {
       // Use api.js function (auth token handled by interceptor)
       const response = await api.forum.addReply(topicId, { content: replyContent });
 
-      if (response.data?.status === 'success' && response.data.data?.reply) {
-        const newReply = response.data.data.reply;
-        // Backend should populate author, but add fallback if needed
-        if (!newReply.author) { newReply.author = { _id: currentUserId, name: 'You' }; }
-        setReplies(prevReplies => [...prevReplies, newReply]);
+      if (response.data?.status === 'success') {
+        // Check if auto-approved or pending based on message or role
+        const responseMessage = response.data?.data?.message || '';
+        const isAutoApproved = responseMessage.includes('posted') || 
+                              !responseMessage.includes('moderation') ||
+                              (userRole === 'admin' || userRole === 'moderator');
+        
+        // If auto-approved, add the reply to the list
+        if (isAutoApproved && response.data.data?.reply) {
+          const newReply = response.data.data.reply;
+          // Backend should populate author, but add fallback if needed
+          if (!newReply.author) {
+            newReply.author = { _id: currentUserId, name: 'You' };
+          }
+          setReplies(prevReplies => [...prevReplies, newReply]);
+          if (topic) {
+            setTopic({ ...topic, repliesCount: (topic.repliesCount || 0) + 1 });
+          }
+        } else {
+          // Set pending state for UI notification
+          setIsPending(true);
+        }
+        
+        // Reset form regardless
         setReplyContent('');
         setSubmitSuccess(true);
-        if (topic) { setTopic({ ...topic, repliesCount: (topic.repliesCount || 0) + 1 }); }
-        setTimeout(() => { setSubmitSuccess(false); }, 3000);
-      } else { throw new Error(response.data?.message || 'Failed to submit reply.'); }
-    } catch (err: any) { console.error('Error submitting reply:', err); setSubmitError(err.response?.data?.message || err.message || 'Error submitting reply.'); }
-    finally { setIsSubmittingReply(false); }
+        setTimeout(() => { setSubmitSuccess(false); }, 5000);
+        
+      } else {
+        throw new Error(response.data?.message || 'Failed to submit reply.');
+      }
+    } catch (err: any) {
+      console.error('Error submitting reply:', err);
+      setSubmitError(err.response?.data?.message || err.message || 'Error submitting reply.');
+    } finally {
+      setIsSubmittingReply(false);
+    }
   };
 
   // Handle voting on a reply using api.js
@@ -285,7 +322,67 @@ export default function TopicPage({ params }: { params: { id: string } }) {
               </div>
 
               {/* Reply Form */}
-              {!topic.isLocked && ( <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 animate-fade-in" style={{ animationDelay: '0.3s' }}> <div className="p-6 md:p-8"> <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 text-shadow"> Leave a Reply </h2> <form onSubmit={handleSubmitReply}> <div className="mb-4"> <textarea rows={6} placeholder="Write your reply here..." className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200" value={replyContent} onChange={(e) => setReplyContent(e.target.value)} disabled={isSubmittingReply} ></textarea> </div> {submitError && ( <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200 text-sm animate-fade-in"> {submitError} </div> )} {submitSuccess && ( <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-800 dark:text-green-200 text-sm animate-fade-in"> Your reply has been posted successfully! </div> )} <button type="submit" disabled={isSubmittingReply || !replyContent.trim()} className={`px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 dark:from-purple-600 dark:to-purple-800 dark:hover:from-purple-700 dark:hover:to-purple-900 text-white rounded-lg font-medium shadow-sm hover:shadow transition-all duration-200 flex items-center transform hover:translate-y-[-2px] active:translate-y-[1px] ${ isSubmittingReply || !replyContent.trim() ? 'opacity-70 cursor-not-allowed' : '' }`} > {isSubmittingReply ? ( <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" /> Posting...</> ) : ( <><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /> </svg> Post Reply</> )} </button> </form> </div> </div> )}
+              {!topic.isLocked && (
+                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                  <div className="p-6 md:p-8">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4 text-shadow">Leave a Reply</h2>
+                    
+                    {/* Success & Pending Message */}
+                    {submitSuccess && (
+                      <>
+                        <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-800 dark:text-green-200 text-sm animate-fade-in">
+                          Your reply has been submitted successfully!
+                        </div>
+                        
+                        {/* Show pending notification if needed */}
+                        {isPending && <PendingNotification type="reply" />}
+                      </>
+                    )}
+                    
+                    {submitError && (
+                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200 text-sm animate-fade-in">
+                        {submitError}
+                      </div>
+                    )}
+                    
+                    <form onSubmit={handleSubmitReply}>
+                      <div className="mb-4">
+                        <textarea
+                          rows={6}
+                          placeholder="Write your reply here..."
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          disabled={isSubmittingReply}
+                        ></textarea>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        {userRole !== 'admin' && userRole !== 'moderator' && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                            <Clock className="h-3 w-3 mr-1 text-yellow-600 dark:text-yellow-500" />
+                            <span>Your reply will require moderator approval</span>
+                          </div>
+                        )}
+                        
+                        <button
+                          type="submit"
+                          disabled={isSubmittingReply || !replyContent.trim()}
+                          className={`px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 dark:from-purple-600 dark:to-purple-800 dark:hover:from-purple-700 dark:hover:to-purple-900 text-white rounded-lg font-medium shadow-sm hover:shadow transition-all duration-200 flex items-center transform hover:translate-y-[-2px] active:translate-y-[1px] ${
+                            isSubmittingReply || !replyContent.trim() ? 'opacity-70 cursor-not-allowed' : ''
+                          }`}
+                        >
+                          {isSubmittingReply ? (
+                            <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" /> Posting...</>
+                          ) : (
+                            <><MessageSquare className="h-5 w-5 mr-2" /> Post Reply</>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
 
               {/* Locked Topic Message */}
               {topic.isLocked && ( <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 flex items-start animate-fade-in" style={{ animationDelay: '0.3s' }}> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600 dark:text-yellow-400 mr-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /> </svg> <div> <h3 className="text-lg font-medium text-yellow-800 dark:text-yellow-300 mb-1">This topic is locked</h3> <p className="text-yellow-700 dark:text-yellow-400">New replies are no longer allowed for this conversation.</p> </div> </div> )}

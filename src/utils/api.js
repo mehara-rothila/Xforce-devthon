@@ -1,4 +1,4 @@
-// /app/utils/api.js
+// utils/api.js
 import axios from 'axios';
 
 // Create axios instance with base URL
@@ -26,22 +26,14 @@ api.interceptors.request.use(
       ];
       const isPublicAuthRoute = publicAuthRoutes.some(route => config.url?.includes(route));
 
-      // Always add token if it exists AND it's not a public auth route
-      // OR if it's a download or uploads request
-      if (token && (!isPublicAuthRoute || config.url?.includes('/download') || config.url?.includes('/uploads/'))) {
-         // For normal requests
-         if (!(config.data instanceof FormData)) {
-           config.headers.Authorization = `Bearer ${token}`;
-         } 
-         // For FormData requests
-         else if (config.url?.includes('/uploads/')) {
-           config.headers.Authorization = `Bearer ${token}`;
-         }
-         // For download requests
-         else if (config.responseType === 'blob') {
-           config.headers.Authorization = `Bearer ${token}`;
-         }
+      // Add token if it exists AND it's not a public auth route AND not FormData (unless specifically handled)
+      if (token && !isPublicAuthRoute && !(config.data instanceof FormData)) {
+         config.headers.Authorization = `Bearer ${token}`;
+      } else if (token && config.url?.includes('/uploads/') && config.data instanceof FormData) {
+          // Example: Ensure token is added for specific FormData uploads if needed
+          config.headers.Authorization = `Bearer ${token}`;
       }
+       // No token needed for public auth requests
     }
     return config;
   },
@@ -51,19 +43,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   response => response,
-  async error => {
-    // Special handling for blob responses with errors
-    if (error.response && error.response.data instanceof Blob && error.response.data.type === 'application/json') {
-      // Convert blob to text to read the error message
-      const text = await new Response(error.response.data).text();
-      try {
-        const json = JSON.parse(text);
-        error.response.data = json;
-      } catch (e) {
-        console.error('Error parsing blob error response', e);
-      }
-    }
-    
+  error => {
     // Handle unauthorized errors (e.g., invalid token)
     if (typeof window !== 'undefined' && error.response && error.response.status === 401) {
       // Define public auth routes where a 401 might be expected (e.g., wrong password) and shouldn't cause a redirect

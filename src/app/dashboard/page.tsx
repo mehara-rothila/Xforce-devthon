@@ -1,5 +1,4 @@
 // src/app/dashboard/page.tsx
-
 'use client'; // Essential for hooks and client-side logic
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -14,7 +13,6 @@ import {
     getDay, // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     getDate,
     isToday,
-    // isSameMonth, // Not strictly needed for current calendar logic, but good to keep if expanding
 } from 'date-fns'; // Import necessary date-fns functions
 
 // --- Import Child Components ---
@@ -39,8 +37,11 @@ interface DashboardSummary {
     level: number;
     xp: number;
     pointsToNextLevel: number;
+    levelProgress: number;
     streak: number;
     points: number;
+    quizPointsEarned: number;
+    achievementPoints: number; // New field for achievement points
     leaderboardRank: string;
     subjectProgress: SubjectProgress[];
     // Add registration date if backend sends it
@@ -93,6 +94,12 @@ const ActivityIcon: React.FC<{ type: ActivityItem['type'] }> = ({ type }) => {
     );
 };
 
+// Calculate XP required for a specific level
+// Must match the server-side formula exactly
+// FIX: Add type annotation to the 'level' parameter
+const calculateXpForLevel = (level: number) => {
+  return 100 * Math.pow(level - 1, 2);
+};
 
 export default function Dashboard() {
     // --- Component State ---
@@ -471,7 +478,7 @@ export default function Dashboard() {
 
 
             {/* --- Dashboard Header (Sticky) --- */}
-            {/* Added relative and z-20 to ensure it's above the background (z-0) */}
+            {/* Added relative and z-30 to ensure it's above the background (z-0) */}
             <div className="sticky top-0 z-30 shadow-sm relative">
                 <div className="relative bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 dark:from-gray-900 dark:via-gray-850 dark:to-gray-800 text-white overflow-hidden transition-colors duration-300 border-b border-purple-800/20 dark:border-gray-700/50">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"> {/* Inner content z-10 relative to header */}
@@ -548,114 +555,128 @@ export default function Dashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                     {/* --- SIDEBAR --- */}
-                    {/* Sidebar needs to be sticky relative to the header */}
-                    {/* lg:top-28 assumes header height + padding is roughly 7rem (112px). Adjust if needed. */}
                     <div className="lg:col-span-3 lg:sticky lg:top-28">
-                        <div className={`transition-all duration-700 ease-out transform ${isPageLoaded ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
-                            {/* Added backdrop-blur-sm and adjusted background opacity for better visibility over animated background */}
-                            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden border border-gray-100 dark:border-gray-700/50">
-                                {/* Sidebar Loading State */}
-                                {isLoadingSummary && !dashboardSummary && (
-                                    <div className="px-6 py-6 text-center">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Loading profile...</p>
+                      <div className={`transition-all duration-700 ease-out transform ${isPageLoaded ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
+                        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-gray-900/10 overflow-hidden border border-gray-100 dark:border-gray-700/50">
+                          {/* Sidebar Loading State */}
+                          {isLoadingSummary && !dashboardSummary && (
+                            <div className="px-6 py-6 text-center">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-2"></div>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Loading profile...</p>
+                            </div>
+                          )}
+                          {/* Sidebar Error State */}
+                          {errorSummary && !isLoadingSummary && (
+                            <div className="px-6 py-6 text-center text-red-600 bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800">
+                              <p className="text-sm font-medium">Error loading profile:</p>
+                              <p className="text-xs mt-1">{errorSummary}</p>
+                            </div>
+                          )}
+                          {/* Sidebar Content */}
+                          {auth.user && (
+                            <>
+                              {/* Profile Section */}
+                              <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700 text-center relative bg-gradient-to-b from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-850/80">
+                                <div className="absolute top-2 right-2">
+                                  <Link href="/profile/edit" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+                                  </Link>
+                                </div>
+                                <div className="inline-block relative mb-4">
+                                  <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 mx-auto flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-lg ring-4 ring-white dark:ring-gray-850">
+                                    <span className="relative z-10">{auth.user.name?.charAt(0).toUpperCase() || '?'}</span>
+                                  </div>
+                                </div>
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{auth.user.name}</h2>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate px-4 mt-1">
+                                  {dashboardSummary?.subjectProgress && dashboardSummary.subjectProgress.length > 0
+                                    ? dashboardSummary.subjectProgress.map(s => s.name).join(', ')
+                                    : (isLoadingSummary ? 'Loading subjects...' : 'No subjects selected')}
+                                </p>
+                                <div className="mt-4 grid grid-cols-3 divide-x divide-gray-200 dark:divide-gray-700">
+                                  {dashboardSummary?.subjectProgress?.slice(0, 3).map((subject) => (
+                                    <div key={subject.subjectId} className="px-2 text-center group" title={`${subject.name}: ${subject.progress}%`}>
+                                      <div className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300 transition-all duration-300">{subject.progress}%</div>
+                                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{subject.name}</div>
                                     </div>
-                                )}
-                                {/* Sidebar Error State */}
-                                {errorSummary && !isLoadingSummary && (
-                                    <div className="px-6 py-6 text-center text-red-600 bg-red-50 dark:bg-red-900/20 border-b border-red-100 dark:border-red-800">
-                                        <p className="text-sm font-medium">Error loading profile:</p>
-                                        <p className="text-xs mt-1">{errorSummary}</p>
+                                  ))}
+                                  {Array(Math.max(0, 3 - (dashboardSummary?.subjectProgress?.length || 0))).fill(0).map((_, i) => (
+                                    <div key={`placeholder-${i}`} className="px-2 text-center group">
+                                      <div className="text-lg font-bold text-gray-400">{isLoadingSummary ? '...' : '--%'}</div>
+                                      <div className="text-xs text-gray-500 dark:text-gray-400">Subject</div>
                                     </div>
-                                )}
-                                {/* Sidebar Content */}
-                                {auth.user && (
-                                    <>
-                                        {/* Profile Section */}
-                                        <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700 text-center relative bg-gradient-to-b from-white/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-850/80">
-                                            <div className="absolute top-2 right-2">
-                                                <Link href="/profile/edit" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
-                                                </Link>
-                                            </div>
-                                            <div className="inline-block relative mb-4">
-                                                <div className="h-20 w-20 md:h-24 md:w-24 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 mx-auto flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-lg ring-4 ring-white dark:ring-gray-850">
-                                                    <span className="relative z-10">{auth.user.name?.charAt(0).toUpperCase() || '?'}</span>
-                                                </div>
-                                            </div>
-                                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{auth.user.name}</h2>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 truncate px-4 mt-1">
-                                                {dashboardSummary?.subjectProgress && dashboardSummary.subjectProgress.length > 0
-                                                    ? dashboardSummary.subjectProgress.map(s => s.name).join(', ')
-                                                    : (isLoadingSummary ? 'Loading subjects...' : 'No subjects selected')}
-                                            </p>
-                                            <div className="mt-4 grid grid-cols-3 divide-x divide-gray-200 dark:divide-gray-700">
-                                                {dashboardSummary?.subjectProgress?.slice(0, 3).map((subject) => (
-                                                    <div key={subject.subjectId} className="px-2 text-center group" title={`${subject.name}: ${subject.progress}%`}>
-                                                        <div className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300 transition-all duration-300">{subject.progress}%</div>
-                                                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{subject.name}</div>
-                                                    </div>
-                                                ))}
-                                                {Array(Math.max(0, 3 - (dashboardSummary?.subjectProgress?.length || 0))).fill(0).map((_, i) => (
-                                                    <div key={`placeholder-${i}`} className="px-2 text-center group">
-                                                        <div className="text-lg font-bold text-gray-400">{isLoadingSummary ? '...' : '--%'}</div>
-                                                        <div className="text-xs text-gray-500 dark:text-gray-400">Subject</div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                                  ))}
+                                </div>
+                              </div>
 
-                                        {/* Points & Level Section */}
-                                        <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Points & Level</h3>
-                                                <Link href="/rewards" className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium transition-colors duration-150">View Rewards</Link>
-                                            </div>
-                                            {!isLoadingSummary && dashboardSummary ? (
-                                                <>
-                                                    <div className="flex items-center mb-2">
-                                                        <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-full flex items-center justify-center shadow-sm">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600 dark:text-purple-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                                                        </div>
-                                                        <div className="ml-3 flex-1">
-                                                            <div className="flex justify-between mb-1 text-xs">
-                                                                <span className="font-medium text-gray-700 dark:text-gray-300">Level {dashboardSummary.level}</span>
-                                                                <span className="text-gray-500 dark:text-gray-400">{dashboardSummary.xp} / {(dashboardSummary.level + 1) * 150} XP</span>
-                                                            </div>
-                                                            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                                                <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full"
-                                                                    style={{ width: `${Math.min(100, (dashboardSummary.xp / ((dashboardSummary.level + 1) * 150)) * 100)}%`, transition: 'width 0.5s ease-in-out' }}>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-                                                        <span className="font-medium text-gray-700 dark:text-gray-300">{dashboardSummary.pointsToNextLevel ?? (((dashboardSummary.level + 1) * 150) - dashboardSummary.xp)} XP</span> until next level
-                                                    </div>
-                                                    <div className="mt-3 text-center text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-500">
-                                                        {dashboardSummary.points?.toLocaleString() ?? 0} Points
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-4">Loading stats...</div>
-                                            )}
+                              {/* Points & Level Section - UPDATED */}
+                              <div className="px-6 py-6 border-b border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center justify-between mb-4">
+                                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">Points & Level</h3>
+                                  <Link href="/rewards" className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium transition-colors duration-150">View Rewards</Link>
+                                </div>
+                                {!isLoadingSummary && dashboardSummary ? (
+                                  <>
+                                    <div className="flex items-center mb-2">
+                                      <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-full flex items-center justify-center shadow-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-600 dark:text-purple-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                                      </div>
+                                      <div className="ml-3 flex-1">
+                                        <div className="flex justify-between mb-1 text-xs">
+                                          <span className="font-medium text-gray-700 dark:text-gray-300">Level {dashboardSummary.level}</span>
+                                          <span className="text-gray-500 dark:text-gray-400">
+                                            {/* Use the helper function here */}
+                                            {dashboardSummary.xp.toLocaleString()} / {calculateXpForLevel(dashboardSummary.level + 1).toLocaleString()} XP
+                                          </span>
                                         </div>
+                                        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                          <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full"
+                                              style={{ width: `${dashboardSummary.levelProgress}%`, transition: 'width 0.5s ease-in-out' }}>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                                      <span className="font-medium text-gray-700 dark:text-gray-300">{dashboardSummary.pointsToNextLevel?.toLocaleString() ?? 0} XP</span> until next level
+                                    </div>
 
-                                        {/* Quick Links Section */}
-                                        <div className="px-6 py-6">
-                                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 text-sm">Quick Links</h3>
-                                            <ul className="space-y-2">
-                                                <li><Link href="/profile" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>My Profile</Link></li>
-                                                <li><Link href="/rewards" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Rewards Store</Link></li>
-                                                <li><Link href="/forum" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>Discussion Forum</Link></li>
-                                                <li><Link href="/settings" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Settings</Link></li>
-                                            </ul>
+                                    {/* Updated Points Display with Breakdown */}
+                                    <div className="mt-3 text-center">
+                                      <div className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-500">
+                                        {dashboardSummary.points?.toLocaleString() ?? 0} Total Points
+                                      </div>
+
+                                      {/* Points Breakdown */}
+                                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex justify-around">
+                                        <div>
+                                          <span className="font-medium text-purple-600 dark:text-purple-400">{dashboardSummary.quizPointsEarned?.toLocaleString() ?? 0}</span> Quiz
                                         </div>
-                                    </>
+                                        <div>
+                                          <span className="font-medium text-indigo-600 dark:text-indigo-400">{dashboardSummary.achievementPoints?.toLocaleString() ?? 0}</span> Achievements
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="text-center text-sm text-gray-500 dark:text-gray-400 py-4">Loading stats...</div>
                                 )}
-                            </div> {/* Closes sticky inner div */}
-                        </div> {/* Closes transition div */}
-                    </div> {/* Closes sidebar column div */}
+                              </div>
+
+                              {/* Quick Links Section */}
+                              <div className="px-6 py-6">
+                                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 text-sm">Quick Links</h3>
+                                <ul className="space-y-2">
+                                  <li><Link href="/profile" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>My Profile</Link></li>
+                                  <li><Link href="/rewards" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Rewards Store</Link></li>
+                                  <li><Link href="/forum" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>Discussion Forum</Link></li>
+                                  <li><Link href="/settings" className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 transition-colors duration-150 group"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400 group-hover:text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>Settings</Link></li>
+                                </ul>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
 
                     {/* --- Main Content Area (Renders Tab Content) --- */}

@@ -7,6 +7,7 @@ import api from '@/utils/api';
 import { useParams } from 'next/navigation';
 import SubjectIcon from '@/components/icons/SubjectIcon'; // Ensure this path is correct
 import { useAuth } from '@/app/context/AuthContext'; // Import useAuth hook
+import { downloadResource } from '@/utils/downloadUtils'; // Import the download utility
 import {
     Loader2, AlertCircle, List, MessageSquare, BookOpen, Target, FileText,
     HelpCircle, Star, Download, ChevronRight, Link as LinkIcon, Award
@@ -87,6 +88,7 @@ export default function SubjectDetailPage() {
     const [isLoadingQuizzes, setIsLoadingQuizzes] = useState<boolean>(true);
     const [isLoadingDiscussions, setIsLoadingDiscussions] = useState<boolean>(false);
     const [isLoadingRewards, setIsLoadingRewards] = useState<boolean>(true);
+    const [downloadingId, setDownloadingId] = useState<string | null>(null); // Track which file is downloading
 
 
     // Fetch all data using api.js with authenticated user data
@@ -226,6 +228,46 @@ export default function SubjectDetailPage() {
 
         fetchAllData();
     }, [subjectId, user, isAuthLoading]);
+
+    // --- Handle Download Function ---
+    const handleDownload = async (materialId: string, materialTitle: string) => {
+        try {
+            setDownloadingId(materialId);
+            console.log(`Attempting to download resource: ${materialId} (${materialTitle})`);
+            
+            // Use the downloadResource utility
+            const success = await downloadResource(materialId, materialTitle);
+            
+            if (success) {
+                console.log('Download successful');
+                // Optionally refresh materials to show updated download count
+                if (subjectId) {
+                    try {
+                        const materialsRes = await api.resources.getStudyMaterials(subjectId);
+                        if (materialsRes.data?.status === 'success') {
+                            setStudyMaterials(materialsRes.data.data?.materials?.map((m: any) => ({
+                                ...m,
+                                id: m._id,
+                                lastUpdated: getTimeAgo(m.updatedAt || m.date),
+                                filePath: m.filePath || '',
+                                fileSize: m.fileSize ? `${(m.fileSize / (1024*1024)).toFixed(1)} MB` : 'N/A'
+                            })) || []);
+                        }
+                    } catch (err) {
+                        console.warn("Failed to refresh study materials after download");
+                    }
+                }
+            } else {
+                console.error('Download failed');
+                alert("Download failed. Please try again later.");
+            }
+        } catch (error) {
+            console.error('Download error:', error);
+            alert("An error occurred during download.");
+        } finally {
+            setDownloadingId(null);
+        }
+    };
 
     // --- Render Logic ---
     if ((isLoadingSubject || isAuthLoading) && !subjectData && !error) { // Enhanced Initial Loader
@@ -453,7 +495,7 @@ export default function SubjectDetailPage() {
                                 </section>
                             )}
 
-                           {/* Study Materials Section */}
+                           {/* Study Materials Section - UPDATED with fixed download functionality */}
                             <section className="bg-white/85 dark:bg-gray-800/85 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700/50 overflow-hidden">
                                 <div className="p-6 border-b border-gray-200 dark:border-gray-700/50 flex justify-between items-center">
                                     <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center"> <BookOpen className="h-5 w-5 mr-2" style={{ color: safeColor }}/> Study Materials </h2>
@@ -466,6 +508,7 @@ export default function SubjectDetailPage() {
                                         <ul className="space-y-3">
                                             {studyMaterials.slice(0, 5).map(material => {
                                                 const locked = isLocked(material.isPremium);
+                                                const isDownloading = downloadingId === material.id;
                                                 return (
                                                     <li key={material.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 p-4 rounded-lg border border-gray-100 dark:border-gray-700/30 bg-white/50 dark:bg-gray-700/10 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-150">
                                                         <div className="flex items-center min-w-0 flex-1">
@@ -477,18 +520,33 @@ export default function SubjectDetailPage() {
                                                         </div>
                                                         <div className="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center">
                                                             {material.isPremium && <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"><Star className='h-3 w-3 mr-1'/>Premium</span>}
-                                                            <a href={locked ? undefined : `${BASE_URL.replace('/api', '')}${material.filePath}`}
-                                                                className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-all duration-150 ${locked ? 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed' : `text-white hover:brightness-110`}`}
-                                                                style={{ background: locked ? undefined : safeColor }}
+                                                            <button
+                                                                onClick={() => !locked && !isDownloading && handleDownload(material.id, material.title)}
+                                                                className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition-all duration-150 ${
+                                                                    locked 
+                                                                    ? 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed' 
+                                                                    : isDownloading
+                                                                    ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 cursor-wait' 
+                                                                    : 'text-white hover:brightness-110'
+                                                                }`}
+                                                                style={{ background: locked || isDownloading ? undefined : safeColor }}
                                                                 title={locked ? "Requires Premium Subscription" : "Download"}
-                                                                aria-disabled={locked}
-                                                                onClick={(e) => locked && e.preventDefault()}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                download={!locked} // Suggest downloading only if not locked
+                                                                disabled={locked || isDownloading}
                                                             >
-                                                            <Download className="h-3.5 w-3.5 mr-1"/> {locked ? 'Locked' : 'Download'}
-                                                            </a>
+                                                                {locked ? (
+                                                                    <><Download className="h-3.5 w-3.5 mr-1"/> Locked</>
+                                                                ) : isDownloading ? (
+                                                                    <>
+                                                                        <svg className="animate-spin h-3.5 w-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                        </svg>
+                                                                        Downloading...
+                                                                    </>
+                                                                ) : (
+                                                                    <><Download className="h-3.5 w-3.5 mr-1"/> Download</>
+                                                                )}
+                                                            </button>
                                                         </div>
                                                     </li>
                                                 )

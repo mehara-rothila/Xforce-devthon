@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useDarkMode } from '../DarkModeContext'; // Import the dark mode context
-import api, { API_URL } from '../../utils/api'; // Import API_URL and default export
+import api from '@/utils/api'; // Import API client
+import { downloadResource } from '@/utils/downloadUtils'; // Import the new download utility
 
 // --- Interfaces ---
 interface MockCategory {
   id: string;
   name: string;
-  // count property removed as it's fetched dynamically
 }
 interface BackendSubject {
   _id: string;
@@ -67,6 +67,7 @@ export default function ResourcesPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0); // Total for the CURRENTLY displayed list
+  const [isDownloading, setIsDownloading] = useState<string | null>(null); // Track download in progress by resourceId
 
   // State for all category counts fetched from the new endpoint
   const [categoryCounts, setCategoryCounts] = useState<CategoryCounts>({});
@@ -75,7 +76,6 @@ export default function ResourcesPage() {
 
 
   // --- Category List (Structure Only - Counts are dynamic) ---
-  // Removed "Other" category
   const categoriesList: MockCategory[] = [
     { id: 'all', name: 'All Resources' },
     { id: 'past-papers', name: 'Past Papers' },
@@ -86,14 +86,13 @@ export default function ResourcesPage() {
   ];
 
   // Mapping from frontend ID to backend category name (used for looking up counts)
-  // Ensure these names EXACTLY match the keys returned by your /category-counts endpoint
   const categoryNameMap: { [key: string]: string } = {
     'all': 'All Resources', // Special case, uses totalItems
     'past-papers': 'Past Papers',
-    'model-papers': 'Model Papers', // Make sure this matches the key in your counts response
+    'model-papers': 'Model Papers', 
     'notes': 'Notes',
-    'practice': 'Practice Quizzes', // Make sure this matches the key in your counts response
-    'videos': 'Video Lessons', // Make sure this matches the key in your counts response
+    'practice': 'Practice Quizzes', 
+    'videos': 'Video Lessons', 
   };
 
   // Mapping from frontend category ID to backend RESOURCE enum value (used for filtering resources)
@@ -296,14 +295,33 @@ export default function ResourcesPage() {
             setCurrentPage(newPage); // Changing currentPage triggers fetchData effect
         }
     };
-    const handleDownload = (resourceId: string, resourceTitle: string) => {
-        console.log(`Attempting to download resource via navigation: ${resourceId} (${resourceTitle})`);
-        const downloadUrl = `${API_URL}/resources/${resourceId}/download`;
-        console.log("Navigating to:", downloadUrl);
-        window.location.href = downloadUrl; // Trigger download via navigation
-        // Optional: Re-fetch counts/data after a delay if download affects counts
-        // setTimeout(() => { fetchData(); }, 1500);
-  };
+    
+    // UPDATED download handler using the new utility function
+    const handleDownload = async (resourceId: string, resourceTitle: string) => {
+      try {
+        console.log(`Attempting to download resource: ${resourceId} (${resourceTitle})`);
+        
+        // Set loading state for this specific resource
+        setIsDownloading(resourceId);
+        
+        // Use the downloadResource utility function
+        const success = await downloadResource(resourceId, resourceTitle);
+        
+        if (success) {
+          console.log(`Download successful: ${resourceTitle}`);
+          // Re-fetch data to get updated download count
+          setTimeout(() => { fetchData(); }, 1000);
+        } else {
+          throw new Error("Download failed");
+        }
+      } catch (error: any) {
+        console.error('Download failed:', error);
+        alert(`Failed to download: ${error.message || 'Unknown error occurred'}`);
+      } finally {
+        // Clear download loading state
+        setIsDownloading(null);
+      }
+    };
 
   // --- Helper Functions ---
   const getDifficultyColor = (difficulty: string | undefined): string => {
@@ -325,7 +343,7 @@ export default function ResourcesPage() {
     // Main container with relative positioning for background
     <div className={`min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 font-['Inter',_sans-serif] relative overflow-hidden`}>
 
-      {/* --- START: Animated Background Elements (Original from TakeQuiz) --- */}
+      {/* --- START: Animated Background Elements --- */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
          {/* Mathematical symbols */}
          <div className="absolute top-[7%] left-[13%] text-purple-500 dark:text-purple-400 text-9xl opacity-75 floating-icon">∑</div>
@@ -521,25 +539,33 @@ export default function ResourcesPage() {
                          <span className="flex items-center mb-1 sm:mb-0"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>{new Date(resource.date).toLocaleDateString()}</span>
                        </div>
                      </div>
-                     {/* Download/Premium Button */}
+                     {/* Download Button */}
                      <div className="flex-shrink-0">
-                       {/* --- START: Button Style Change --- */}
                        <button
                          className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center shadow-md w-full sm:w-auto justify-center transform hover:scale-105 ${
                            resource.premium
                              ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-400 cursor-not-allowed' // Disabled style for premium
-                             : 'border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white dark:border-purple-500 dark:text-purple-400 dark:hover:bg-purple-500 dark:hover:text-white' // ** NEW OUTLINE STYLE **
+                             : isDownloading === resource._id 
+                               ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 cursor-wait' // Loading state
+                               : 'border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white dark:border-purple-500 dark:text-purple-400 dark:hover:bg-purple-500 dark:hover:text-white' // Active state
                          }`}
-                         disabled={resource.premium}
+                         disabled={resource.premium || isDownloading === resource._id}
                          onClick={() => !resource.premium && handleDownload(resource._id, resource.title)}
                        >
                          {resource.premium ? (
                            <>✨ Premium</> // Icon for premium
+                         ) : isDownloading === resource._id ? (
+                           <>
+                             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                             </svg>
+                             Downloading...
+                           </> // Loading indicator
                          ) : (
                            <>⬇️ Download</> // Icon for download
                          )}
                        </button>
-                       {/* --- END: Button Style Change --- */}
                      </div>
                    </div>
                  </div>

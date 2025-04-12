@@ -709,6 +709,7 @@ export default function AdminDashboard() {
         {/* Forum Moderation Section */}
         {activeSection === 'moderation' && (
           <section className="transition-colors duration-300 animate-fadeIn">
+            {/* This line passes the prop. Ensure ForumModeration accepts it. */}
             <ForumModeration isPreviewMode={isPreviewMode} />
           </section>
         )}
@@ -718,7 +719,6 @@ export default function AdminDashboard() {
       {showQuizFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-            {/* Added p-6 back here, removed overflow-y-auto */}
             <div className="flex-grow p-6 overflow-y-auto">
               <QuizForm
                 initialQuizData={editingQuiz ? { ...editingQuiz, subject: typeof editingQuiz.subject === 'object' ? editingQuiz.subject._id : editingQuiz.subject } : null}
@@ -735,7 +735,6 @@ export default function AdminDashboard() {
       {showSubjectFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-             {/* Added p-6 back here, removed overflow-y-auto */}
             <div className="flex-grow p-6 overflow-y-auto">
               <SubjectForm
                 initialSubjectData={editingSubject}
@@ -752,7 +751,6 @@ export default function AdminDashboard() {
       {showResourceFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-             {/* Added p-6 back here, removed overflow-y-auto */}
             <div className="flex-grow p-6 overflow-y-auto">
               <ResourceForm
                 initialResourceData={editingResource ? { ...editingResource, subject: typeof editingResource.subject === 'object' ? editingResource.subject._id : editingResource.subject } : null}
@@ -770,7 +768,6 @@ export default function AdminDashboard() {
       {showCategoryFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-             {/* Added p-6 back here, removed overflow-y-auto */}
             <div className="flex-grow p-6 overflow-y-auto">
               <CategoryForm
                 initialCategoryData={editingCategory}

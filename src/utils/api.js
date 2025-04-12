@@ -128,7 +128,9 @@ const users = {
   getLeaderboard: () => api.get('/users/leaderboard'),
   getUserProfile: (userId) => api.get(`/users/${userId}`),
   updateUserProfile: (userId, data) => api.patch(`/users/${userId}`, data),
-  getUserProgress: (userId) => api.get(`/users/${userId}/progress`)
+  getUserProgress: (userId) => api.get(`/users/${userId}/progress`),
+  // *** ADDED FUNCTION ***
+  getActivityDates: (userId, params) => api.get(`/users/${userId}/activity-dates`, { params }) // params can include { month: 'YYYY-MM' }
 };
 
 const uploads = {
@@ -151,22 +153,22 @@ const forum = {
     addReply: (topicId, data) => api.post(`/forum/topics/${topicId}/replies`, data),
     voteReply: (replyId, voteType) => api.post(`/forum/replies/${replyId}/vote`, { vote: voteType }),
     markBestAnswer: (replyId) => api.patch(`/forum/replies/${replyId}/best`),
-    
+
     // Category management endpoints
     createCategory: (data) => api.post('/forum/categories', data),
     updateCategory: (id, data) => api.patch(`/forum/categories/${id}`, data),
     deleteCategory: (id) => api.delete(`/forum/categories/${id}`),
-    
+
     // Moderation endpoints - UPDATED to match backend routes
     getPendingTopics: (params) => api.get('/forum/moderation/pending-topics', { params }),
     getPendingReplies: (params) => api.get('/forum/moderation/pending-replies', { params }),
     approveTopic: (id) => api.patch(`/forum/moderation/topics/${id}/approve`),
-    rejectTopic: (id, reason) => api.delete(`/forum/moderation/topics/${id}/reject`, { 
-        data: { reason } 
+    rejectTopic: (id, reason) => api.delete(`/forum/moderation/topics/${id}/reject`, {
+        data: { reason }
     }),
     approveReply: (id) => api.patch(`/forum/moderation/replies/${id}/approve`),
-    rejectReply: (id, reason) => api.delete(`/forum/moderation/replies/${id}/reject`, { 
-        data: { reason } 
+    rejectReply: (id, reason) => api.delete(`/forum/moderation/replies/${id}/reject`, {
+        data: { reason }
     })
 };
 
@@ -177,7 +179,7 @@ const rewards = {
     create: (data) => api.post('/rewards', data),
     update: (id, data) => api.patch(`/rewards/${id}`, data),
     delete: (id) => api.delete(`/rewards/${id}`),
-    getUserRewards: (userId) => api.get(`/users/${userId}/rewards`)
+    getUserRewards: (userId) => api.get(`/users/${userId}/rewards`) // Assuming this exists or will be added
 };
 
 const achievements = {

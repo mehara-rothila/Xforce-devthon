@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -257,7 +258,7 @@ export default function Home() {
         {/* Background, Canvas, Equations, Shapes */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900 dark:from-purple-900 dark:via-purple-800 dark:to-indigo-950"></div>
         <canvas ref={canvasRef} className="absolute inset-0 z-0" style={{ opacity: 0.7 }}></canvas>
-        
+
         {/* --- ENHANCED Hero Floating Background Icons --- */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none select-none hero">
             {/* Mathematical symbols - Randomly placed with better opacity for hero */}
@@ -333,7 +334,7 @@ export default function Home() {
             <div className="absolute top-[40%] left-[55%] w-36 h-36 border-2 border-white/10 rounded-lg transform rotate-12 animate-float-reverse" style={{ animationDuration: '18s' }}></div>
             <div className="absolute bottom-[35%] right-[40%] w-28 h-28 border-2 border-white/10 rounded-full animate-pulse-slow" style={{ animationDuration: '12s' }}></div>
         </div>
-        
+
         {/* Hero Content (Keep as is) */}
          <div className="max-w-6xl mx-auto relative z-10">
            <div className="text-center">
@@ -394,13 +395,13 @@ export default function Home() {
          </div>
       </section>
 
-      {/* ========================== Features Section ========================== */}
+    {/* ========================== Features Section ========================== */}
 <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="features">
    {/* Decorative elements */}
    <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-purple-900/5 to-transparent dark:from-purple-900/10"></div>
    <div className="absolute left-0 top-1/4 w-64 h-64 bg-purple-300/10 dark:bg-purple-900/10 rounded-full filter blur-3xl"></div>
    <div className="absolute right-0 bottom-1/4 w-80 h-80 bg-indigo-300/10 dark:bg-indigo-900/10 rounded-full filter blur-3xl"></div>
-   
+
    {/* --- ENHANCED Features Floating Background Icons --- */}
    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
      {/* Mathematical symbols */}
@@ -474,8 +475,8 @@ export default function Home() {
        </svg>
      </div>
    </div>
-   
-   {/* Features Content (Keep as is) */}
+
+   {/* Features Content */}
     <div className="max-w-6xl mx-auto relative">
       <div className="text-center mb-20">
         <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">Engaging Features</h2>
@@ -484,320 +485,190 @@ export default function Home() {
           Our platform combines gamification, social learning, and AI to create an interactive learning experience that makes studying enjoyable and effective.
         </p>
       </div>
-      {/* Feature Cards Grid (Keep as is) */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-         {/* Card 1 */}
-         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0">
-             {/* ... card content ... */}
-             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-             </div>
-             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Gamified Quizzes</h3>
-             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Earn points, unlock badges, and compete on leaderboards while mastering complex concepts.</p>
-             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg><span>400+ interactive questions</span></div></div>
-         </div>
-         {/* Card 2 */}
-         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.1s'}}>
-             {/* ... card content ... */}
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
-             </div>
-             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Discussion Forums</h3>
-             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Collaborate with peers to solve problems and discuss concepts in subject-specific forums.</p>
-             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" /><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" /></svg><span>Expert teacher moderation</span></div></div>
-         </div>
-         {/* Card 3 */}
-         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.2s'}}>
-             {/* ... card content ... */}
-             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-             </div>
-             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">AI Recommendations</h3>
-             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Receive personalized study suggestions and focus on areas that need improvement.</p>
-             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg><span>Personalized learning paths</span></div></div>
-         </div>
-         {/* Card 4 */}
-         <div className="group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden animate-on-scroll opacity-0" style={{animationDelay: '0.3s'}}>
-            {/* ... card content ... */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-purple-300 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/30 transition-colors duration-500"></div>
-             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white mb-6 relative z-10 group-hover:from-purple-700 group-hover:to-purple-600 dark:group-hover:from-purple-600 dark:group-hover:to-purple-500 transition-all duration-500 shadow-lg">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-             </div>
-             <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-purple-400 transition-colors duration-300">Resource Library</h3>
-             <p className="text-gray-600 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300 mb-4">Access a comprehensive collection of past papers, notes, and study materials.</p>
-             <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg"><div className="flex items-center text-sm text-purple-700 dark:text-purple-300"><svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" /></svg><span>Updated exam resources</span></div></div>
-         </div>
-      </div>
-      {/* Premium Features Subsection (Keep as is) */}
-      <div className="mt-24 text-center">
-       <h3 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Premium Features</h3>
-       <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 mb-12">Enhance your learning experience with these advanced tools and resources.</p>
-       <div className="grid md:grid-cols-3 gap-8 mt-12">
-         {/* Premium Card 1 */}
-         <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0">
-           <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></div>
-           <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Video Lessons</h4>
-           <p className="text-gray-700 dark:text-gray-300 mb-4">Access high-quality video explanations for complex topics with step-by-step walkthroughs.</p>
-           <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
-         </div>
-         {/* Premium Card 2 */}
-          <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0" style={{animationDelay: '0.1s'}}>
-           <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
-           <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Virtual Labs</h4>
-           <p className="text-gray-700 dark:text-gray-300 mb-4">Interactive simulations for physics and chemistry experiments to enhance practical understanding.</p>
-           <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
-         </div>
-         {/* Premium Card 3 */}
-         <div className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 rounded-xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 animate-on-scroll opacity-0" style={{animationDelay: '0.2s'}}>
-           <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-           <h4 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Expert Q&A</h4>
-           <p className="text-gray-700 dark:text-gray-300 mb-4">Direct access to qualified teachers for personalized help with challenging concepts and problems.</p>
-           <span className="inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium">Premium Only</span>
+     {/* Feature Cards Grid - ENHANCED STYLING */}
+<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+   {/* Card 1 */}
+   <div className="feature-card group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden feature-card-animate flex flex-col h-full">
+       {/* Decorative elements */}
+       <div className="card-decoration absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10"></div>
+       
+       {/* Icon Container */}
+       <div className="mb-6 relative z-10 h-20 flex items-start">
+         <div className="card-icon w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white transition-all duration-500 shadow-lg">
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
          </div>
        </div>
-      </div>
-    </div>
+       
+       {/* Content Container */}
+       <div className="card-content flex flex-col flex-grow z-10">
+         <h3 className="card-title text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 transition-all duration-300">Gamified Quizzes</h3>
+         
+         <p className="card-description text-gray-600 dark:text-gray-400 transition-all duration-300 mb-6 flex-grow">Earn points, unlock badges, and compete on leaderboards while mastering complex concepts.</p>
+         
+         {/* Badge */}
+         <div className="card-badge bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg mt-auto transition-all duration-300">
+           <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+               <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+             </svg>
+             <span>400+ interactive questions</span>
+           </div>
+         </div>
+       </div>
+   </div>
+   
+   {/* Card 2 */}
+   <div className="feature-card group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden feature-card-animate flex flex-col h-full">
+       {/* Decorative elements */}
+       <div className="card-decoration absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10"></div>
+       
+       {/* Icon Container */}
+       <div className="mb-6 relative z-10 h-20 flex items-start">
+         <div className="card-icon w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white transition-all duration-500 shadow-lg">
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+         </div>
+       </div>
+       
+       {/* Content Container */}
+       <div className="card-content flex flex-col flex-grow z-10">
+         <h3 className="card-title text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 transition-all duration-300">Discussion Forums</h3>
+         
+         <p className="card-description text-gray-600 dark:text-gray-400 transition-all duration-300 mb-6 flex-grow">Collaborate with peers to solve problems and discuss concepts in subject-specific forums.</p>
+         
+         {/* Badge */}
+         <div className="card-badge bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg mt-auto transition-all duration-300">
+           <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+               <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+               <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+             </svg>
+             <span>Expert teacher moderation</span>
+           </div>
+         </div>
+       </div>
+   </div>
+   
+   {/* Card 3 */}
+   <div className="feature-card group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden feature-card-animate flex flex-col h-full">
+       {/* Decorative elements */}
+       <div className="card-decoration absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10"></div>
+       
+       {/* Icon Container */}
+       <div className="mb-6 relative z-10 h-20 flex items-start">
+         <div className="card-icon w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white transition-all duration-500 shadow-lg">
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+         </div>
+       </div>
+       
+       {/* Content Container */}
+       <div className="card-content flex flex-col flex-grow z-10">
+         <h3 className="card-title text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 transition-all duration-300">AI Recommendations</h3>
+         
+         <p className="card-description text-gray-600 dark:text-gray-400 transition-all duration-300 mb-6 flex-grow">Receive personalized study suggestions and focus on areas that need improvement.</p>
+         
+         {/* Badge */}
+         <div className="card-badge bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg mt-auto transition-all duration-300">
+           <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+               <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+             </svg>
+             <span>Personalized learning paths</span>
+           </div>
+         </div>
+       </div>
+   </div>
+   
+   {/* Card 4 */}
+   <div className="feature-card group bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-game dark:shadow-md dark:hover:shadow-game-dark transition-all duration-500 border border-gray-100 dark:border-gray-700 hover:border-purple-100 dark:hover:border-purple-800 relative overflow-hidden feature-card-animate flex flex-col h-full">
+       {/* Decorative elements */}
+       <div className="card-decoration absolute top-0 right-0 w-24 h-24 bg-purple-100 dark:bg-purple-900/30 rounded-full -mr-10 -mt-10"></div>
+       
+       {/* Icon Container */}
+       <div className="mb-6 relative z-10 h-20 flex items-start">
+         <div className="card-icon w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 dark:from-purple-700 dark:to-purple-600 rounded-lg flex items-center justify-center text-white transition-all duration-500 shadow-lg">
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+         </div>
+       </div>
+       
+       {/* Content Container */}
+       <div className="card-content flex flex-col flex-grow z-10">
+         <h3 className="card-title text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100 transition-all duration-300">Resource Library</h3>
+         
+         <p className="card-description text-gray-600 dark:text-gray-400 transition-all duration-300 mb-6 flex-grow">Access a comprehensive collection of past papers, notes, and study materials.</p>
+         
+         {/* Badge */}
+         <div className="card-badge bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg mt-auto transition-all duration-300">
+           <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+               <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+             </svg>
+             <span>Updated exam resources</span>
+           </div>
+         </div>
+       </div>
+   </div>
+</div>
+     {/* Premium Features Subsection - ENHANCED */}
+<div className="mt-24 text-center">
+ <h3 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">Premium Features</h3>
+ <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 mb-12">Enhance your learning experience with these advanced tools and resources.</p>
+ 
+ {/* Premium Cards - ENHANCED */}
+ <div className="grid md:grid-cols-3 gap-8 mt-12">
+   {/* Premium Card 1 */}
+   <div className="premium-card rounded-xl p-8 shadow-xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 premium-card-animate flex flex-col h-full">
+     {/* Icon Container */}
+     <div className="premium-icon bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+       </svg>
+     </div>
+     
+     {/* Content */}
+     <div className="flex flex-col flex-grow">
+       <h4 className="premium-title text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Video Lessons</h4>
+       <p className="premium-description text-gray-700 dark:text-gray-300 mb-6 flex-grow">Access high-quality video explanations for complex topics with step-by-step walkthroughs.</p>
+       <span className="premium-badge inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium mt-auto">Premium Only</span>
+     </div>
+   </div>
+   
+   {/* Premium Card 2 */}
+   <div className="premium-card rounded-xl p-8 shadow-xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 premium-card-animate flex flex-col h-full">
+     {/* Icon Container */}
+     <div className="premium-icon bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+       </svg>
+     </div>
+     
+     {/* Content */}
+     <div className="flex flex-col flex-grow">
+       <h4 className="premium-title text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Virtual Labs</h4>
+       <p className="premium-description text-gray-700 dark:text-gray-300 mb-6 flex-grow">Interactive simulations for physics and chemistry experiments to enhance practical understanding.</p>
+       <span className="premium-badge inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium mt-auto">Premium Only</span>
+     </div>
+   </div>
+   
+   {/* Premium Card 3 */}
+   <div className="premium-card rounded-xl p-8 shadow-xl transition-all duration-300 border border-purple-100 dark:border-purple-800/50 premium-card-animate flex flex-col h-full">
+     {/* Icon Container */}
+     <div className="premium-icon bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
+       <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+     </div>
+     
+     {/* Content */}
+     <div className="flex flex-col flex-grow">
+       <h4 className="premium-title text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Expert Q&A</h4>
+       <p className="premium-description text-gray-700 dark:text-gray-300 mb-6 flex-grow">Direct access to qualified teachers for personalized help with challenging concepts and problems.</p>
+       <span className="premium-badge inline-block px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 rounded-full text-sm font-medium mt-auto">Premium Only</span>
+     </div>
+   </div>
+ </div>
+</div>
+</div>
 </section>
-
-{/* ========================== Subjects Section ========================== */}
-<section className="py-24 px-6 bg-gray-50 dark:bg-gray-800 relative scroll-mt-16">
-  {/* Background elements */}
-  <div className="absolute inset-0 bg-gradient-to-b from-white dark:from-gray-900 to-gray-50 dark:to-gray-800"></div>
-  <div className="absolute left-0 top-1/3 w-72 h-72 bg-blue-200/20 dark:bg-blue-900/10 rounded-full filter blur-3xl"></div>
-  <div className="absolute right-0 bottom-1/3 w-72 h-72 bg-green-200/20 dark:bg-green-900/10 rounded-full filter blur-3xl"></div>
-  
-  {/* --- ENHANCED Subjects Floating Background Icons --- */}
-  <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-       {/* Mathematical symbols - New additions */}
-       <div className="absolute top-[10%] left-[60%] text-amber-500/15 dark:text-amber-400/5 text-7xl floating-icon">µ</div>
-       <div className="absolute top-[65%] right-[20%] text-lime-500/15 dark:text-lime-400/5 text-9xl floating-icon-reverse">Δ</div>
-       <div className="absolute top-[35%] left-[5%] text-teal-500/15 dark:text-teal-400/5 text-8xl floating-icon-slow">Σ</div>
-       <div className="absolute bottom-[10%] left-[35%] text-fuchsia-500/15 dark:text-fuchsia-400/5 text-10xl floating-icon">Π</div>
-       <div className="absolute top-[50%] left-[45%] text-orange-500/15 dark:text-orange-400/5 text-7xl floating-icon-reverse">λ</div>
-       <div className="absolute bottom-[55%] right-[5%] text-red-500/15 dark:text-red-400/5 text-9xl floating-icon-slow">∇</div>
-       
-       {/* Additional math symbols */}
-       <div className="absolute top-[15%] right-[40%] text-violet-500/15 dark:text-violet-400/5 text-8xl floating-icon">Ψ</div>
-       <div className="absolute top-[75%] left-[20%] text-sky-500/15 dark:text-sky-400/5 text-9xl floating-icon-reverse">ξ</div>
-       <div className="absolute bottom-[40%] left-[50%] text-emerald-500/15 dark:text-emerald-400/5 text-10xl floating-icon-slow">φ</div>
-       <div className="absolute top-[5%] left-[25%] text-indigo-500/15 dark:text-indigo-400/5 text-7xl floating-icon">τ</div>
-       
-       {/* Science formulas */}
-       <div className="absolute top-[25%] right-[15%] text-cyan-500/15 dark:text-cyan-400/5 text-5xl floating-icon-slow">F = kx</div><div className="absolute top-[25%] right-[15%] text-cyan-500/15 dark:text-cyan-400/5 text-5xl floating-icon-slow">F = kx</div>
-       <div className="absolute bottom-[25%] right-[30%] text-rose-500/15 dark:text-rose-400/5 text-5xl floating-icon">Pₚ = mv</div>
-       <div className="absolute top-[45%] right-[50%] text-purple-500/15 dark:text-purple-400/5 text-5xl floating-icon-reverse">∮E·dl = -dΦ/dt</div>
-       <div className="absolute bottom-[60%] left-[25%] text-amber-500/15 dark:text-amber-400/5 text-4xl floating-icon-slow">T = 2π√(l/g)</div>
-       <div className="absolute top-[75%] right-[8%] text-lime-500/15 dark:text-lime-400/5 text-5xl floating-icon">W = F·d</div>
-
-       {/* Science icons */}
-       <div className="absolute top-[25%] left-[15%] opacity-15 dark:opacity-5 floating-icon-slow">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-purple-500 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-           </svg>
-       </div>
-       <div className="absolute bottom-[30%] left-[15%] opacity-15 dark:opacity-5 floating-icon">
-           <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-           </svg>
-       </div>
-       
-       {/* Additional science icons */}
-       <div className="absolute top-[55%] right-[10%] opacity-15 dark:opacity-5 floating-icon-reverse">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-          </svg>
-       </div>
-       <div className="absolute bottom-[15%] right-[25%] opacity-15 dark:opacity-5 floating-icon-slow">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-          </svg>
-       </div>
-  </div>
-  {/* --- End Subjects Floating Icons --- */}
-
-  <div className="max-w-6xl mx-auto relative z-10">
-    <div className="text-center mb-16">
-      <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-900 to-purple-600 dark:from-purple-400 dark:to-purple-300 inline-block">Explore Subjects</h2>
-      <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-purple-400 mx-auto mb-6 rounded-full"></div>
-      <p className="max-w-3xl mx-auto text-gray-600 dark:text-gray-300 text-xl leading-relaxed">
-        Prepare for your A/L exams with comprehensive materials tailored to the Sri Lankan curriculum.
-      </p>
-    </div>
-
-    {/* Loading State */}
-    {loadingSubjects && (
-      <div className="text-center py-10">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-3"></div>
-        <p className="text-gray-600 dark:text-gray-300">Loading subjects...</p>
-      </div>
-    )}
-
-    {/* Error State */}
-    {subjectError && !loadingSubjects && (
-      <div className="text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg">
-        <div className="text-red-500 text-3xl mb-3">⚠️</div>
-        <p className="text-red-700 dark:text-red-300">{subjectError}</p>
-      </div>
-    )}
-
-    {/* ===================== START: Readability Enhanced Subject Cards Grid ===================== */}
-    {!loadingSubjects && !subjectError && Array.isArray(subjects) && subjects.length > 0 && (
-      <div className="grid md:grid-cols-3 gap-10">
-        {subjects.slice(0, 3).map((subject, index) => { // Added index for potential animation delay
-          const safeColor = cleanColor(subject.color);
-          const safeGradientFrom = cleanColor(subject.gradientFrom, safeColor);
-          const safeGradientTo = cleanColor(subject.gradientTo, safeColor);
-          // Dynamic border color on hover (using inline style for robustness via CSS vars)
-          const hoverBorderStyle = { '--hover-border-color': `${safeColor}80`, '--dark-hover-border-color': `${safeColor}B3` } as React.CSSProperties; // ~50% & ~70% opacity hex
-
-
-          return (
-            <div
-              key={subject._id}
-              className="subject-card animate-on-scroll group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-400 border border-gray-200 dark:border-gray-700 hover:border-transparent" // Base styles
-              style={{ animationDelay: `${index * 0.1}s`, ...hoverBorderStyle } } // Add animation delay & CSS vars
-            >
-              {/* Subtle Gradient Background on Hover Only */}
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500"
-                style={{
-                  background: `linear-gradient(135deg, ${safeGradientFrom}, ${safeGradientTo})`,
-                  backgroundSize: '200% 200%', // Slower animation
-                  animation: 'gradient-animate 15s ease infinite'
-                }}
-              />
-
-              {/* Hover Border Effect using Pseudo-element */}
-              <div className="card-hover-border absolute inset-[-1px] rounded-2xl border-2 border-transparent transition-colors duration-400 pointer-events-none"></div>
-
-              {/* Icon Container */}
-              <div className="flex justify-center pt-10 mb-[-48px]"> {/* Negative margin pulls content up slightly */}
-                <div
-                  className="subject-icon-container relative z-10 w-28 h-28 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800 transition-transform duration-400 group-hover:scale-110"
-                  style={{
-                    background: `linear-gradient(to bottom right, ${safeGradientFrom}, ${safeGradientTo})`,
-                    boxShadow: `0 8px 16px -3px ${safeColor}33` // ~20% opacity
-                  }}
-                >
-                  {/* Icon with contrasting color */}
-                  <SubjectIcon iconName={subject.icon || 'book'} color="white" />
-                </div>
-              </div>
-
-              {/* Content Area */}
-              <div className="pt-20 pb-8 px-8 relative z-0 text-center"> {/* pt increased to clear icon */}
-                 {/* Subject Name - Moved Here */}
-                <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-100 transition-colors duration-300">
-                  {subject.name}
-                </h3>
-
-                {/* Description */}
-                <p className="text-gray-600 dark:text-gray-400 mb-6 line-clamp-3 min-h-[72px]"> {/* Min-height for alignment */}
-                  {subject.description}
-                </p>
-
-                {/* Topics Section */}
-                <div className="space-y-3 mb-8 text-left"> {/* Ensure topics list is left-aligned */}
-                  {Array.isArray(subject.topics) && subject.topics.length > 0 ? (
-                    subject.topics.slice(0, 3).map(topic => (
-                      <div
-                        key={topic._id || topic.name}
-                        className="flex items-center text-sm text-gray-700 dark:text-gray-300 group/topic transition-colors duration-300 hover:text-purple-600 dark:hover:text-purple-400"
-                      >
-                        {/* Checkmark Circle */}
-                        <div
-                          className="w-5 h-5 rounded-full flex items-center justify-center mr-3 flex-shrink-0 transition-colors duration-300"
-                          style={{
-                            backgroundColor: `${safeColor}33`, // ~20% opacity
-                            color: safeColor
-                          }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        {/* Apply hover translate only to the text span */}
-                        <span className="truncate transition-transform duration-300 group-hover/topic:translate-x-1">{topic.name || 'Unnamed Topic'}</span>
-                      </div>
-                    ))
-                  ) : (
-                    /* Placeholder if no topics */
-                     <div className="min-h-[72px] flex items-center"> {/* Match height of topic list area */}
-                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">Key topics coming soon.</p>
-                     </div>
-                   )}
-                </div>
-
-                {/* Explore Link */}
-                <Link
-                  href={`/subjects/${subject._id}`}
-                  className="inline-flex items-center group/link relative font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors duration-300"
-                >
-                  <span className="relative">
-                    Explore {subject.name}
-                    {/* Animated Underline */}
-                    <span
-                      className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 dark:bg-purple-400 origin-left transform scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300"
-                    />
-                  </span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 ml-1.5 transition-transform group-hover/link:translate-x-1 duration-300"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    )}
-     {/* ===================== END: Readability Enhanced Subject Cards Grid ===================== */}
-
-
-     {/* No Subjects Found State */}
-     {!loadingSubjects && !subjectError && (!Array.isArray(subjects) || subjects.length === 0) && (
-       <div className="text-center py-10 max-w-md mx-auto bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800 shadow-lg">
-         <div className="text-yellow-500 text-3xl mb-3">🤔</div>
-         <p className="text-yellow-700 dark:text-yellow-300">No subjects found. Check back later!</p>
-       </div>
-     )}
-
-
-    {/* View All Subjects Button */}
-    <div className="text-center mt-12">
-      <Link
-        href="/subjects"
-        className="inline-flex items-center justify-center px-8 py-3 font-medium bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-full shadow-lg hover:shadow-purple-500/20 transition-all duration-300 transform hover:scale-105 text-lg group"
-      >
-        View All Subjects
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" // Group hover effect
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-            clipRule="evenodd"
-          />
-        </svg>
-      </Link>
-    </div>
-  </div>
-</section>
-
 
 {/* ========================== Testimonials Section ========================== */}
 <section className="py-24 px-6 bg-white dark:bg-gray-900 scroll-mt-16 relative" id="testimonials">
@@ -825,7 +696,7 @@ export default function Home() {
      <div className="absolute top-[61%] right-[15%] text-emerald-500/20 dark:text-emerald-400/10 text-6xl floating-icon">V=IR</div>
      <div className="absolute bottom-[25%] right-[35%] text-orange-500/20 dark:text-orange-400/10 text-5xl floating-icon-reverse">E=hf</div>
      <div className="absolute top-[80%] left-[30%] text-rose-500/20 dark:text-rose-400/10 text-5xl floating-icon-slow">C₆H₁₂O₆</div>
-     
+
      {/* New science formulas */}
      <div className="absolute top-[18%] left-[45%] text-indigo-500/20 dark:text-indigo-400/10 text-5xl floating-icon">ΔG = ΔH - TΔS</div>
      <div className="absolute bottom-[65%] right-[25%] text-rose-500/20 dark:text-rose-400/10 text-5xl floating-icon-reverse">F = qvB</div>
@@ -843,7 +714,7 @@ export default function Home() {
          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
        </svg>
      </div>
-     
+
      {/* New science icons */}
      <div className="absolute top-[45%] left-[35%] opacity-20 dark:opacity-10 floating-icon-slow">
        <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-emerald-500 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -856,7 +727,7 @@ export default function Home() {
        </svg>
      </div>
    </div>
-   
+
    {/* Testimonials Content (Keep as is) */}
     <div className="max-w-6xl mx-auto relative z-10">
       <div className="text-center mb-16">
@@ -916,7 +787,7 @@ export default function Home() {
    <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white/10 to-transparent"></div>
    <div className="absolute left-0 top-1/4 w-80 h-80 bg-white/5 rounded-full filter blur-3xl"></div>
    <div className="absolute right-0 bottom-1/4 w-64 h-64 bg-white/5 rounded-full filter blur-3xl"></div>
-   
+
    {/* --- ENHANCED Stats Floating Background Icons --- */}
    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
      {/* Stats elements */}
@@ -926,7 +797,7 @@ export default function Home() {
      <div className="absolute bottom-[10%] right-[30%] text-white/10 text-9xl floating-icon-slow">💯</div>
      <div className="absolute top-[15%] right-[25%] text-white/10 text-7xl floating-icon">📈</div>
      <div className="absolute bottom-[50%] left-[5%] text-white/10 text-8xl floating-icon-reverse">✔️</div>
-     
+
      {/* New stats elements */}
      <div className="absolute top-[35%] right-[8%] text-white/10 text-7xl floating-icon-slow">87%</div>
      <div className="absolute bottom-[15%] left-[25%] text-white/10 text-6xl floating-icon">+50%</div>
@@ -934,14 +805,14 @@ export default function Home() {
      <div className="absolute bottom-[60%] right-[40%] text-white/10 text-7xl floating-icon-slow">📝</div>
      <div className="absolute top-[60%] right-[60%] text-white/10 text-9xl floating-icon">🔍</div>
      <div className="absolute bottom-[25%] right-[55%] text-white/10 text-6xl floating-icon-reverse">🧠</div>
-     
+
      {/* Mathematical symbols */}
      <div className="absolute top-[45%] left-[15%] text-white/10 text-8xl floating-icon-slow">∑</div>
      <div className="absolute bottom-[40%] right-[20%] text-white/10 text-7xl floating-icon">∫</div>
      <div className="absolute top-[75%] left-[50%] text-white/10 text-6xl floating-icon-reverse">π</div>
      <div className="absolute top-[28%] right-[45%] text-white/10 text-9xl floating-icon-slow">√</div>
    </div>
-   
+
    {/* Stats Content (Keep as is) */}
    <div className="max-w-6xl mx-auto px-6 relative z-10">
      <div className="text-center mb-16">
@@ -975,18 +846,18 @@ export default function Home() {
    <div className="absolute inset-0 bg-dots-pattern opacity-10 mix-blend-overlay"></div>
    <div className="absolute left-0 top-0 w-1/2 h-full bg-gradient-to-r from-purple-900/0 via-purple-900/20 to-transparent filter blur-3xl"></div>
    <div className="absolute right-0 bottom-0 w-1/2 h-1/2 bg-gradient-to-t from-indigo-900/20 to-transparent filter blur-3xl"></div>
-    
+
    {/* --- ENHANCED CTA Floating Background Icons --- */}
    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
      <div className="absolute top-[20%] left-[5%] w-24 h-24 bg-white/5 rounded-full animate-float" style={{ animationDuration: '15s' }}></div>
      <div className="absolute bottom-[20%] right-[10%] w-32 h-32 bg-white/5 rounded-full animate-float" style={{ animationDuration: '18s', animationDelay: '2s' }}></div>
      <div className="absolute top-[50%] right-[20%] w-16 h-16 bg-white/5 rounded-lg transform rotate-45 animate-float" style={{ animationDuration: '12s', animationDelay: '1s' }}></div>
-     
+
      {/* Additional CTA elements */}
      <div className="absolute top-[10%] right-[35%] w-48 h-48 bg-white/5 rounded-full animate-float-reverse" style={{ animationDuration: '20s' }}></div>
      <div className="absolute bottom-[35%] left-[15%] w-40 h-40 bg-white/5 rounded-full animate-float" style={{ animationDuration: '16s', animationDelay: '3s' }}></div>
      <div className="absolute top-[60%] left-[30%] w-20 h-20 bg-white/5 rounded-lg transform rotate-12 animate-float-reverse" style={{ animationDuration: '14s', animationDelay: '1.5s' }}></div>
-      
+
       {/* Emoji and icons */}
       <div className="absolute top-[30%] left-[45%] text-white/5 text-6xl floating-icon-reverse">🚀</div>
       <div className="absolute bottom-[10%] left-[55%] text-white/5 text-8xl floating-icon">🎓</div>
@@ -994,14 +865,14 @@ export default function Home() {
       <div className="absolute bottom-[40%] right-[30%] text-white/5 text-6xl floating-icon-reverse">💡</div>
       <div className="absolute top-[75%] right-[45%] text-white/5 text-7xl floating-icon">✨</div>
       <div className="absolute bottom-[15%] left-[25%] text-white/5 text-8xl floating-icon-slow">📚</div>
-      
+
       {/* Mathematical symbols and formulas */}
       <div className="absolute top-[25%] left-[15%] text-white/5 text-9xl floating-icon">∞</div>
       <div className="absolute bottom-[30%] right-[10%] text-white/5 text-8xl floating-icon-reverse">∑</div>
       <div className="absolute top-[55%] right-[25%] text-white/5 text-7xl floating-icon-slow">E=mc²</div>
       <div className="absolute bottom-[55%] left-[40%] text-white/5 text-6xl floating-icon">F=ma</div>
    </div>
-   
+
    {/* CTA Content & Form (Keep as is) */}
    <div className="max-w-6xl mx-auto relative z-10">
      <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -1016,7 +887,7 @@ export default function Home() {
             <div className="flex items-start"><div className="bg-purple-700/50 rounded-full p-2 mr-4 flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><div><h3 className="text-xl font-semibold mb-1">Community Support</h3><p className="text-purple-100">Connect with peers and experts to solve problems together.</p></div></div>
          </div>
        </div>
-      
+
       {/* Continuing with CTA Section Registration Form */}
 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 shadow-2xl border border-white/20 animate-on-scroll opacity-0">
   <h3 className="text-2xl font-bold mb-6 text-center">Get Started For Free</h3>
@@ -1097,7 +968,7 @@ export default function Home() {
          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
      </svg>
    </div>
-   
+
    {/* New science icons */}
    <div className="absolute top-[60%] left-[10%] opacity-20 dark:opacity-10 floating-icon">
      <svg xmlns="http://www.w3.org/2000/svg" className="h-28 w-28 text-violet-500 dark:text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1136,7 +1007,7 @@ export default function Home() {
   <div className="absolute inset-0 bg-dots-pattern opacity-5 mix-blend-overlay"></div>
   <div className="absolute left-0 bottom-0 w-96 h-96 bg-purple-900/30 rounded-full filter blur-3xl opacity-50"></div>
   <div className="absolute right-0 top-0 w-80 h-80 bg-indigo-900/20 rounded-full filter blur-3xl opacity-50"></div>
-  
+
   {/* --- ENHANCED Footer Floating Background Icons --- */}
   <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
      {/* Mathematical symbols */}
@@ -1167,7 +1038,7 @@ export default function Home() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
          </svg>
      </div>
-     
+
      {/* New science icons */}
      <div className="absolute top-[35%] left-[5%] opacity-5 floating-icon">
          <svg xmlns="http://www.w3.org/2000/svg" className="h-32 w-32 text-amber-500 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1180,7 +1051,7 @@ export default function Home() {
          </svg>
      </div>
    </div>
-  
+
   {/* Footer Content (Keep as is) */}
    <div className="max-w-6xl mx-auto relative z-10">
      <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
@@ -1262,80 +1133,80 @@ export default function Home() {
         /* General Animations (Enhanced with new effects) */
         .text-10xl { font-size: 9rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
         .text-11xl { font-size: 10rem; text-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-        
+
         /* Enhanced floating effects for math symbols and icons */
-        .floating-icon { 
+        .floating-icon {
           animation: float 6s ease-in-out infinite;
           filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
           will-change: transform;
         }
-        .floating-icon-reverse { 
+        .floating-icon-reverse {
           animation: float-reverse 7s ease-in-out infinite;
           filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
           will-change: transform;
         }
-        .floating-icon-slow { 
+        .floating-icon-slow {
           animation: float 10s ease-in-out infinite;
           filter: drop-shadow(0 10px 8px rgba(0,0,0,0.04)) drop-shadow(0 4px 3px rgba(0,0,0,0.1));
           will-change: transform;
         }
-        
+
         /* Enhanced float animations with more movement */
-        @keyframes float { 
-          0% { transform: translateY(0px) rotate(0deg); } 
-          50% { transform: translateY(-15px) rotate(3deg); } 
-          100% { transform: translateY(0px) rotate(0deg); } 
+        @keyframes float {
+          0% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(3deg); }
+          100% { transform: translateY(0px) rotate(0deg); }
         }
-        @keyframes float-reverse { 
-          0% { transform: translateY(0) rotate(0deg) scale(1); } 
-          50% { transform: translateY(15px) rotate(-5deg) scale(1.03); } 
-          100% { transform: translateY(0) rotate(0deg) scale(1); } 
+        @keyframes float-reverse {
+          0% { transform: translateY(0) rotate(0deg) scale(1); }
+          50% { transform: translateY(15px) rotate(-5deg) scale(1.03); }
+          100% { transform: translateY(0) rotate(0deg) scale(1); }
         }
-        
+
         /* Fade-in animations */
         .animate-fadeIn { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fadeInUp { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        
+
         /* Rotation animations */
         .animate-rotate-slow { animation: rotate-slow 20s linear infinite; }
         @keyframes rotate-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
+
         /* Pulse animations */
         .animate-pulse-slow { animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse-slow { 0%, 100% { opacity: 0.7; } 50% { opacity: 0.3; } }
         .dark .animate-pulse-slow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.2; } }
         .hero .animate-pulse-slow { animation: pulse-slow-hero 6s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse-slow-hero { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.05; } }
-        
+
         /* Scroll animations */
-        .animate-on-scroll { 
-          opacity: 0; 
-          transform: translateY(20px); 
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out; 
-          will-change: opacity, transform; 
+        .animate-on-scroll {
+          opacity: 0;
+          transform: translateY(20px);
+          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+          will-change: opacity, transform;
         }
-        
+
         /* Shadow effects */
         .shadow-game { box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.1), 0 4px 6px -4px rgba(147, 51, 234, 0.1); }
         .dark .shadow-game-dark { box-shadow: 0 10px 15px -3px rgba(107, 33, 168, 0.3), 0 4px 6px -4px rgba(107, 33, 168, 0.3); }
-        
+
         /* Background patterns */
-        .bg-dots-pattern { 
-          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px); 
-          background-size: 15px 15px; 
+        .bg-dots-pattern {
+          background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+          background-size: 15px 15px;
         }
-        .dark .bg-dots-pattern { 
-          background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px); 
+        .dark .bg-dots-pattern {
+          background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
         }
-        
+
         /* Text utilities */
         .line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
         .line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
         .line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 
-        /* ================= START: Readability Enhanced Subject Card Styles ================= */
+        /* ================= START: Subject Card Styles (Solution 1 Applied) ================= */
         /* Gradient animation (Slower) */
         @keyframes gradient-animate {
           0% { background-position: 0% 50%; }
@@ -1348,6 +1219,7 @@ export default function Home() {
           /* perspective: 1000px; Remove if not doing 3D tilt */
           will-change: transform, box-shadow; /* Optimize rendering for hover */
           position: relative; /* Needed for pseudo-elements */
+          /* Fixed height and flex applied via className */
         }
 
         /* Icon container hover - just scale */
@@ -1365,7 +1237,7 @@ export default function Home() {
         .dark .subject-card:hover .card-hover-border {
             border-color: var(--dark-hover-border-color, #4b5563); /* Use dark variable */
         }
-        /* ================== END: Readability Enhanced Subject Card Styles ================== */
+        /* ================== END: Subject Card Styles (Solution 1 Applied) ================== */
 
       `}</style>
     </main>

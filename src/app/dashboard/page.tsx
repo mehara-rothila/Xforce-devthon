@@ -282,6 +282,7 @@ const renderTabContent = () => {
                     <RecommendationsSection />
 
                     {/* --- Recent Activity Section --- */}
+                    {/* Ensure the outer container has the correct background */}
                     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-900/10 border border-gray-100 dark:border-gray-700">
                         <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
                             <div className="flex items-center">
@@ -291,13 +292,15 @@ const renderTabContent = () => {
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Activity</h2>
                             </div>
                         </div>
-                        <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-96 overflow-y-auto">
+                        {/* Ensure the list container also has the correct background */}
+                        <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-96 overflow-y-auto bg-white dark:bg-gray-800">
                             {isLoadingActivity && ( <div className="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">Loading activity...</div> )}
                             {errorActivity && !isLoadingActivity && ( <div className="px-6 py-5 text-center text-sm text-red-500 dark:text-red-400">Could not load activity: {errorActivity}</div> )}
                             {!isLoadingActivity && !errorActivity && (!activityData || activityData.length === 0) && ( <div className="px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">No recent activity found.</div> )}
                             {!isLoadingActivity && !errorActivity && activityData && activityData.length > 0 && (
                                 activityData.map((activity) => (
-                                    <div key={activity.id} className="px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
+                                    // Apply bg-white dark:bg-gray-800 to each item
+                                    <div key={activity.id} className="px-6 py-5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors duration-150">
                                         <div className="relative pl-11">
                                             <ActivityIcon type={activity.type} />
                                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
@@ -696,16 +699,14 @@ return (
             .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
             /* Ensure content cards have slightly transparent backgrounds to see animation */
-            .bg-white.dark\\:bg-gray-800 {
-                background-color: rgba(255, 255, 255, 0.9); /* Light mode with slight transparency */
-            }
-            .dark .bg-white.dark\\:bg-gray-800 {
-                background-color: rgba(31, 41, 55, 0.9); /* Dark mode with slight transparency (adjust gray-800 RGB if needed) */
-            }
-            /* Apply similar transparency to other main content cards if needed */
-            .bg-gradient-to-br.from-indigo-600 { /* Welcome Banner */
-               /* Might need specific rgba values for gradients */
-            }
+            /* Updated: Use more specific selectors if needed, but the direct class application should work */
+            /* .bg-white.dark\\:bg-gray-800 {
+                background-color: rgba(255, 255, 255, 0.9) !important; /* Light mode with slight transparency */
+            /* } */
+            /* .dark .bg-white.dark\\:bg-gray-800 {
+                background-color: rgba(31, 41, 55, 0.9) !important; /* Dark mode with slight transparency (adjust gray-800 RGB if needed) */
+            /* } */
+
             /* Adjust sidebar background for transparency */
              .bg-white\\/90 { background-color: rgba(255, 255, 255, 0.9); }
              .dark\\:bg-gray-800\\/90 { background-color: rgba(31, 41, 55, 0.9); } /* Adjust dark mode color if needed */
@@ -713,6 +714,15 @@ return (
              /* Adjust main content area background for transparency */
              .bg-white\\/50 { background-color: rgba(255, 255, 255, 0.5); }
              .dark\\:bg-gray-800\\/50 { background-color: rgba(31, 41, 55, 0.5); } /* Adjust dark mode color if needed */
+
+             /* Ensure the specific activity items and their container have solid backgrounds */
+             /* The Tailwind classes added directly should handle this, but this is a fallback if needed */
+             /* .recent-activity-container > div {
+                background-color: white;
+             }
+             .dark .recent-activity-container > div {
+                background-color: #1f2937; /* bg-gray-800 */
+             /* } */
 
         `}</style>
 

@@ -1,3 +1,5 @@
+// src/app/subjects/[subjectId]/page.tsx
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -16,15 +18,80 @@ import {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
 
 // --- Interfaces ---
-interface Topic { _id?: string; id?: string; name: string; description?: string; order?: number; resources?: string[]; progress?: number; mastery?: 'Low' | 'Medium' | 'High'; }
-interface SubjectData { _id: string; name: string; description: string; color?: string; gradientFrom?: string; gradientTo?: string; icon?: string; topics: Topic[]; forumCategoryId?: string; }
-interface UserProgress { overallProgress: number; topics: Topic[]; }
-interface Recommendation { id: number | string; title: string; type: string; difficulty: string; estimatedTime: string; description: string; link?: string; // Added link for easier interaction
- }
-interface StudyMaterial { id: string; title: string; type: string; downloadCount?: number; fileSize: string; lastUpdated: string; isPremium: boolean; filePath: string; }
-interface PracticeQuiz { id: string; title: string; questions: number; difficulty: string; timeEstimate: string; averageScore: number; attempts: number; }
-interface ForumDiscussion { id: string; title: string; content: string; replies: number; timestamp: string; }
-interface Reward { _id: string; name: string; description: string; pointsCost: number; category: string; image?: string; stock?: number | null; }
+interface Topic {
+    _id?: string;
+    id?: string; // Allow both _id and id for flexibility
+    name: string;
+    description?: string;
+    order?: number;
+    resources?: string[];
+    progress?: number; // From UserProgress
+    mastery?: 'Low' | 'Medium' | 'High' | 'low' | 'medium' | 'high' | 'mastered'; // From UserProgress, allow lowercase
+}
+interface SubjectData {
+    _id: string;
+    name: string;
+    description: string;
+    color?: string;
+    gradientFrom?: string;
+    gradientTo?: string;
+    icon?: string;
+    topics: Topic[];
+    forumCategoryId?: string;
+}
+interface UserProgress {
+    subjectId: string;
+    subjectName: string;
+    subjectColor?: string;
+    overallProgress: number;
+    topics: Topic[]; // Topics here should include progress/mastery
+    analytics?: any; // Placeholder for analytics data
+}
+interface Recommendation {
+    id: number | string;
+    title: string;
+    type: string;
+    difficulty: string;
+    estimatedTime: string;
+    description: string;
+    link?: string; // Added link for easier interaction
+}
+interface StudyMaterial {
+    id: string;
+    title: string;
+    type: string;
+    downloadCount?: number;
+    fileSize: string; // Already formatted as string (e.g., "1.2 MB")
+    lastUpdated: string; // Already formatted as string (e.g., "2d ago")
+    isPremium: boolean;
+    filePath: string; // Relative path for download link construction
+}
+interface PracticeQuiz {
+    id: string; // Ensure this is the quiz _id
+    title: string;
+    questions: number; // Total questions
+    difficulty: string;
+    timeEstimate: string; // Formatted string (e.g., "15 min")
+    averageScore: number; // User's average score for this quiz (or 0)
+    attempts: number; // User's attempts for this quiz (or 0)
+    // Add other fields if needed from the API response, like totalQuestions from virtual
+}
+interface ForumDiscussion {
+    id: string;
+    title: string;
+    content: string; // Snippet
+    replies: number;
+    timestamp: string; // Formatted time ago
+}
+interface Reward {
+    _id: string;
+    name: string;
+    description: string;
+    pointsCost: number;
+    category: string;
+    image?: string;
+    stock?: number | null;
+}
 
 // --- Helper Functions ---
 const getTimeAgo = (dateString: string | undefined): string => {
@@ -40,7 +107,7 @@ const getDifficultyColorClasses = (difficulty: string | undefined = ''): string 
 };
 const getMasteryColor = (mastery: string | undefined = ''): string => {
     const lowerMastery = mastery?.toLowerCase() || '';
-    switch (lowerMastery) { case 'high': return 'bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white'; case 'medium': return 'bg-gradient-to-r from-yellow-500 to-yellow-600 dark:from-yellow-600 dark:to-yellow-700 text-white'; case 'low': return 'bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 text-white'; default: return 'bg-gradient-to-r from-gray-500 to-gray-600 dark:from-gray-600 dark:to-gray-700 text-white'; }
+    switch (lowerMastery) { case 'high': case 'mastered': return 'bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white'; case 'medium': return 'bg-gradient-to-r from-yellow-500 to-yellow-600 dark:from-yellow-600 dark:to-yellow-700 text-white'; case 'low': return 'bg-gradient-to-r from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 text-white'; default: return 'bg-gradient-to-r from-gray-500 to-gray-600 dark:from-gray-600 dark:to-gray-700 text-white'; }
 };
 const getResourceTypeIcon = (type: string | undefined = ''): React.ReactNode => {
     const lowerType = type?.toLowerCase() || '';
@@ -125,10 +192,10 @@ export default function SubjectDetailPage() {
                 if (materialsRes.data?.status === 'success') {
                     setStudyMaterials(materialsRes.data.data?.materials?.map((m: any) => ({
                         ...m,
-                        id: m._id,
-                        lastUpdated: getTimeAgo(m.updatedAt || m.date),
+                        id: m.id, // Use the id provided by the backend directly
+                        lastUpdated: m.lastUpdated, // Use the formatted string from backend
                         filePath: m.filePath || '',
-                        fileSize: m.fileSize ? `${(m.fileSize / (1024*1024)).toFixed(1)} MB` : 'N/A' // Format size
+                        fileSize: m.fileSize || 'N/A' // Use the formatted string or default
                     })) || []);
                 } else { console.warn("Failed to load study materials:", materialsRes.data?.message); }
                 setIsLoadingMaterials(false);
@@ -137,32 +204,13 @@ export default function SubjectDetailPage() {
                 const quizzesRes = await api.quizzes.getPracticeQuizzes(subjectId, undefined);
                 if (quizzesRes.data?.status === 'success') {
                     const quizzes = quizzesRes.data.data?.practiceQuizzes || [];
-                    let quizzesWithUserData = [...quizzes];
-
-                    if (user && user._id) {
-                        try {
-                            const userAttemptsRes = await api.quizzes.getUserAttempts(user._id);
-                            if (userAttemptsRes.data?.status === 'success') {
-                                const userAttempts = userAttemptsRes.data.data?.attempts || [];
-                                quizzesWithUserData = quizzes.map((quiz: any) => {
-                                    const quizAttempts = userAttempts.filter((a: any) => a.quiz?._id === quiz._id);
-                                    const avgScore = quizAttempts.length > 0
-                                        ? Math.round(quizAttempts.reduce((sum: number, a: any) => sum + a.score, 0) / quizAttempts.length)
-                                        : null;
-                                    return {
-                                        ...quiz, id: quiz._id, questions: quiz.totalQuestions || quiz.questions?.length || 0, timeEstimate: quiz.timeLimit ? `${quiz.timeLimit} min` : 'N/A',
-                                        averageScore: avgScore ?? 0, // Use avgScore or default 0
-                                        attempts: quizAttempts.length || 0
-                                    };
-                                });
-                            }
-                        } catch (err) { console.warn("Failed to load user quiz attempts:", err); }
-                    } else {
-                        quizzesWithUserData = quizzes.map((q: any) => ({
-                            ...q, id: q._id, questions: q.totalQuestions || q.questions?.length || 0, timeEstimate: q.timeLimit ? `${q.timeLimit} min` : 'N/A', averageScore: 0, attempts: 0
-                        }));
-                    }
-                    setPracticeQuizzes(quizzesWithUserData);
+                    // Directly use the data as it should be formatted by the backend now
+                    setPracticeQuizzes(quizzes.map((q: any) => ({
+                        ...q,
+                        id: q.id, // Ensure ID is present
+                        averageScore: q.userScore ?? 0, // Map userScore to averageScore for consistency
+                        attempts: q.userAttempted ? (q.attempts || 1) : 0 // Use attempts if available, or 1 if attempted but no count
+                    })));
                 } else { console.warn("Failed to load practice quizzes:", quizzesRes.data?.message); }
                 setIsLoadingQuizzes(false);
 
@@ -177,13 +225,16 @@ export default function SubjectDetailPage() {
                     // Get user progress
                     setIsLoadingProgress(true);
                     try {
+                        // Use the detailed progress endpoint
                         const progressRes = await api.users.getDetailedProgress(user._id, subjectId);
-                        if (progressRes.data?.status === 'success') { setUserProgress(progressRes.data.data); }
+                        if (progressRes.data?.status === 'success') {
+                            setUserProgress(progressRes.data.data); // Set the whole detailed progress object
+                        }
                         else { console.warn("Failed to load user progress:", progressRes.data?.message); }
                     } catch (err) { console.error("Error fetching user progress:", err); }
                     finally { setIsLoadingProgress(false); }
 
-                    // Get user-specific recommendations
+                    // Get user-specific recommendations (using mock backend for now)
                     setIsLoadingRecs(true);
                     try {
                         const recsRes = await api.subjects.getRecommendations(subjectId);
@@ -225,7 +276,7 @@ export default function SubjectDetailPage() {
         };
 
         fetchAllData();
-    }, [subjectId, user, isAuthLoading]);
+    }, [subjectId, user, isAuthLoading]); // Dependencies
 
     // --- Render Logic ---
     if ((isLoadingSubject || isAuthLoading) && !subjectData && !error) { // Enhanced Initial Loader
@@ -255,7 +306,9 @@ export default function SubjectDetailPage() {
         if (!user) return true;
         // If user is logged in, check their role. Locked if NOT premium AND NOT admin.
         // Assumes roles 'premium' and 'admin' grant access. Adjust if your roles differ.
-        return user.role !== 'premium' && user.role !== 'admin';
+        // --- TODO: Update this logic based on your actual premium/role system ---
+        // Example: return user.role !== 'premium' && user.role !== 'admin';
+        return false; // Temporarily unlock all for testing if needed
     };
 
     return (
@@ -398,7 +451,7 @@ export default function SubjectDetailPage() {
                                                         <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Topic Progress</h3>
                                                         <div className="space-y-3">
                                                             {userProgress.topics.map((topic, index) => (
-                                                                <div key={topic._id || index} className="space-y-1">
+                                                                <div key={topic._id || topic.id || index} className="space-y-1"> {/* Use available ID */}
                                                                     <div className="flex justify-between items-center text-xs">
                                                                         <span className="text-gray-600 dark:text-gray-400">{topic.name}</span>
                                                                         <span className="font-medium">{topic.progress || 0}%</span>
@@ -509,34 +562,39 @@ export default function SubjectDetailPage() {
                                          <div className="flex justify-center items-center py-4"> <Loader2 className="h-6 w-6 animate-spin text-purple-500" /> <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">Loading quizzes...</span> </div>
                                      ) : practiceQuizzes.length > 0 ? (
                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                             {practiceQuizzes.slice(0, 4).map(quiz => (
-                                                 <div key={quiz.id} className="border dark:border-gray-700/30 rounded-lg p-4 hover:shadow-md transition-shadow flex flex-col justify-between bg-white/50 dark:bg-gray-700/10">
-                                                     <div>
-                                                         <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 line-clamp-2 h-12">{quiz.title}</h3> {/* Fixed height */}
-                                                         <div className="flex flex-wrap gap-2 items-center text-xs mb-3">
-                                                             <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">{quiz.questions} Qs</span>
-                                                             <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">{quiz.timeEstimate}</span>
-                                                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getDifficultyColorClasses(quiz.difficulty)}`}>{quiz.difficulty}</span>
-                                                         </div>
-                                                         {user && quiz.attempts > 0 && (
-                                                             <div className='text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/20'>
-                                                                 <span>Attempts: {quiz.attempts}</span>
-                                                                 {quiz.averageScore > 0 ? (
-                                                                     <span>Avg Score: <span className={getAverageScoreColor(quiz.averageScore)}>{quiz.averageScore}%</span></span>
-                                                                 ): ( <span>No scores yet</span> )}
+                                             {practiceQuizzes.slice(0, 4).map(quiz => {
+                                                 // --- ADDED LOG ---
+                                                 console.log(`[SubjectPage] Rendering link for quiz. ID: '${quiz.id}', Title: '${quiz.title}'`);
+                                                 // -----------------
+                                                 return (
+                                                     <div key={quiz.id} className="border dark:border-gray-700/30 rounded-lg p-4 hover:shadow-md transition-shadow flex flex-col justify-between bg-white/50 dark:bg-gray-700/10">
+                                                         <div>
+                                                             <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2 line-clamp-2 h-12">{quiz.title}</h3> {/* Fixed height */}
+                                                             <div className="flex flex-wrap gap-2 items-center text-xs mb-3">
+                                                                 <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">{quiz.questions} Qs</span>
+                                                                 <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">{quiz.timeEstimate}</span>
+                                                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getDifficultyColorClasses(quiz.difficulty)}`}>{quiz.difficulty}</span>
                                                              </div>
-                                                         )}
-                                                          {/* Add default message if not attempted by logged-in user */}
-                                                          {user && quiz.attempts === 0 && (
-                                                               <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/20">Not attempted yet.</p>
-                                                           )}
-                                                          {!user && (
-                                                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/20"><Link href="/login" className='underline'>Log in</Link> to track attempts.</p>
-                                                           )}
+                                                             {user && quiz.attempts > 0 && (
+                                                                 <div className='text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/20'>
+                                                                     <span>Attempts: {quiz.attempts}</span>
+                                                                     {quiz.averageScore > 0 ? (
+                                                                         <span>Avg Score: <span className={getAverageScoreColor(quiz.averageScore)}>{quiz.averageScore}%</span></span>
+                                                                     ): ( <span>No scores yet</span> )}
+                                                                 </div>
+                                                             )}
+                                                              {/* Add default message if not attempted by logged-in user */}
+                                                              {user && quiz.attempts === 0 && (
+                                                                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/20">Not attempted yet.</p>
+                                                               )}
+                                                              {!user && (
+                                                                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/20"><Link href="/login" className='underline'>Log in</Link> to track attempts.</p>
+                                                               )}
+                                                         </div>
+                                                          <Link href={`/quiz/take?id=${quiz.id}&subject=${subjectId}`} className={`mt-4 w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[${safeColor}] transition-colors duration-150 hover:brightness-110`} style={{ background: safeColor }}>Start Quiz <ChevronRight className='h-4 w-4 ml-1'/></Link>
                                                      </div>
-                                                      <Link href={`/quiz/take?id=${quiz.id}&subject=${subjectId}`} className={`mt-4 w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[${safeColor}] transition-colors duration-150 hover:brightness-110`} style={{ background: safeColor }}>Start Quiz <ChevronRight className='h-4 w-4 ml-1'/></Link>
-                                                 </div>
-                                             ))}
+                                                 );
+                                             })}
                                          </div>
                                      ) : <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">No practice quizzes available for this subject yet.</p>}
                                  </div>

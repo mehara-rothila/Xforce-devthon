@@ -3,8 +3,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '@/utils/api';
-import { Check, X, AlertCircle, Eye, Clock, Loader2, MessageSquare, FileText } from 'lucide-react';
+import { Check, X, AlertCircle, Eye, Clock, Loader2, MessageSquare, FileText, Shield } from 'lucide-react'; // Added Shield for consistency
 
+// --- Interfaces ---
 interface Author {
   _id: string;
   name: string;
@@ -43,6 +44,19 @@ interface ContentModalProps {
   onClose: () => void;
 }
 
+interface RejectModalProps {
+  onConfirm: (reason: string) => void;
+  onCancel: () => void;
+  isRejectingTopic: boolean;
+}
+
+// *** ADDED: Interface for the props ForumModeration will receive ***
+interface ForumModerationProps {
+  isPreviewMode: boolean;
+}
+
+// --- Sub-Components (ContentModal, RejectModal - unchanged) ---
+
 // Content preview modal component
 const ContentModal: React.FC<ContentModalProps> = ({ title, content, onClose }) => {
   return (
@@ -50,7 +64,7 @@ const ContentModal: React.FC<ContentModalProps> = ({ title, content, onClose }) 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{title}</h3>
-          <button 
+          <button
             onClick={onClose}
             className="p-1 rounded-md text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
           >
@@ -58,14 +72,14 @@ const ContentModal: React.FC<ContentModalProps> = ({ title, content, onClose }) 
           </button>
         </div>
         <div className="p-4 overflow-auto flex-grow">
-          <div 
-            className="prose dark:prose-invert max-w-none" 
+          <div
+            className="prose dark:prose-invert max-w-none"
             dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br />') }}
           />
         </div>
         <div className="p-4 border-t dark:border-gray-700 flex justify-end">
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             Close
@@ -76,16 +90,11 @@ const ContentModal: React.FC<ContentModalProps> = ({ title, content, onClose }) 
   );
 };
 
-interface RejectModalProps {
-  onConfirm: (reason: string) => void;
-  onCancel: () => void;
-  isRejectingTopic: boolean;
-}
 
 // Rejection reason modal component
 const RejectModal: React.FC<RejectModalProps> = ({ onConfirm, onCancel, isRejectingTopic }) => {
   const [reason, setReason] = useState<string>('');
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
@@ -99,7 +108,7 @@ const RejectModal: React.FC<RejectModalProps> = ({ onConfirm, onCancel, isReject
             Please provide a reason why this {isRejectingTopic ? 'topic' : 'reply'} is being rejected.
             This content will be removed from the system.
           </p>
-          <textarea 
+          <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="Enter rejection reason..."
@@ -108,13 +117,13 @@ const RejectModal: React.FC<RejectModalProps> = ({ onConfirm, onCancel, isReject
           ></textarea>
         </div>
         <div className="p-4 border-t dark:border-gray-700 flex justify-end space-x-3">
-          <button 
-            onClick={onCancel} 
+          <button
+            onClick={onCancel}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             Cancel
           </button>
-          <button 
+          <button
             onClick={() => onConfirm(reason)}
             disabled={!reason.trim()}
             className={`px-4 py-2 bg-red-600 text-white rounded-md font-medium hover:bg-red-700 transition-colors ${!reason.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -127,9 +136,11 @@ const RejectModal: React.FC<RejectModalProps> = ({ onConfirm, onCancel, isReject
   );
 };
 
-// Main moderation component
-const ForumModeration: React.FC = () => {
-  // State
+
+// --- Main Moderation Component ---
+// *** UPDATED: Accept props and destructure isPreviewMode ***
+const ForumModeration: React.FC<ForumModerationProps> = ({ isPreviewMode }) => {
+  // State (unchanged)
   const [activeTab, setActiveTab] = useState<'topics' | 'replies'>('topics');
   const [pendingTopics, setPendingTopics] = useState<Topic[]>([]);
   const [pendingReplies, setPendingReplies] = useState<Reply[]>([]);
@@ -139,26 +150,24 @@ const ForumModeration: React.FC = () => {
   const [rejectModal, setRejectModal] = useState<{ id: string, isRejectingTopic: boolean } | null>(null);
   const [processingItems, setProcessingItems] = useState<Record<string, boolean>>({});
 
-  // Format date helper
+  // Helper function (unchanged)
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric', 
-      month: 'short', 
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  // Fetch pending topics
+  // Fetch functions (unchanged logic, but added preview mode check before API calls if needed - though usually not necessary for fetches)
   const fetchPendingTopics = useCallback(async () => {
+    // if (isPreviewMode) { setIsLoading(false); setPendingTopics([]); return; } // Optional: prevent fetch in preview
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Use updated API endpoint
       const response = await api.forum.getPendingTopics();
-      
       if (response.data?.status === 'success') {
         setPendingTopics(response.data.data.topics || []);
       } else {
@@ -172,17 +181,14 @@ const ForumModeration: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, []); // Removed isPreviewMode dependency unless you prevent fetch
 
-  // Fetch pending replies
   const fetchPendingReplies = useCallback(async () => {
+    // if (isPreviewMode) { setIsLoading(false); setPendingReplies([]); return; } // Optional: prevent fetch in preview
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Use updated API endpoint
       const response = await api.forum.getPendingReplies();
-      
       if (response.data?.status === 'success') {
         setPendingReplies(response.data.data.replies || []);
       } else {
@@ -196,9 +202,9 @@ const ForumModeration: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, []); // Removed isPreviewMode dependency unless you prevent fetch
 
-  // Initial fetch based on active tab
+  // Initial fetch (unchanged)
   useEffect(() => {
     if (activeTab === 'topics') {
       fetchPendingTopics();
@@ -207,16 +213,19 @@ const ForumModeration: React.FC = () => {
     }
   }, [activeTab, fetchPendingTopics, fetchPendingReplies]);
 
+  // --- Action Handlers (Added isPreviewMode check) ---
+
+  const showPreviewAlert = () => {
+    alert("Action disabled in preview mode.");
+  };
+
   // Handle approve topic
   const handleApproveTopic = async (topicId: string) => {
+    if (isPreviewMode) { showPreviewAlert(); return; } // *** ADDED PREVIEW CHECK ***
     try {
       setProcessingItems(prev => ({ ...prev, [topicId]: true }));
-      
-      // Use updated API endpoint
       const response = await api.forum.approveTopic(topicId);
-      
       if (response.data?.status === 'success') {
-        // Remove from list
         setPendingTopics(prev => prev.filter(topic => topic._id !== topicId));
       } else {
         setError('Failed to approve topic');
@@ -231,14 +240,11 @@ const ForumModeration: React.FC = () => {
 
   // Handle reject topic
   const handleRejectTopic = async (topicId: string, reason: string) => {
+    if (isPreviewMode) { showPreviewAlert(); return; } // *** ADDED PREVIEW CHECK ***
     try {
       setProcessingItems(prev => ({ ...prev, [topicId]: true }));
-      
-      // Use updated API endpoint with correct payload
       const response = await api.forum.rejectTopic(topicId, reason);
-      
       if (response.data?.status === 'success') {
-        // Remove from list
         setPendingTopics(prev => prev.filter(topic => topic._id !== topicId));
         setRejectModal(null);
       } else {
@@ -254,14 +260,11 @@ const ForumModeration: React.FC = () => {
 
   // Handle approve reply
   const handleApproveReply = async (replyId: string) => {
+    if (isPreviewMode) { showPreviewAlert(); return; } // *** ADDED PREVIEW CHECK ***
     try {
       setProcessingItems(prev => ({ ...prev, [replyId]: true }));
-      
-      // Use updated API endpoint
       const response = await api.forum.approveReply(replyId);
-      
       if (response.data?.status === 'success') {
-        // Remove from list
         setPendingReplies(prev => prev.filter(reply => reply._id !== replyId));
       } else {
         setError('Failed to approve reply');
@@ -276,14 +279,11 @@ const ForumModeration: React.FC = () => {
 
   // Handle reject reply
   const handleRejectReply = async (replyId: string, reason: string) => {
+    if (isPreviewMode) { showPreviewAlert(); return; } // *** ADDED PREVIEW CHECK ***
     try {
       setProcessingItems(prev => ({ ...prev, [replyId]: true }));
-      
-      // Use updated API endpoint with correct payload
       const response = await api.forum.rejectReply(replyId, reason);
-      
       if (response.data?.status === 'success') {
-        // Remove from list
         setPendingReplies(prev => prev.filter(reply => reply._id !== replyId));
         setRejectModal(null);
       } else {
@@ -297,13 +297,10 @@ const ForumModeration: React.FC = () => {
     }
   };
 
-  // Generate color class from category color
+  // Helper function (unchanged)
   const getCategoryColorClass = (color?: string) => {
-    // Default color if none provided
     if (!color) return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-    
-    // Simple mapping based on known colors
-    const colorName = color.includes('#') ? 
+    const colorName = color.includes('#') ?
       (
         color.includes('4299E1') ? 'blue' :
         color.includes('48BB78') ? 'green' :
@@ -314,25 +311,32 @@ const ForumModeration: React.FC = () => {
         color.includes('38B2AC') ? 'teal' :
         color.includes('ED64A6') ? 'pink' :
         color.includes('667EEA') ? 'indigo' : 'gray'
-      ) 
+      )
       : 'gray';
-    
     return `bg-${colorName}-100 text-${colorName}-800 dark:bg-${colorName}-900/30 dark:text-${colorName}-300`;
   };
 
+  // --- Render ---
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
         <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200 flex items-center">
-          <MessageSquare className="h-6 w-6 mr-2 text-cyan-600 dark:text-cyan-400"/> 
+          {/* Using Shield icon for consistency with AdminDashboard tab */}
+          <Shield className="h-6 w-6 mr-2 text-red-600 dark:text-red-400"/>
           Forum Moderation Queue
         </h2>
+        {/* Optional: Add preview mode indicator */}
+        {isPreviewMode && (
+            <span className="text-sm font-medium text-amber-600 dark:text-amber-400 flex items-center">
+                <Eye className="h-4 w-4 mr-1" /> Preview Mode
+            </span>
+        )}
         <div className="bg-gray-100 dark:bg-gray-700 rounded-lg flex p-1">
           <button
             onClick={() => setActiveTab('topics')}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
-              activeTab === 'topics' 
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow' 
+              activeTab === 'topics'
+                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             } transition-colors`}
           >
@@ -341,8 +345,8 @@ const ForumModeration: React.FC = () => {
           <button
             onClick={() => setActiveTab('replies')}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
-              activeTab === 'replies' 
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow' 
+              activeTab === 'replies'
+                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             } transition-colors`}
           >
@@ -351,13 +355,13 @@ const ForumModeration: React.FC = () => {
         </div>
       </div>
 
-      {/* Error message */}
+      {/* Error message (unchanged) */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300 flex items-start">
           <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
           <div className="flex-1">{error}</div>
-          <button 
-            onClick={() => setError(null)} 
+          <button
+            onClick={() => setError(null)}
             className="ml-3 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
           >
             <X className="h-5 w-5" />
@@ -365,7 +369,7 @@ const ForumModeration: React.FC = () => {
         </div>
       )}
 
-      {/* Loading state */}
+      {/* Loading state (unchanged) */}
       {isLoading && (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="h-10 w-10 text-cyan-600 dark:text-cyan-400 animate-spin mb-4" />
@@ -408,7 +412,7 @@ const ForumModeration: React.FC = () => {
                           {topic.title}
                         </div>
                         <div className="mt-1 flex items-center">
-                          <button 
+                          <button
                             onClick={() => setModalContent({ title: topic.title, content: topic.content })}
                             className="text-xs text-cyan-600 dark:text-cyan-400 flex items-center hover:underline"
                           >
@@ -436,9 +440,10 @@ const ForumModeration: React.FC = () => {
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => handleApproveTopic(topic._id)}
-                            disabled={processingItems[topic._id]}
-                            className="p-1.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors disabled:opacity-50"
-                            title="Approve"
+                            // *** UPDATED: Disable button if preview mode OR processing ***
+                            disabled={isPreviewMode || processingItems[topic._id]}
+                            className={`p-1.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors ${isPreviewMode || processingItems[topic._id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={isPreviewMode ? "Disabled in preview" : "Approve"}
                           >
                             {processingItems[topic._id] ? (
                               <Loader2 className="h-5 w-5 animate-spin" />
@@ -447,10 +452,11 @@ const ForumModeration: React.FC = () => {
                             )}
                           </button>
                           <button
-                            onClick={() => setRejectModal({ id: topic._id, isRejectingTopic: true })}
-                            disabled={processingItems[topic._id]}
-                            className="p-1.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors disabled:opacity-50"
-                            title="Reject"
+                            onClick={() => !isPreviewMode && setRejectModal({ id: topic._id, isRejectingTopic: true })} // Prevent opening modal in preview
+                            // *** UPDATED: Disable button if preview mode OR processing ***
+                            disabled={isPreviewMode || processingItems[topic._id]}
+                            className={`p-1.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors ${isPreviewMode || processingItems[topic._id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={isPreviewMode ? "Disabled in preview" : "Reject"}
                           >
                             {processingItems[topic._id] ? (
                               <Loader2 className="h-5 w-5 animate-spin" />
@@ -503,7 +509,7 @@ const ForumModeration: React.FC = () => {
                           {reply.content.length > 100 ? '...' : ''}
                         </div>
                         <div className="mt-1 flex items-center">
-                          <button 
+                          <button
                             onClick={() => setModalContent({ title: 'Reply Content', content: reply.content })}
                             className="text-xs text-cyan-600 dark:text-cyan-400 flex items-center hover:underline"
                           >
@@ -536,9 +542,10 @@ const ForumModeration: React.FC = () => {
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => handleApproveReply(reply._id)}
-                            disabled={processingItems[reply._id]}
-                            className="p-1.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors disabled:opacity-50"
-                            title="Approve"
+                            // *** UPDATED: Disable button if preview mode OR processing ***
+                            disabled={isPreviewMode || processingItems[reply._id]}
+                            className={`p-1.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors ${isPreviewMode || processingItems[reply._id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={isPreviewMode ? "Disabled in preview" : "Approve"}
                           >
                             {processingItems[reply._id] ? (
                               <Loader2 className="h-5 w-5 animate-spin" />
@@ -547,10 +554,11 @@ const ForumModeration: React.FC = () => {
                             )}
                           </button>
                           <button
-                            onClick={() => setRejectModal({ id: reply._id, isRejectingTopic: false })}
-                            disabled={processingItems[reply._id]}
-                            className="p-1.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors disabled:opacity-50"
-                            title="Reject"
+                            onClick={() => !isPreviewMode && setRejectModal({ id: reply._id, isRejectingTopic: false })} // Prevent opening modal in preview
+                            // *** UPDATED: Disable button if preview mode OR processing ***
+                            disabled={isPreviewMode || processingItems[reply._id]}
+                            className={`p-1.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-md hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors ${isPreviewMode || processingItems[reply._id] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title={isPreviewMode ? "Disabled in preview" : "Reject"}
                           >
                             {processingItems[reply._id] ? (
                               <Loader2 className="h-5 w-5 animate-spin" />
@@ -569,23 +577,23 @@ const ForumModeration: React.FC = () => {
         </>
       )}
 
-      {/* Content preview modal */}
+      {/* Content preview modal (unchanged) */}
       {modalContent && (
-        <ContentModal 
-          title={modalContent.title} 
-          content={modalContent.content} 
+        <ContentModal
+          title={modalContent.title}
+          content={modalContent.content}
           onClose={() => setModalContent(null)}
         />
       )}
 
-      {/* Reject reason modal */}
+      {/* Reject reason modal (unchanged) */}
       {rejectModal && (
-        <RejectModal 
-          onConfirm={(reason) => 
+        <RejectModal
+          onConfirm={(reason) =>
             rejectModal.isRejectingTopic
               ? handleRejectTopic(rejectModal.id, reason)
               : handleRejectReply(rejectModal.id, reason)
-          } 
+          }
           onCancel={() => setRejectModal(null)}
           isRejectingTopic={rejectModal.isRejectingTopic}
         />

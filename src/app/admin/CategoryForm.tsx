@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '@/utils/api'; // Use the updated api utility
-import { X, Loader2, AlertCircle, Check, Palette, Tag, FileText, Layout, Edit, List, MessageCircle, MessageSquare } from 'lucide-react';
+import { X, Loader2, AlertCircle, Check, Palette, Tag, FileText, Layout, Edit, List, MessageCircle, MessageSquare, Eye } from 'lucide-react';
 import SubjectIcon from '@/components/icons/SubjectIcon'; // Reusing SubjectIcon for categories
 
 // --- Interfaces ---
@@ -20,6 +20,7 @@ interface CategoryFormProps {
   initialCategoryData?: ForumCategory | null;
   onSuccess: () => void; // Callback on successful save
   onCancel: () => void; // Callback to close the form/modal
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
 // --- Define Available Icons ---
@@ -49,7 +50,7 @@ const colorPalette = [
 ];
 
 // --- Component ---
-const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSuccess, onCancel }) => {
+const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSuccess, onCancel, isPreviewMode = false }) => {
   const [formData, setFormData] = useState<ForumCategory>(() => {
     // Initialize form state
     return initialCategoryData || {
@@ -70,8 +71,17 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
   // Validation states
   const [nameError, setNameError] = useState<string | null>(null);
 
+  // Check for preview mode on mount
+  useEffect(() => {
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+    }
+  }, [isPreviewMode]);
+
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     const { name, value } = e.target;
     // Clear field-specific errors as user types
     if (name === 'name' && nameError) { setNameError(null); }
@@ -79,6 +89,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
   };
 
   const selectColor = (color: string) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
     setFormData(prev => ({ ...prev, color }));
   };
 
@@ -93,6 +104,13 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
   // --- Submission ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission in preview mode
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+      return;
+    }
+    
     setError(null);
     setSuccess(null);
 
@@ -167,6 +185,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
                 {isEditing ? ( <><Edit className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />Edit Category</> )
                            : ( <><Layout className="h-5 w-5 mr-2 text-cyan-500 dark:text-cyan-400" />Create New Category</> )}
+                {isPreviewMode && <span className="ml-2 text-sm font-normal text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded-md flex items-center"><Eye className="h-3.5 w-3.5 mr-1" />Preview Only</span>}
             </h2>
             <div className="flex items-center space-x-2">
                 <button type="button" onClick={togglePreview} className={`px-3 py-1.5 text-sm rounded-md border ${ previewMode ? 'bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-900/20 dark:text-cyan-300 dark:border-cyan-800' : 'bg-white text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600' }`}>
@@ -191,6 +210,19 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
                <Check className="h-5 w-5 text-green-500 dark:text-green-400 mt-0.5 mr-3 flex-shrink-0" />
                <div className="flex-1"> <strong className="font-medium text-green-800 dark:text-green-300">Success!</strong> <p className="text-sm text-green-700 dark:text-green-200 mt-1">{success}</p> </div>
                {/* Success message auto-hides via timeout in handleSubmit */}
+           </div>
+        )}
+        
+        {/* Preview Mode Banner */}
+        {isPreviewMode && !previewMode && !error && (
+           <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 flex items-start" role="alert">
+               <Eye className="h-5 w-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-3 flex-shrink-0" />
+               <div className="flex-1"> 
+                 <strong className="font-medium text-amber-800 dark:text-amber-300">Preview Mode</strong> 
+                 <p className="text-sm text-amber-700 dark:text-amber-200 mt-1">
+                   You are viewing in preview mode. Form inputs are disabled and no changes can be saved.
+                 </p> 
+               </div>
            </div>
         )}
 
@@ -221,8 +253,15 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
              </div>
              <div className="flex justify-end">
                <button type="button" onClick={togglePreview} className="px-4 py-2 btn-secondary mr-3">Edit Details</button>
-               <button type="button" onClick={handleSubmit} disabled={isLoading} className="px-4 py-2 btn-primary flex items-center">
-                 {isLoading ? ( <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 inline" /> Saving...</> ) : isEditing ? 'Update Category' : 'Create Category'}
+               <button 
+                 type="button" 
+                 onClick={handleSubmit} 
+                 disabled={isLoading || isPreviewMode} 
+                 className={`px-4 py-2 btn-primary flex items-center ${isPreviewMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+               >
+                 {isLoading ? ( <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 inline" /> Saving...</> ) : 
+                  isPreviewMode ? ( <><Eye className="h-4 w-4 mr-2" /> Preview Mode</> ) : 
+                  isEditing ? 'Update Category' : 'Create Category'}
                </button>
              </div>
            </div>
@@ -237,14 +276,34 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
                  <div>
                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Category Name <span className="text-red-500">*</span> </label>
                    <div className="relative">
-                     <input type="text" id="name" name="name" value={formData.name} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400 transition-colors ${ nameError ? 'border-red-300 text-red-900 placeholder-red-300 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' }`} placeholder="e.g., Physics, General Discussion" />
-                     {nameError && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400">{nameError}</p> )}
+                     <input 
+                       type="text" 
+                       id="name" 
+                       name="name" 
+                       value={formData.name} 
+                       onChange={handleInputChange} 
+                       className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400 transition-colors ${ 
+                         nameError ? 'border-red-300 text-red-900 placeholder-red-300 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' 
+                       } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`} 
+                       placeholder="e.g., Physics, General Discussion" 
+                       disabled={isPreviewMode}
+                     />
+                     {nameError && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {nameError} </p> )}
                    </div>
                  </div>
                  {/* Description */}
                  <div>
                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Description (Optional) </label>
-                   <textarea id="description" name="description" rows={3} value={formData.description || ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400" placeholder="Briefly describe the purpose of this category" />
+                   <textarea 
+                     id="description" 
+                     name="description" 
+                     rows={3} 
+                     value={formData.description || ''} 
+                     onChange={handleInputChange} 
+                     className={`w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 dark:focus:ring-cyan-400 dark:focus:border-cyan-400 ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`} 
+                     placeholder="Briefly describe the purpose of this category" 
+                     disabled={isPreviewMode}
+                   />
                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400"> A good description helps users understand what discussions belong in this category. </p>
                  </div>
                </div>
@@ -258,8 +317,28 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
                  <div>
                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"> Category Color </label>
                    <div className="flex flex-wrap gap-3 mb-3">
-                     {colorPalette.map(color => ( <button key={color} type="button" onClick={() => selectColor(color)} className={`h-8 w-8 rounded-full border-2 transition-all ${ formData.color === color ? 'border-gray-900 dark:border-white transform scale-110' : 'border-transparent hover:scale-105' }`} style={{ backgroundColor: color }} aria-label={`Select color ${color}`} /> ))}
-                     <div className="flex items-center"> <input type="color" value={formData.color} onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))} className="h-8 w-8 border-0 p-0 rounded-md cursor-pointer"/> </div>
+                     {colorPalette.map(color => ( 
+                      <button 
+                        key={color} 
+                        type="button" 
+                        onClick={() => selectColor(color)} 
+                        className={`h-8 w-8 rounded-full border-2 transition-all ${ 
+                          formData.color === color ? 'border-gray-900 dark:border-white transform scale-110' : 'border-transparent hover:scale-105' 
+                        } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`} 
+                        style={{ backgroundColor: color }} 
+                        aria-label={`Select color ${color}`}
+                        disabled={isPreviewMode}
+                      /> 
+                     ))}
+                     <div className="flex items-center"> 
+                       <input 
+                         type="color" 
+                         value={formData.color} 
+                         onChange={(e) => isPreviewMode ? null : setFormData(prev => ({ ...prev, color: e.target.value }))} 
+                         className={`h-8 w-8 border-0 p-0 rounded-md cursor-pointer ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                         disabled={isPreviewMode}
+                       /> 
+                     </div>
                    </div>
                    <div className="flex items-center mt-2"> <div className="w-12 h-6 rounded mr-3" style={{ backgroundColor: formData.color }}></div> <code className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded"> {formData.color} </code> </div>
                  </div>
@@ -267,7 +346,20 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
                  <div>
                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"> Category Icon </label>
                    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 mb-4">
-                     {availableIcons.map(icon => ( <button key={icon.value} type="button" onClick={() => setFormData(prev => ({ ...prev, icon: icon.value }))} className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${ formData.icon === icon.value ? 'bg-cyan-50 ring-2 ring-cyan-500 text-cyan-700 dark:bg-cyan-900/30 dark:ring-cyan-600 dark:text-cyan-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600' }`} > <SubjectIcon iconName={icon.value} color={formData.icon === icon.value ? formData.color : undefined} className="h-6 w-6 mb-1" /> <span className="text-xs truncate max-w-full">{icon.name.split(' ')[0]}</span> </button> ))}
+                     {availableIcons.map(icon => ( 
+                      <button 
+                        key={icon.value} 
+                        type="button" 
+                        onClick={() => isPreviewMode ? null : setFormData(prev => ({ ...prev, icon: icon.value }))} 
+                        className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${ 
+                          formData.icon === icon.value ? 'bg-cyan-50 ring-2 ring-cyan-500 text-cyan-700 dark:bg-cyan-900/30 dark:ring-cyan-600 dark:text-cyan-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600' 
+                        } ${isPreviewMode ? 'opacity-75 cursor-not-allowed hover:bg-white dark:hover:bg-gray-700' : ''}`}
+                        disabled={isPreviewMode}
+                      > 
+                        <SubjectIcon iconName={icon.value} color={formData.icon === icon.value ? formData.color : undefined} className="h-6 w-6 mb-1" /> 
+                        <span className="text-xs truncate max-w-full">{icon.name.split(' ')[0]}</span> 
+                      </button> 
+                     ))}
                    </div>
                    <div className="flex items-center mt-2"> <div className="p-2 rounded-md mr-3" style={{ backgroundColor: `${formData.color}20` }}> <SubjectIcon iconName={formData.icon} color={formData.color} className="h-6 w-6" /> </div> <span className="text-sm text-gray-600 dark:text-gray-400">Selected icon: {availableIcons.find(i => i.value === formData.icon)?.name || formData.icon}</span> </div>
                  </div>
@@ -277,8 +369,14 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialCategoryData, onSucc
             {/* Form Actions */}
             <div className="flex justify-end space-x-3 sticky bottom-0 bg-gradient-to-t from-white via-white to-transparent dark:from-gray-800 dark:via-gray-800 pt-3 pb-2 -mx-6 px-6">
                 <button type="button" onClick={onCancel} disabled={isLoading} className="px-4 py-2 btn-secondary">Cancel</button>
-                <button type="submit" disabled={isLoading} className="px-4 py-2 btn-primary flex items-center">
-                    {isLoading ? ( <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 inline" /> Saving...</> ) : isEditing ? 'Update Category' : 'Create Category'}
+                <button 
+                  type="submit" 
+                  disabled={isLoading || isPreviewMode} 
+                  className={`px-4 py-2 btn-primary flex items-center ${isPreviewMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    {isLoading ? ( <><Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 inline" /> Saving...</> ) : 
+                     isPreviewMode ? ( <><Eye className="h-4 w-4 mr-2" /> Preview Mode</> ) : 
+                     isEditing ? 'Update Category' : 'Create Category'}
                 </button>
             </div>
         </form>

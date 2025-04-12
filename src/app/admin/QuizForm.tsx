@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '@/utils/api';
-import { Plus, Trash2, X, AlertCircle, Check, HelpCircle, Clock, Award, Save, BookOpen, FileQuestion, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, X, AlertCircle, Check, HelpCircle, Clock, Award, Save, BookOpen, FileQuestion, CheckCircle, AlertTriangle, Eye } from 'lucide-react';
 
 // --- Interfaces (Ensure consistency with other files) ---
 interface Subject {
@@ -42,10 +42,11 @@ interface QuizFormProps {
   initialQuizData?: Quiz | null; // Quiz data for editing, null/undefined for creating
   onSuccess: () => void; // Callback on successful save
   onCancel: () => void; // Callback to close the form/modal
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
 // --- Component ---
-const QuizForm: React.FC<QuizFormProps> = ({ initialQuizData, onSuccess, onCancel }) => {
+const QuizForm: React.FC<QuizFormProps> = ({ initialQuizData, onSuccess, onCancel, isPreviewMode = false }) => {
   const [formData, setFormData] = useState<Quiz>(() => {
     // Initialize form state
     return initialQuizData || {
@@ -68,6 +69,13 @@ const QuizForm: React.FC<QuizFormProps> = ({ initialQuizData, onSuccess, onCance
   const [expandedQuestionIndex, setExpandedQuestionIndex] = useState<number | null>(null);
 
   const isEditing = !!initialQuizData?._id;
+
+  // Check for preview mode on mount
+  useEffect(() => {
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+    }
+  }, [isPreviewMode]);
 
   // --- Effects ---
   // Fetch available subjects on component mount
@@ -114,6 +122,8 @@ const QuizForm: React.FC<QuizFormProps> = ({ initialQuizData, onSuccess, onCance
 
   // Handle basic input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     const { name, value, type } = e.target;
 
     setFormData(prev => ({
@@ -121,23 +131,28 @@ const QuizForm: React.FC<QuizFormProps> = ({ initialQuizData, onSuccess, onCance
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
   };
-// Handle changes for number inputs
-const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = e.target;
-  // Allow empty string for clearing the input, otherwise parse as number
-  const numValue = value === '' ? '' : parseInt(value, 10);
-  // Prevent negative numbers for timeLimit and points
-  if ((name === 'timeLimit' || name === 'points') && typeof numValue === 'number' && numValue < 0) {
-    return;
-  }
-  setFormData(prev => ({
-    ...prev,
-    [name]: numValue
-  }));
-};
+
+  // Handle changes for number inputs
+  const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
+    const { name, value } = e.target;
+    // Allow empty string for clearing the input, otherwise parse as number
+    const numValue = value === '' ? '' : parseInt(value, 10);
+    // Prevent negative numbers for timeLimit and points
+    if ((name === 'timeLimit' || name === 'points') && typeof numValue === 'number' && numValue < 0) {
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: numValue
+    }));
+  };
 
   // --- Question Handlers ---
   const handleAddQuestion = () => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     setFormData(prev => ({
       ...prev,
@@ -162,6 +177,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const handleRemoveQuestion = (questionIndex: number) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     setFormData(prev => ({
       ...prev,
@@ -177,6 +194,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const handleQuestionChange = (questionIndex: number, field: keyof Question, value: any) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     setFormData(prev => {
       const updatedQuestions = [...prev.questions];
@@ -195,6 +214,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   // --- Option Handlers ---
   const handleAddOption = (questionIndex: number) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     setFormData(prev => {
       const updatedQuestions = [...prev.questions];
@@ -210,6 +231,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const handleRemoveOption = (questionIndex: number, optionIndex: number) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     setFormData(prev => {
       const updatedQuestions = [...prev.questions];
@@ -231,6 +254,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const handleOptionChange = (questionIndex: number, optionIndex: number, value: string) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     setFormData(prev => {
       const updatedQuestions = [...prev.questions];
@@ -242,6 +267,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const handleCorrectOptionChange = (questionIndex: number, correctOptionIndex: number) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     setFormData(prev => {
       const updatedQuestions = [...prev.questions];
@@ -294,6 +321,13 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   // --- Submission Handler ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission in preview mode
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+      return;
+    }
+    
     setError(null); // Clear previous errors
     setSuccessMessage(null);
 
@@ -402,6 +436,11 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 Create New Quiz
               </>
             )}
+            {isPreviewMode && (
+              <span className="ml-2 text-sm font-normal text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded-md flex items-center">
+                <Eye className="h-3.5 w-3.5 mr-1" />Preview Only
+              </span>
+            )}
           </h2>
           <button
             type="button"
@@ -412,26 +451,27 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             <X className="h-5 w-5" />
           </button>
         </div>
-{/* Error Display */}
-{error && (
-  <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative mb-4 animate-fade-in shadow-sm" role="alert">
-    <div className="flex items-center">
-      <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0" />
-      <div className="ml-3 flex-grow">
-        <p className="font-medium">Error</p>
-        <p className="text-sm">{error}</p>
-      </div>
-      <button 
-        type="button" 
-        onClick={() => setError(null)} 
-        aria-label="Close error message"
-        className="ml-auto flex-shrink-0 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
-      >
-        <X className="h-5 w-5" />
-      </button>
-    </div>
-  </div>
-)}
+
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg relative mb-4 animate-fade-in shadow-sm" role="alert">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0" />
+            <div className="ml-3 flex-grow">
+              <p className="font-medium">Error</p>
+              <p className="text-sm">{error}</p>
+            </div>
+            <button 
+              type="button" 
+              onClick={() => setError(null)} 
+              aria-label="Close error message"
+              className="ml-auto flex-shrink-0 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      )}
 
         {/* Success Message */}
         {successMessage && (
@@ -440,6 +480,19 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400 flex-shrink-0" />
               <div className="ml-3 flex-grow">
                 <p className="text-sm">{successMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Preview Mode Banner */}
+        {isPreviewMode && !error && (
+          <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-lg relative mb-4 animate-fade-in shadow-sm" role="alert">
+            <div className="flex items-center">
+              <Eye className="h-5 w-5 text-amber-500 dark:text-amber-400 flex-shrink-0" />
+              <div className="ml-3 flex-grow">
+                <p className="font-medium">Preview Mode</p>
+                <p className="text-sm">You are viewing in preview mode. Form inputs are disabled and no changes can be saved.</p>
               </div>
             </div>
           </div>
@@ -500,7 +553,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               onChange={handleInputChange}
               required
               placeholder="e.g. Physics Final Exam"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all"
+              className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+              disabled={isPreviewMode}
             />
             {showHints && (
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Choose a clear, descriptive title for your quiz.</p>
@@ -528,7 +582,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   value={formData.subject}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all appearance-none pr-10"
+                  className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all appearance-none pr-10 ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isPreviewMode}
                 >
                   <option value="" disabled>Select a subject</option>
                   {availableSubjects.map(sub => (
@@ -560,7 +615,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 onChange={handleInputChange}
                 className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 transition-all appearance-none pr-10 ${
                   getDifficultyColor(formData.difficulty)
-                }`}
+                } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                disabled={isPreviewMode}
               >
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
@@ -594,7 +650,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                 onChange={handleNumberInputChange}
                 min="1"
                 required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all"
+                className={`w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                disabled={isPreviewMode}
               />
             </div>
             {showHints && (
@@ -614,7 +671,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               value={formData.description || ''}
               onChange={handleInputChange}
               placeholder="Enter a brief description of what this quiz covers..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all"
+              className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+              disabled={isPreviewMode}
             />
             {showHints && (
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Add details about the quiz content, goals, or any special instructions.</p>
@@ -631,7 +689,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   type="checkbox"
                   checked={formData.isPublished || false}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-indigo-600 dark:text-indigo-500 rounded border-gray-300 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 bg-white dark:bg-gray-800"
+                  className={`h-4 w-4 text-indigo-600 dark:text-indigo-500 rounded border-gray-300 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 bg-white dark:bg-gray-800 ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isPreviewMode}
                 />
               </div>
               <div className="ml-3 text-sm">
@@ -661,9 +720,14 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             <button
               type="button"
               onClick={handleAddQuestion}
-              className="text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 px-4 py-2 rounded-lg inline-flex items-center transition-all shadow-sm transform hover:-translate-y-0.5 active:translate-y-0"
+              disabled={isPreviewMode}
+              className={`text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 px-4 py-2 rounded-lg inline-flex items-center transition-all shadow-sm transform hover:-translate-y-0.5 active:translate-y-0 ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:from-indigo-600 hover:to-purple-600 transform-none' : ''}`}
             >
-              <Plus className="h-4 w-4 mr-1.5" /> Add Question
+              {isPreviewMode ? (
+                <><Eye className="h-4 w-4 mr-1.5" /> Preview Mode</>
+              ) : (
+                <><Plus className="h-4 w-4 mr-1.5" /> Add Question</>
+              )}
             </button>
           </div>
 
@@ -674,9 +738,14 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
               <button
                 type="button"
                 onClick={handleAddQuestion}
-                className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 inline-flex items-center font-medium"
+                disabled={isPreviewMode}
+                className={`mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 inline-flex items-center font-medium ${isPreviewMode ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <Plus className="h-4 w-4 mr-1.5" /> Add your first question
+                {isPreviewMode ? (
+                  <><Eye className="h-4 w-4 mr-1.5" /> Preview Mode</>
+                ) : (
+                  <><Plus className="h-4 w-4 mr-1.5" /> Add your first question</>
+                )}
               </button>
             </div>
           )}
@@ -746,17 +815,19 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                       </div>
                     </div>
                     <div className="flex items-center">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveQuestion(qIndex);
-                        }}
-                        className="p-1.5 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        aria-label="Remove question"
-                      >
-                        <Trash2 className="h-4.5 w-4.5" />
-                      </button>
+                      {!isPreviewMode && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveQuestion(qIndex);
+                          }}
+                          className="p-1.5 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          aria-label="Remove question"
+                        >
+                          <Trash2 className="h-4.5 w-4.5" />
+                        </button>
+                      )}
                       <div className="ml-2 text-gray-400 dark:text-gray-500 transition-transform duration-200 transform rotate-0">
                         <svg className={`h-5 w-5 transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : 'rotate-0'}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -780,7 +851,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                           onChange={(e) => handleQuestionChange(qIndex, 'text', e.target.value)}
                           required
                           placeholder="Enter your question here..."
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all"
+                          className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                          disabled={isPreviewMode}
                         />
                       </div>
 
@@ -793,9 +865,14 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                           <button
                             type="button"
                             onClick={() => handleAddOption(qIndex)}
-                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 inline-flex items-center font-medium"
+                            disabled={isPreviewMode}
+                            className={`text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 inline-flex items-center font-medium ${isPreviewMode ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
-                            <Plus className="h-3.5 w-3.5 mr-1" /> Add Option
+                            {isPreviewMode ? (
+                              <><Eye className="h-3.5 w-3.5 mr-1" /> Preview Mode</>
+                            ) : (
+                              <><Plus className="h-3.5 w-3.5 mr-1" /> Add Option</>
+                            )}
                           </button>
                         </div>
                         <div className="space-y-2.5 pl-2 border-l-2 border-indigo-200 dark:border-indigo-800">
@@ -810,7 +887,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                                   checked={option.isCorrect}
                                   value={option._id || `index-${oIndex}`}
                                   onChange={() => handleCorrectOptionChange(qIndex, oIndex)}
-                                  className="h-4 w-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600"
+                                  className={`h-4 w-4 text-indigo-600 dark:text-indigo-500 border-gray-300 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                                  disabled={isPreviewMode}
                                 />
                               </div>
                               
@@ -826,7 +904,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                                     option.isCorrect 
                                       ? 'border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20' 
                                       : 'border-gray-300 dark:border-gray-600'
-                                  }`}
+                                  } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                                  disabled={isPreviewMode}
                                 />
                                 {option.isCorrect && (
                                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-green-500 dark:text-green-400">
@@ -836,7 +915,7 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                               </div>
                               
                               {/* Remove Option Button (show only if more than 2 options) */}
-                              {question.options.length > 2 && (
+                              {!isPreviewMode && question.options.length > 2 && (
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveOption(qIndex, oIndex)}
@@ -864,7 +943,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                             value={question.explanation || ''}
                             onChange={(e) => handleQuestionChange(qIndex, 'explanation', e.target.value)}
                             placeholder="Explain why the correct answer is right (shown after submission)"
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all text-sm"
+                            className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all text-sm ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                            disabled={isPreviewMode}
                           />
                         </div>
 
@@ -880,7 +960,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                               onChange={(e) => handleQuestionChange(qIndex, 'difficulty', e.target.value)}
                               className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 transition-all appearance-none pr-10 text-sm ${
                                 getDifficultyColor(question.difficulty || 'medium')
-                              }`}
+                              } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                              disabled={isPreviewMode}
                             >
                               <option value="easy">Easy</option>
                               <option value="medium">Medium</option>
@@ -909,7 +990,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                               value={question.points === undefined ? 10 : question.points}
                               onChange={(e) => handleQuestionChange(qIndex, 'points', e.target.value)}
                               min="0"
-                              className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all text-sm"
+                              className={`w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all text-sm ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                              disabled={isPreviewMode}
                             />
                           </div>
                         </div>
@@ -934,8 +1016,8 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           </button>
           <button
             type="submit"
-            disabled={isLoading || isFetchingSubjects}
-            className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+            disabled={isLoading || isPreviewMode || isFetchingSubjects}
+            className={`px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:from-indigo-600 hover:to-purple-600 transform-none' : ''}`}
           >
             {isLoading ? (
               <>
@@ -944,6 +1026,11 @@ const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 Saving...
+              </>
+            ) : isPreviewMode ? (
+              <>
+                <Eye className="h-5 w-5 mr-1.5" />
+                Preview Mode
               </>
             ) : (
               <>

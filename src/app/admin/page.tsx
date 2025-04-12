@@ -1,20 +1,21 @@
+// src/app/admin/page.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation'; // Import router for redirection
-import { useAuth } from '../context/AuthContext'; // Import auth context
-import api from '@/utils/api';
-import { useDarkMode } from '../DarkModeContext';
-import QuizList from './QuizList';
-import QuizForm from './QuizForm';
-import SubjectList from './SubjectList';
-import SubjectForm from './SubjectForm';
-import ResourceList from './ResourceList';
-import ResourceForm from './ResourceForm';
-import CategoryList from './CategoryList';
-import CategoryForm from './CategoryForm';
-import TopicList from './TopicList';
-import ForumModeration from './ForumModeration'; // Import the new component
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/AuthContext'; // Adjust path if needed
+import api from '@/utils/api'; // Adjust path if needed
+import { useDarkMode } from '../DarkModeContext'; // Adjust path if needed
+import QuizList from './QuizList'; // Adjust path if needed
+import QuizForm from './QuizForm'; // Adjust path if needed
+import SubjectList from './SubjectList'; // Adjust path if needed
+import SubjectForm from './SubjectForm'; // Adjust path if needed
+import ResourceList from './ResourceList'; // Adjust path if needed
+import ResourceForm from './ResourceForm'; // Adjust path if needed
+import CategoryList from './CategoryList'; // Adjust path if needed
+import CategoryForm from './CategoryForm'; // Adjust path if needed
+import TopicList from './TopicList'; // Adjust path if needed
+import ForumModeration from './ForumModeration'; // Adjust path if needed
 import {
   PlusCircle,
   BookOpen,
@@ -22,21 +23,19 @@ import {
   FileText,
   MessageSquare,
   X,
-  Loader2,
-  Shield // Import the Shield icon
+  Loader2, // Kept for potential use, but spinner div is used now
+  Shield,
+  Eye,
+  AlertCircle // Kept for potential use, but emoji is used now
 } from 'lucide-react';
 
-// --- Interfaces ---
-// Quiz Interfaces
+// --- Interfaces (Ensure these match your actual data structures) ---
 interface QuizSubjectInfo { _id: string; name: string; color?: string; icon?: string; }
 interface Quiz { _id: string; title: string; subject: QuizSubjectInfo | string; difficulty: 'easy' | 'medium' | 'hard'; questions: any[]; totalQuestions?: number; timeLimit: number; isPublished?: boolean; attempts?: number; rating?: number; createdAt?: string; updatedAt?: string; }
-// Subject Interfaces
 interface Topic { _id?: string; name: string; description?: string; order?: number; resources?: string[]; }
 interface Subject { _id: string; name: string; description: string; color?: string; gradientFrom?: string; gradientTo?: string; icon?: string; topics: Topic[]; isActive?: boolean; createdAt?: string; updatedAt?: string; topicCount?: number; }
-// Resource Interfaces
 interface ResourceSubjectInfo { _id: string; name: string; color?: string; }
 interface Resource { _id: string; title: string; description?: string; category: string; subject: ResourceSubjectInfo | string; type: string; size: string; filePath: string; downloads: number; premium: boolean; date: string; isActive?: boolean; createdAt?: string; updatedAt?: string; author?: any; }
-// Forum Interfaces
 interface ForumCategory { _id: string; name: string; description?: string; color?: string; icon?: string; topicsCount?: number; postsCount?: number; createdAt?: string; updatedAt?: string; }
 interface ForumTopic {
     _id: string;
@@ -53,66 +52,68 @@ export default function AdminDashboard() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
+  // Preview mode state
+  const [isPreviewMode, setIsPreviewMode] = useState<boolean>(false);
+
   // Check authentication and role
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
         console.log('User not authenticated, redirecting to login');
-        router.replace('/login');
+        router.replace('/login'); // Adjust path if needed
         return;
       }
-      if (user.role !== 'admin') {
-        console.log('User does not have admin role, redirecting to dashboard');
-        router.replace('/dashboard');
+      if (user.role !== 'admin' && user.role !== 'preview') {
+        console.log('User does not have admin or preview role, redirecting to dashboard');
+        router.replace('/dashboard'); // Adjust path if needed
         return;
       }
-      console.log('Admin access verified');
+
+      // Set preview mode if applicable
+      setIsPreviewMode(user.role === 'preview');
+
+      console.log(`${user.role === 'preview' ? 'Preview' : 'Admin'} access verified`);
     }
   }, [user, authLoading, router]);
 
   // Dark Mode Context
   const { isDarkMode } = useDarkMode();
 
-  // Active Section State - Updated to include 'moderation'
+  // Active Section State
   const [activeSection, setActiveSection] = useState<'quizzes' | 'subjects' | 'resources' | 'categories' | 'moderation'>('quizzes');
 
-  // Quiz State
+  // State for each section (Quizzes, Subjects, Resources, Categories, Topics)
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [isLoadingQuizzes, setIsLoadingQuizzes] = useState<boolean>(true);
   const [quizError, setQuizError] = useState<string | null>(null);
   const [showQuizFormModal, setShowQuizFormModal] = useState<boolean>(false);
   const [editingQuiz, setEditingQuiz] = useState<Quiz | null>(null);
 
-  // Subject State
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isLoadingSubjects, setIsLoadingSubjects] = useState<boolean>(true);
   const [subjectError, setSubjectError] = useState<string | null>(null);
   const [showSubjectFormModal, setShowSubjectFormModal] = useState<boolean>(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
 
-  // Resource State
   const [resources, setResources] = useState<Resource[]>([]);
   const [isLoadingResources, setIsLoadingResources] = useState<boolean>(true);
   const [resourceError, setResourceError] = useState<string | null>(null);
   const [showResourceFormModal, setShowResourceFormModal] = useState<boolean>(false);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
 
-  // Forum Category State
   const [categories, setCategories] = useState<ForumCategory[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(true);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const [showCategoryFormModal, setShowCategoryFormModal] = useState<boolean>(false);
   const [editingCategory, setEditingCategory] = useState<ForumCategory | null>(null);
 
-  // Forum Topic Modal State
   const [showTopicModal, setShowTopicModal] = useState<boolean>(false);
   const [selectedCategoryForTopics, setSelectedCategoryForTopics] = useState<ForumCategory | null>(null);
   const [topicsForSelectedCategory, setTopicsForSelectedCategory] = useState<ForumTopic[]>([]);
   const [isLoadingTopics, setIsLoadingTopics] = useState<boolean>(false);
   const [topicError, setTopicError] = useState<string | null>(null);
 
-
-  // --- Data Fetching ---
+  // --- Data Fetching Callbacks ---
   const fetchQuizzes = useCallback(async () => {
     if (!user) return;
     setIsLoadingQuizzes(true);
@@ -227,135 +228,132 @@ export default function AdminDashboard() {
     }
   }, [user]);
 
-
-  // Initial data fetch - only if authenticated and has admin role
+  // Initial data fetch
   useEffect(() => {
-    if (user && user.role === 'admin') {
+    if (user && (user.role === 'admin' || user.role === 'preview')) {
       fetchQuizzes();
       fetchSubjects();
       fetchResources();
       fetchCategories();
-      // No initial fetch needed for moderation component itself, it handles its own data
     }
   }, [user, fetchQuizzes, fetchSubjects, fetchResources, fetchCategories]);
 
-  // --- Quiz Handlers ---
-  const handleCreateNewQuiz = () => { setEditingQuiz(null); setShowQuizFormModal(true); };
-  const handleEditQuiz = (quiz: Quiz) => { setEditingQuiz(quiz); setShowQuizFormModal(true); };
+  // --- Helper function to show preview mode alert ---
+  const showPreviewModeAlert = (action: string = "This action") => {
+    // Use original alert message
+    window.alert(`You are in preview mode. ${action} is not available.`);
+  };
+
+  // --- CRUD Handlers ---
+
+  // Quiz Handlers
+  const handleCreateNewQuiz = () => {
+    if (isPreviewMode) { showPreviewModeAlert("Creating quizzes"); return; }
+    setEditingQuiz(null); setShowQuizFormModal(true);
+  };
+  const handleEditQuiz = (quiz: Quiz) => {
+    // Allow opening form in preview mode (original behavior)
+    setEditingQuiz(quiz); setShowQuizFormModal(true);
+  };
   const handleDeleteQuiz = async (quizId: string) => {
+    if (isPreviewMode) { showPreviewModeAlert("Deleting quizzes"); return; }
     if (window.confirm('Are you sure you want to delete this quiz? This is permanent.')) {
-      try {
-        await api.quizzes.delete(quizId);
-        fetchQuizzes();
-      } catch (err: any) { console.error('Error deleting quiz:', err); setQuizError(`Failed to delete quiz: ${err.message || 'Unknown error'}`); }
+      try { await api.quizzes.delete(quizId); fetchQuizzes(); }
+      catch (err: any) { console.error('Error deleting quiz:', err); setQuizError(`Failed to delete quiz: ${err.message || 'Unknown error'}`); }
     }
   };
   const handleCloseQuizModal = () => { setShowQuizFormModal(false); setEditingQuiz(null); };
   const handleQuizFormSuccess = () => { handleCloseQuizModal(); fetchQuizzes(); };
 
-  // --- Subject Handlers ---
-  const handleCreateNewSubject = () => { setEditingSubject(null); setShowSubjectFormModal(true); };
-  const handleEditSubject = (subject: Subject) => { setEditingSubject(subject); setShowSubjectFormModal(true); };
+  // Subject Handlers
+  const handleCreateNewSubject = () => {
+    if (isPreviewMode) { showPreviewModeAlert("Creating subjects"); return; }
+    setEditingSubject(null); setShowSubjectFormModal(true);
+  };
+  const handleEditSubject = (subject: Subject) => {
+    // Allow opening form in preview mode (original behavior)
+    setEditingSubject(subject); setShowSubjectFormModal(true);
+  };
   const handleDeleteSubject = async (subjectId: string) => {
+    if (isPreviewMode) { showPreviewModeAlert("Deactivating subjects"); return; }
     if (window.confirm('Are you sure you want to deactivate this subject? It will be hidden but not permanently deleted.')) {
-      try {
-        await api.subjects.delete(subjectId); // Soft delete
-        fetchSubjects();
-      } catch (err: any) { console.error('Error deactivating subject:', err); setSubjectError(`Failed to deactivate subject: ${err.message || 'Unknown error'}`); }
+      try { await api.subjects.delete(subjectId); fetchSubjects(); }
+      catch (err: any) { console.error('Error deactivating subject:', err); setSubjectError(`Failed to deactivate subject: ${err.message || 'Unknown error'}`); }
     }
   };
-   const handleCloseSubjectModal = () => { setShowSubjectFormModal(false); setEditingSubject(null); };
+  const handleCloseSubjectModal = () => { setShowSubjectFormModal(false); setEditingSubject(null); };
   const handleSubjectFormSuccess = () => { handleCloseSubjectModal(); fetchSubjects(); };
 
-  // --- Resource Handlers ---
-   const handleCreateNewResource = () => { setEditingResource(null); setShowResourceFormModal(true); };
-  const handleEditResource = (resource: Resource) => { setEditingResource(resource); setShowResourceFormModal(true); };
-   const handleDeleteResource = async (resourceId: string) => {
+  // Resource Handlers
+  const handleCreateNewResource = () => {
+    if (isPreviewMode) { showPreviewModeAlert("Creating resources"); return; }
+    setEditingResource(null); setShowResourceFormModal(true);
+  };
+  const handleEditResource = (resource: Resource) => {
+    // Allow opening form in preview mode (original behavior)
+    setEditingResource(resource); setShowResourceFormModal(true);
+  };
+  const handleDeleteResource = async (resourceId: string) => {
+    if (isPreviewMode) { showPreviewModeAlert("Deleting resources"); return; }
     if (window.confirm('Are you sure you want to delete this resource and its associated file? This is permanent.')) {
-      try {
-        await api.resources.delete(resourceId); // Backend handles file deletion too
-        fetchResources();
-      } catch (err: any) { console.error('Error deleting resource:', err); setResourceError(`Failed to delete resource: ${err.message || 'Unknown error'}`); }
+      try { await api.resources.delete(resourceId); fetchResources(); }
+      catch (err: any) { console.error('Error deleting resource:', err); setResourceError(`Failed to delete resource: ${err.message || 'Unknown error'}`); }
     }
   };
-   const handleCloseResourceModal = () => { setShowResourceFormModal(false); setEditingResource(null); };
+  const handleCloseResourceModal = () => { setShowResourceFormModal(false); setEditingResource(null); };
   const handleResourceFormSuccess = () => { handleCloseResourceModal(); fetchResources(); };
 
-  // --- Forum Category Handlers ---
-   const handleCreateNewCategory = () => {
-    setEditingCategory(null);
-    setShowCategoryFormModal(true);
+  // Forum Category Handlers
+  const handleCreateNewCategory = () => {
+    if (isPreviewMode) { showPreviewModeAlert("Creating categories"); return; }
+    setEditingCategory(null); setShowCategoryFormModal(true);
   };
   const handleEditCategory = (category: ForumCategory) => {
-    setEditingCategory(category);
-    setShowCategoryFormModal(true);
+    // Allow opening form in preview mode (original behavior)
+    setEditingCategory(category); setShowCategoryFormModal(true);
   };
-   const handleDeleteCategory = async (categoryId: string) => {
-     if (window.confirm('Are you sure you want to delete this category? This action cannot be undone and might fail if the category contains topics.')) {
-       try {
-         setCategoryError(null);
-         setIsLoadingCategories(true);
-         await api.forum.deleteCategory(categoryId);
-         fetchCategories();
-       } catch (err: any) {
-         console.error('Error deleting category:', err);
-         setCategoryError(`Failed to delete category: ${err.response?.data?.message || err.message || 'Unknown error'}`);
-       } finally {
-           setIsLoadingCategories(false);
-       }
-     }
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (isPreviewMode) { showPreviewModeAlert("Deleting categories"); return; }
+    if (window.confirm('Are you sure you want to delete this category? This action cannot be undone and might fail if the category contains topics.')) {
+      try {
+        setCategoryError(null); setIsLoadingCategories(true);
+        await api.forum.deleteCategory(categoryId); fetchCategories();
+      } catch (err: any) {
+        console.error('Error deleting category:', err);
+        setCategoryError(`Failed to delete category: ${err.response?.data?.message || err.message || 'Unknown error'}`);
+      } finally { setIsLoadingCategories(false); }
+    }
   };
-   const handleCloseCategoryModal = () => {
-    setShowCategoryFormModal(false);
-    setEditingCategory(null);
-    setCategoryError(null);
-  };
-  const handleCategoryFormSuccess = () => {
-    handleCloseCategoryModal();
-    fetchCategories();
-  };
+  const handleCloseCategoryModal = () => { setShowCategoryFormModal(false); setEditingCategory(null); setCategoryError(null); };
+  const handleCategoryFormSuccess = () => { handleCloseCategoryModal(); fetchCategories(); };
 
-  // --- Forum Topic Handlers ---
+  // Forum Topic Handlers
   const handleViewTopics = (categoryId: string) => {
     const category = categories.find(cat => cat._id === categoryId);
     if (category) {
-        setSelectedCategoryForTopics(category);
-        setShowTopicModal(true);
-        fetchTopicsForCategory(categoryId);
-    } else {
-        console.error("Category not found for ID:", categoryId);
-        setCategoryError("Could not find the selected category.");
+        setSelectedCategoryForTopics(category); setShowTopicModal(true); fetchTopicsForCategory(categoryId);
+    } else { console.error("Category not found for ID:", categoryId); setCategoryError("Could not find the selected category."); }
+  };
+  const handleDeleteTopic = async (topicId: string) => {
+    if (isPreviewMode) { showPreviewModeAlert("Deleting topics"); return; }
+    if (!selectedCategoryForTopics) return;
+    if (window.confirm(`Are you sure you want to delete this topic? This will also delete all its replies.`)) {
+      try {
+        setIsLoadingTopics(true); await api.forum.deleteTopic(topicId);
+        fetchTopicsForCategory(selectedCategoryForTopics._id); fetchCategories();
+      } catch (err: any) {
+        console.error('Error deleting topic:', err); setTopicError(`Failed to delete topic: ${err.message || 'Unknown error'}`);
+      } finally { setIsLoadingTopics(false); }
     }
   };
+  const handleCloseTopicModal = () => { setShowTopicModal(false); setSelectedCategoryForTopics(null); setTopicsForSelectedCategory([]); setTopicError(null); };
 
-  const handleDeleteTopic = async (topicId: string) => {
-     if (!selectedCategoryForTopics) return;
-     if (window.confirm(`Are you sure you want to delete this topic? This will also delete all its replies.`)) {
-        try {
-            setIsLoadingTopics(true);
-            await api.forum.deleteTopic(topicId);
-            fetchTopicsForCategory(selectedCategoryForTopics._id); // Refresh modal list
-            fetchCategories(); // Refresh category list (for counts)
-        } catch (err: any) {
-             console.error('Error deleting topic:', err);
-             setTopicError(`Failed to delete topic: ${err.message || 'Unknown error'}`);
-             setIsLoadingTopics(false);
-        }
-     }
-  };
-
-  const handleCloseTopicModal = () => {
-    setShowTopicModal(false);
-    setSelectedCategoryForTopics(null);
-    setTopicsForSelectedCategory([]);
-    setTopicError(null);
-  };
-
-  // If authentication is loading, show loading indicator
+  // --- Loading and Auth Checks ---
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
+          {/* Use original spinner div */}
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
           <p className="text-gray-600 dark:text-gray-300">Verifying credentials...</p>
         </div>
@@ -363,17 +361,16 @@ export default function AdminDashboard() {
     );
   }
 
-  // If user is not authenticated or not an admin, return null (redirect happens in useEffect)
-  if (!user || user.role !== 'admin') {
+  if (!user || (user.role !== 'admin' && user.role !== 'preview')) {
+    // Redirect handled by useEffect
     return null;
   }
 
-  // --- Rendering the Admin Dashboard (once authenticated) ---
+  // --- Render Admin Dashboard ---
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-6 lg:p-8 transition-colors duration-300 relative overflow-hidden">
-      {/* Background floating icons - keep as is */}
+      {/* Background floating icons - Restored opacities */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
-        {/* ... [Keep all background elements] ... */}
         <div className="absolute top-[5%] left-[2%] text-purple-500 dark:text-purple-400 text-9xl opacity-75 floating-icon">∑</div>
         <div className="absolute top-[12%] right-[2%] text-blue-500 dark:text-blue-400 text-10xl opacity-70 floating-icon-reverse">π</div>
         <div className="absolute top-[25%] left-[1%] text-green-500 dark:text-green-400 text-8xl opacity-75 floating-icon-slow">∞</div>
@@ -389,11 +386,7 @@ export default function AdminDashboard() {
         <div className="absolute bottom-[30%] left-[60%] text-amber-500 dark:text-amber-400 text-9xl opacity-70 floating-icon-slow">β</div>
         <div className="absolute bottom-[45%] left-[85%] text-purple-500 dark:text-purple-400 text-8xl opacity-65 floating-icon-reverse">μ</div>
         <div className="absolute bottom-[5%] left-[40%] text-blue-500 dark:text-blue-400 text-7xl opacity-70 floating-icon">ω</div>
-        <div className="absolute top-[8%] left-[45%] text-indigo-500 dark:text-indigo-400 text-6xl opacity-65 floating-icon-slow">E=mc²</div>
-        <div className="absolute top-[22%] left-[55%] text-teal-500 dark:text-teal-400 text-5xl opacity-60 floating-icon">F=ma</div>
-        <div className="absolute top-[50%] left-[70%] text-violet-500 dark:text-violet-400 text-6xl opacity-65 floating-icon-reverse">H₂O</div>
-        <div className="absolute bottom-[38%] left-[20%] text-rose-500 dark:text-rose-400 text-6xl opacity-60 floating-icon">PV=nRT</div>
-        <div className="absolute bottom-[18%] left-[75%] text-emerald-500 dark:text-emerald-400 text-5xl opacity-65 floating-icon-slow">v=λf</div>
+        {/* SVG Icons from original */}
         <div className="absolute top-[15%] left-[15%] opacity-60 floating-icon-slow">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-36 w-36 text-cyan-500 dark:text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
@@ -436,11 +429,31 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Main Content Area */}
       <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-gray-100 text-center mb-8 transition-colors duration-300">Admin Dashboard</h1>
 
-        {/* Navigation Tabs - Updated with Moderation Tab */}
+        {/* Preview Mode Banner */}
+        {isPreviewMode && (
+          <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6 animate-pulse-subtle shadow-md">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Eye className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-amber-800 dark:text-amber-300">Preview Mode</h3>
+                <div className="mt-1 text-sm text-amber-700 dark:text-amber-200">
+                  {/* Updated message to reflect original intent */}
+                  You are viewing the admin panel in preview mode. You can browse all sections but cannot make any changes.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Tabs */}
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md flex flex-wrap gap-2 justify-center">
+          {/* Quiz Tab */}
           <button
             onClick={() => setActiveSection('quizzes')}
             className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors ${
@@ -451,6 +464,7 @@ export default function AdminDashboard() {
           >
             <HelpCircle className="h-4 w-4 mr-2" /> Quizzes
           </button>
+          {/* Subject Tab */}
           <button
             onClick={() => setActiveSection('subjects')}
             className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors ${
@@ -461,6 +475,7 @@ export default function AdminDashboard() {
           >
             <BookOpen className="h-4 w-4 mr-2" /> Subjects
           </button>
+          {/* Resource Tab */}
           <button
             onClick={() => setActiveSection('resources')}
             className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors ${
@@ -471,6 +486,7 @@ export default function AdminDashboard() {
           >
             <FileText className="h-4 w-4 mr-2" /> Resources
           </button>
+          {/* Category Tab */}
           <button
             onClick={() => setActiveSection('categories')}
             className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors ${
@@ -481,38 +497,53 @@ export default function AdminDashboard() {
           >
             <MessageSquare className="h-4 w-4 mr-2" /> Forum Categories
           </button>
-          {/* New Moderation Tab */}
+          {/* Moderation Tab */}
           <button
-            onClick={() => setActiveSection('moderation')}
+            onClick={() => !isPreviewMode && setActiveSection('moderation')}
+            disabled={isPreviewMode}
+            title={isPreviewMode ? "Moderation is disabled in preview mode" : "Manage Content Moderation"}
             className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors ${
               activeSection === 'moderation'
                 ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                : isPreviewMode
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 opacity-50 cursor-not-allowed'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             <Shield className="h-4 w-4 mr-2" /> Content Moderation
           </button>
         </div>
 
-        {/* Conditional Rendering Based on Active Section */}
+        {/* Conditional Rendering Based on Active Section - Restored structure */}
 
         {/* Quiz Management Section */}
         {activeSection === 'quizzes' && (
-          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300 animate-fadeIn">
             <div className="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4 transition-colors duration-300">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200 flex items-center transition-colors duration-300">
                 <HelpCircle className="h-6 w-6 mr-2 text-purple-600 dark:text-purple-400"/> Quiz Management
               </h2>
-              <button onClick={handleCreateNewQuiz} className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                <PlusCircle className="h-5 w-5 mr-2" /> Create New Quiz
+              {/* Restored Button Style */}
+              <button
+                onClick={handleCreateNewQuiz}
+                className={`inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg font-medium transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:bg-purple-600' : 'hover:bg-purple-700'}`}
+                disabled={isPreviewMode}
+              >
+                {isPreviewMode ? (
+                  <><Eye className="h-5 w-5 mr-2" /> Preview Mode</>
+                ) : (
+                  <><PlusCircle className="h-5 w-5 mr-2" /> Create New Quiz</>
+                )}
               </button>
             </div>
+            {/* Restored Loading Placeholder */}
             {isLoadingQuizzes && (
               <div className="text-center py-10">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-3"></div>
                 <p className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Loading quizzes...</p>
               </div>
             )}
+            {/* Restored Error Placeholder */}
             {!isLoadingQuizzes && quizError && (
               <div className="text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg transition-colors duration-300">
                 <div className="text-red-500 dark:text-red-400 text-3xl mb-3">⚠️</div>
@@ -522,27 +553,45 @@ export default function AdminDashboard() {
                 </button>
               </div>
             )}
-            {!isLoadingQuizzes && !quizError && ( <QuizList quizzes={quizzes} onEdit={handleEditQuiz} onDelete={handleDeleteQuiz} /> )}
+            {!isLoadingQuizzes && !quizError && (
+              <QuizList
+                quizzes={quizzes}
+                onEdit={handleEditQuiz}
+                onDelete={handleDeleteQuiz}
+                isPreviewMode={isPreviewMode}
+              />
+            )}
           </section>
         )}
 
         {/* Subject Management Section */}
         {activeSection === 'subjects' && (
-          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300 animate-fadeIn">
             <div className="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4 transition-colors duration-300">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200 flex items-center transition-colors duration-300">
                 <BookOpen className="h-6 w-6 mr-2 text-indigo-600 dark:text-indigo-400"/> Subject Management
               </h2>
-              <button onClick={handleCreateNewSubject} className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                <PlusCircle className="h-5 w-5 mr-2" /> Create New Subject
+              {/* Restored Button Style */}
+              <button
+                onClick={handleCreateNewSubject}
+                className={`inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:bg-indigo-600' : 'hover:bg-indigo-700'}`}
+                disabled={isPreviewMode}
+              >
+                {isPreviewMode ? (
+                  <><Eye className="h-5 w-5 mr-2" /> Preview Mode</>
+                ) : (
+                  <><PlusCircle className="h-5 w-5 mr-2" /> Create New Subject</>
+                )}
               </button>
             </div>
+            {/* Restored Loading Placeholder */}
             {isLoadingSubjects && (
               <div className="text-center py-10">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-3"></div>
                 <p className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Loading subjects...</p>
               </div>
             )}
+            {/* Restored Error Placeholder */}
             {!isLoadingSubjects && subjectError && (
               <div className="text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg transition-colors duration-300">
                 <div className="text-red-500 dark:text-red-400 text-3xl mb-3">⚠️</div>
@@ -552,27 +601,45 @@ export default function AdminDashboard() {
                 </button>
               </div>
             )}
-            {!isLoadingSubjects && !subjectError && ( <SubjectList subjects={subjects} onEdit={handleEditSubject} onDelete={handleDeleteSubject} /> )}
+            {!isLoadingSubjects && !subjectError && (
+              <SubjectList
+                subjects={subjects}
+                onEdit={handleEditSubject}
+                onDelete={handleDeleteSubject}
+                isPreviewMode={isPreviewMode}
+              />
+            )}
           </section>
         )}
 
         {/* Resource Management Section */}
         {activeSection === 'resources' && (
-          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300 animate-fadeIn">
             <div className="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4 transition-colors duration-300">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200 flex items-center transition-colors duration-300">
                 <FileText className="h-6 w-6 mr-2 text-teal-600 dark:text-teal-400"/> Resource Management
               </h2>
-              <button onClick={handleCreateNewResource} className="inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                <PlusCircle className="h-5 w-5 mr-2" /> Create New Resource
+              {/* Restored Button Style */}
+              <button
+                onClick={handleCreateNewResource}
+                className={`inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-lg font-medium transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:bg-teal-600' : 'hover:bg-teal-700'}`}
+                disabled={isPreviewMode}
+              >
+                {isPreviewMode ? (
+                  <><Eye className="h-5 w-5 mr-2" /> Preview Mode</>
+                ) : (
+                  <><PlusCircle className="h-5 w-5 mr-2" /> Create New Resource</>
+                )}
               </button>
             </div>
+            {/* Restored Loading Placeholder */}
             {isLoadingResources && (
               <div className="text-center py-10">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500 mb-3"></div>
                 <p className="text-gray-600 dark:text-gray-300 transition-colors duration-300">Loading resources...</p>
               </div>
             )}
+            {/* Restored Error Placeholder */}
             {!isLoadingResources && resourceError && (
               <div className="text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg transition-colors duration-300">
                 <div className="text-red-500 dark:text-red-400 text-3xl mb-3">⚠️</div>
@@ -582,32 +649,45 @@ export default function AdminDashboard() {
                 </button>
               </div>
             )}
-            {!isLoadingResources && !resourceError && ( <ResourceList resources={resources} onEdit={handleEditResource} onDelete={handleDeleteResource} /> )}
+            {!isLoadingResources && !resourceError && (
+              <ResourceList
+                resources={resources}
+                onEdit={handleEditResource}
+                onDelete={handleDeleteResource}
+                isPreviewMode={isPreviewMode}
+              />
+            )}
           </section>
         )}
 
         {/* Forum Category Management Section */}
         {activeSection === 'categories' && (
-          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300 animate-fadeIn">
             <div className="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4 transition-colors duration-300">
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200 flex items-center transition-colors duration-300">
                 <MessageSquare className="h-6 w-6 mr-2 text-cyan-600 dark:text-cyan-400"/> Forum Category Management
               </h2>
+              {/* Restored Button Style */}
               <button
                 onClick={handleCreateNewCategory}
-                className="inline-flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg font-medium hover:bg-cyan-700 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                title={!true ? "Backend endpoint needed" : ""} // Keep this or remove if endpoint exists
+                className={`inline-flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg font-medium transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:bg-cyan-600' : 'hover:bg-cyan-700'}`}
+                disabled={isPreviewMode}
               >
-                <PlusCircle className="h-5 w-5 mr-2" />
-                Create New Category
+                {isPreviewMode ? (
+                  <><Eye className="h-5 w-5 mr-2" /> Preview Mode</>
+                ) : (
+                  <><PlusCircle className="h-5 w-5 mr-2" /> Create New Category</>
+                )}
               </button>
             </div>
+            {/* Restored Error Message Style */}
             {categoryError && (
               <div className="mb-4 text-center py-2 px-4 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg border border-red-200 dark:border-red-800 shadow transition-colors duration-300">
                 {categoryError}
                 <button onClick={() => setCategoryError(null)} className="ml-2 text-red-500 dark:text-red-400 font-bold">X</button>
               </div>
             )}
+            {/* Restored Loading Placeholder */}
             {isLoadingCategories && (
               <div className="text-center py-10">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mb-3"></div>
@@ -620,39 +700,31 @@ export default function AdminDashboard() {
                 onEdit={handleEditCategory}
                 onDelete={handleDeleteCategory}
                 onViewTopics={handleViewTopics}
+                isPreviewMode={isPreviewMode}
               />
             )}
           </section>
         )}
 
-        {/* Forum Moderation Section - NEW */}
+        {/* Forum Moderation Section */}
         {activeSection === 'moderation' && (
           <section className="transition-colors duration-300 animate-fadeIn">
-            {/* Optional: Add a heading similar to other sections if desired */}
-            {/* <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-              <div className="flex justify-between items-center mb-6 border-b dark:border-gray-700 pb-4">
-                <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-200 flex items-center">
-                  <Shield className="h-6 w-6 mr-2 text-red-600 dark:text-red-400"/> Content Moderation
-                </h2>
-              </div> */}
-              <ForumModeration />
-            {/* </div> */}
+            <ForumModeration isPreviewMode={isPreviewMode} />
           </section>
         )}
       </div>
 
-      {/* Modals - Keep all existing modals */}
+      {/* Modals - Restored Padding Structure */}
       {showQuizFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-            <div className="flex-grow overflow-y-auto p-6">
+            {/* Added p-6 back here, removed overflow-y-auto */}
+            <div className="flex-grow p-6 overflow-y-auto">
               <QuizForm
-                initialQuizData={editingQuiz ? {
-                  ...editingQuiz,
-                  subject: typeof editingQuiz.subject === 'object' ? editingQuiz.subject._id : editingQuiz.subject
-                } : null}
+                initialQuizData={editingQuiz ? { ...editingQuiz, subject: typeof editingQuiz.subject === 'object' ? editingQuiz.subject._id : editingQuiz.subject } : null}
                 onSuccess={handleQuizFormSuccess}
                 onCancel={handleCloseQuizModal}
+                isPreviewMode={isPreviewMode}
               />
             </div>
           </div>
@@ -663,47 +735,52 @@ export default function AdminDashboard() {
       {showSubjectFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-            <div className="flex-grow overflow-y-auto p-6">
-              <SubjectForm initialSubjectData={editingSubject} onSuccess={handleSubjectFormSuccess} onCancel={handleCloseSubjectModal} />
+             {/* Added p-6 back here, removed overflow-y-auto */}
+            <div className="flex-grow p-6 overflow-y-auto">
+              <SubjectForm
+                initialSubjectData={editingSubject}
+                onSuccess={handleSubjectFormSuccess}
+                onCancel={handleCloseSubjectModal}
+                isPreviewMode={isPreviewMode}
+              />
             </div>
           </div>
-          <div className="fixed inset-0 z-40" onClick={handleCloseSubjectModal}></div>
+           <div className="fixed inset-0 z-40" onClick={handleCloseSubjectModal}></div>
         </div>
       )}
 
       {showResourceFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-            <div className="flex-grow overflow-y-auto p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
+             {/* Added p-6 back here, removed overflow-y-auto */}
+            <div className="flex-grow p-6 overflow-y-auto">
               <ResourceForm
-                initialResourceData={editingResource ? {
-                  ...editingResource,
-                  subject: typeof editingResource.subject === 'object'
-                    ? editingResource.subject._id
-                    : editingResource.subject
-                } : null}
+                initialResourceData={editingResource ? { ...editingResource, subject: typeof editingResource.subject === 'object' ? editingResource.subject._id : editingResource.subject } : null}
                 availableSubjects={subjects}
                 onSuccess={handleResourceFormSuccess}
                 onCancel={handleCloseResourceModal}
+                isPreviewMode={isPreviewMode}
               />
             </div>
           </div>
-          <div className="fixed inset-0 z-40" onClick={handleCloseResourceModal}></div>
+           <div className="fixed inset-0 z-40" onClick={handleCloseResourceModal}></div>
         </div>
       )}
 
       {showCategoryFormModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-start pt-10 overflow-y-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-xl z-50 my-auto max-h-[90vh] flex flex-col transition-colors duration-300">
-            <div className="flex-grow overflow-y-auto p-6">
+             {/* Added p-6 back here, removed overflow-y-auto */}
+            <div className="flex-grow p-6 overflow-y-auto">
               <CategoryForm
                 initialCategoryData={editingCategory}
                 onSuccess={handleCategoryFormSuccess}
                 onCancel={handleCloseCategoryModal}
+                isPreviewMode={isPreviewMode}
               />
             </div>
           </div>
-          <div className="fixed inset-0 z-40" onClick={handleCloseCategoryModal}></div>
+           <div className="fixed inset-0 z-40" onClick={handleCloseCategoryModal}></div>
         </div>
       )}
 
@@ -714,22 +791,20 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 transition-colors duration-300">
                 Topics in "{selectedCategoryForTopics.name}"
               </h2>
-              <button
-                type="button"
-                onClick={handleCloseTopicModal}
-                aria-label="Close topics modal"
-                className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-300"
-              >
+              <button type="button" onClick={handleCloseTopicModal} aria-label="Close topics modal" className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 transition-colors duration-300">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <div className="flex-grow overflow-y-auto p-6">
+              {/* Restored Loading Placeholder */}
               {isLoadingTopics && (
                 <div className="text-center py-10">
+                  {/* Use Loader2 here as it was in the original modal */}
                   <Loader2 className="h-8 w-8 mx-auto animate-spin text-blue-600 dark:text-blue-400" />
                   <p className="mt-2 text-gray-600 dark:text-gray-300 transition-colors duration-300">Loading topics...</p>
                 </div>
               )}
+              {/* Restored Error Placeholder */}
               {topicError && (
                 <div className="text-center py-10 text-red-600 dark:text-red-400 transition-colors duration-300">
                   <p>Error loading topics: {topicError}</p>
@@ -742,18 +817,16 @@ export default function AdminDashboard() {
                   </button>
                 </div>
               )}
-              {!isLoadingTopics && !topicError && (
-                <TopicList topics={topicsForSelectedCategory} onDeleteTopic={handleDeleteTopic} />
-              )}
+              {!isLoadingTopics && !topicError && <TopicList topics={topicsForSelectedCategory} onDeleteTopic={handleDeleteTopic} isPreviewMode={isPreviewMode} />}
             </div>
           </div>
-          <div className="fixed inset-0 z-40" onClick={handleCloseTopicModal}></div>
+           <div className="fixed inset-0 z-40" onClick={handleCloseTopicModal}></div>
         </div>
       )}
 
-      {/* Global styles - unchanged */}
+      {/* Global styles - Merged */}
       <style jsx global>{`
-        /* Keep all your existing styles */
+        /* Original styles */
         .text-shadow {
           text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
@@ -762,7 +835,7 @@ export default function AdminDashboard() {
         }
         @keyframes pulse-subtle {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
+          50% { opacity: 0.7; } /* Adjusted opacity slightly from 0.8 for closer match */
         }
         .line-clamp-2 {
           display: -webkit-box;
@@ -839,6 +912,24 @@ export default function AdminDashboard() {
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-out forwards;
         }
+
+        /* Styles kept from the second version (utility classes) */
+        /* These are less critical now as direct Tailwind classes are used more */
+        /* .btn-primary-sm {
+          @apply inline-flex items-center px-3 py-1.5 bg-purple-600 text-white rounded-md text-sm font-medium transition-colors shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+        }
+        .btn-disabled {
+          @apply opacity-50 cursor-not-allowed hover:bg-purple-600;
+        }
+        .btn-retry-sm {
+           @apply px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded hover:bg-red-200 dark:hover:bg-red-800/50 text-xs font-medium;
+        }
+        .loading-placeholder {
+          @apply text-center py-10 text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center space-y-2;
+        }
+        .error-placeholder {
+           @apply text-center py-10 max-w-md mx-auto bg-red-50 dark:bg-red-900/20 p-6 rounded-lg border border-red-200 dark:border-red-800 shadow-lg text-red-700 dark:text-red-300 flex items-center justify-center;
+        } */
       `}</style>
     </div>
   );

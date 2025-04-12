@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { DarkModeProvider, DarkModeToggle } from '@/app/DarkModeContext'; // Import Provider and Toggle
 import { AuthProvider, useAuth } from '@/app/context/AuthContext'; // <-- Import AuthProvider and useAuth
-import { Home, BookOpen, HelpCircle, FileText, MessageSquare, LogIn, UserPlus, User, LogOut, ShieldCheck, Settings } from 'lucide-react'; // <-- Added more icons
+import { Home, BookOpen, HelpCircle, FileText, MessageSquare, LogIn, UserPlus, User, LogOut, ShieldCheck, Settings, Eye } from 'lucide-react'; // <-- Added Eye icon
 import './globals.css'; // Import global styles
 
 const inter = Inter({ subsets: ['latin'] });
@@ -41,6 +41,10 @@ const AppHeader = () => {
       // router.push('/login');
   };
 
+  // Check if user has admin access (either admin or preview role)
+  const hasAdminAccess = !isLoading && user && (user.role === 'admin' || user.role === 'preview');
+  const isPreviewMode = !isLoading && user && user.role === 'preview';
+
   return (
     <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700/10 relative z-30 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
@@ -61,10 +65,20 @@ const AppHeader = () => {
           <Link href="/resources" className="nav-link" onClick={handleNavigation}>Resources</Link>
 
           {/* --- Conditionally render Admin Link --- */}
-          {/* Show only if NOT loading, user exists, AND user role is admin */}
-          {!isLoading && user && user.role === 'admin' && (
-            <Link href="/admin" className="nav-link text-red-600 dark:text-red-400 font-semibold flex items-center" onClick={handleNavigation}>
-                <ShieldCheck className="inline h-5 w-5 mr-1" /> Admin
+          {/* Show for users with admin or preview role */}
+          {hasAdminAccess && (
+            <Link href="/admin" className="nav-link font-semibold flex items-center" onClick={handleNavigation}>
+              {isPreviewMode ? (
+                <>
+                  <Eye className="inline h-5 w-5 mr-1 text-amber-500 dark:text-amber-400" /> 
+                  <span className="text-amber-600 dark:text-amber-400">Preview Admin</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="inline h-5 w-5 mr-1 text-red-600 dark:text-red-400" /> 
+                  <span className="text-red-600 dark:text-red-400">Admin</span>
+                </>
+              )}
             </Link>
           )}
           {/* -------------------------------------- */}
@@ -143,9 +157,21 @@ const AppHeader = () => {
           <Link href="/resources" className="mobile-nav-link flex items-center" onClick={handleNavigation}><FileText className="inline h-5 w-5 mr-2"/> Resources</Link>
 
            {/* --- Conditionally render Admin Link (Mobile) --- */}
-           {!isLoading && user && user.role === 'admin' && (
-             <Link href="/admin" className="mobile-nav-link text-red-600 dark:text-red-400 font-semibold flex items-center" onClick={handleNavigation}>
-               <ShieldCheck className="inline h-5 w-5 mr-2"/> Admin Panel
+           {hasAdminAccess && (
+             <Link href="/admin" 
+                  className={`mobile-nav-link font-semibold flex items-center ${
+                    isPreviewMode ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
+                  }`} 
+                  onClick={handleNavigation}>
+               {isPreviewMode ? (
+                 <>
+                   <Eye className="inline h-5 w-5 mr-2"/> Preview Admin Panel
+                 </>
+               ) : (
+                 <>
+                   <ShieldCheck className="inline h-5 w-5 mr-2"/> Admin Panel
+                 </>
+               )}
              </Link>
            )}
            {/* --------------------------------------------- */}

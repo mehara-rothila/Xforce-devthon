@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit, Trash2, List, MessageCircle, Calendar, Search, SortAsc, SortDesc, Filter, ChevronDown } from 'lucide-react';
+import { Edit, Trash2, List, MessageCircle, Calendar, Search, SortAsc, SortDesc, Filter, ChevronDown, Eye } from 'lucide-react';
 import SubjectIcon from '@/components/icons/SubjectIcon';
 
 interface ForumCategory {
@@ -19,9 +19,10 @@ interface CategoryListProps {
   onEdit: (category: ForumCategory) => void;
   onDelete: (categoryId: string) => void;
   onViewTopics: (categoryId: string) => void;
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
-const CategoryList: React.FC<CategoryListProps> = ({ categories, onEdit, onDelete, onViewTopics }) => {
+const CategoryList: React.FC<CategoryListProps> = ({ categories, onEdit, onDelete, onViewTopics, isPreviewMode = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -192,20 +193,32 @@ const CategoryList: React.FC<CategoryListProps> = ({ categories, onEdit, onDelet
                   >
                     <List className="h-5 w-5" />
                   </button>
-                  <button
-                    onClick={() => onEdit(category)}
-                    className="p-1.5 rounded-md text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/20 transition-colors"
-                    title={`Edit ${category.name}`}
-                  >
-                    <Edit className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(category._id)}
-                    className="p-1.5 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
-                    title={`Delete ${category.name}`}
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
+                  {isPreviewMode ? (
+                    <button
+                      disabled
+                      className="p-1.5 rounded-md text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50"
+                      title="Preview mode - Editing disabled"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onEdit(category)}
+                      className="p-1.5 rounded-md text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/20 transition-colors"
+                      title={`Edit ${category.name}`}
+                    >
+                      <Edit className="h-5 w-5" />
+                    </button>
+                  )}
+                  {!isPreviewMode && (
+                    <button
+                      onClick={() => onDelete(category._id)}
+                      className="p-1.5 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors"
+                      title={`Delete ${category.name}`}
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

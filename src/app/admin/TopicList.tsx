@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Calendar, Eye, MessageCircle, User, Search, SortAsc, SortDesc, AlertCircle, Clock, Filter, X, Info, ChevronRight, PinIcon, Award } from 'lucide-react';
+import { Trash2, Calendar, Eye, MessageCircle, User, Search, SortAsc, SortDesc, AlertCircle, Clock, Filter, X, Info, ChevronRight, PinIcon, Award, Lock, ShieldAlert } from 'lucide-react';
 
 interface ForumTopic {
   _id: string;
@@ -13,9 +13,10 @@ interface ForumTopic {
 interface TopicListProps {
   topics: ForumTopic[];
   onDeleteTopic: (topicId: string) => void;
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
-const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
+const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic, isPreviewMode = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<string>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -102,6 +103,13 @@ const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
     });
 
   const handleDelete = (topicId: string) => {
+    // In preview mode, show alert and block action
+    if (isPreviewMode) {
+      window.alert("You are in preview mode. Deletion is not available.");
+      return;
+    }
+    
+    // Normal delete flow
     if (confirmDelete === topicId) {
       onDeleteTopic(topicId);
       setConfirmDelete(null);
@@ -172,6 +180,27 @@ const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
 
   return (
     <div className={`space-y-6 transition-all duration-500 ${animateIn ? 'opacity-100 transform-none' : 'opacity-0 translate-y-4'}`}>
+      {/* Preview Mode Banner - Enhanced with more details */}
+      {isPreviewMode && (
+        <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4 animate-fadeIn">
+          <div className="flex items-start">
+            <ShieldAlert className="h-5 w-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-3 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-amber-800 dark:text-amber-300">Preview Mode - Forum Content</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-200 mt-1">
+                You are viewing forum topics in preview mode. In this mode:
+              </p>
+              <ul className="text-xs text-amber-700 dark:text-amber-200 mt-2 space-y-1 list-disc pl-5">
+                <li>Forum replies and topic content are view-only</li>
+                <li>Deleting, editing or creating topics is disabled</li>
+                <li>New replies cannot be added to topics</li>
+                <li>All interactions that would modify forum data are disabled</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Search and Sort Controls */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className={`relative flex-1 transition-all duration-200 ${isSearchFocused ? 'ring-2 ring-indigo-300 dark:ring-indigo-700 rounded-lg' : ''}`}>
@@ -253,9 +282,18 @@ const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
               key={topic._id}
               className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-700 transform hover:-translate-y-0.5 ${
                 index === 0 && animateIn ? 'animate-slide-in-bottom' : ''
-              }`}
+              } ${isPreviewMode ? 'relative' : ''}`}
               style={{ animationDelay: `${index * 50}ms` }}
             >
+              {/* Preview Mode Overlay - Added for better visual indication */}
+              {isPreviewMode && (
+                <div className="absolute top-2 right-2 z-10">
+                  <div className="bg-amber-100 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-800 rounded-md p-1 flex items-center shadow-sm">
+                    <Lock className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
+                  </div>
+                </div>
+              )}
+              
               <div className="p-5">
                 <div className="flex items-start">
                   {/* Author Avatar */}
@@ -281,6 +319,13 @@ const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
                           <span className="inline-flex items-center rounded-full bg-orange-100 dark:bg-orange-900/30 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800">
                             <Award className="h-3 w-3 mr-1" />
                             Popular
+                          </span>
+                        )}
+                        {/* Add Preview Mode Badge */}
+                        {isPreviewMode && (
+                          <span className="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/30 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                            <Eye className="h-3 w-3 mr-1" />
+                            View Only
                           </span>
                         )}
                       </div>
@@ -316,24 +361,31 @@ const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
                   </div>
                   
                   <div className="flex items-center ml-4">
-                    <button
-                      onClick={() => handleDelete(topic._id)}
-                      className={`p-2 rounded-md transition-all duration-300 ${
-                        confirmDelete === topic._id
-                          ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 shadow-sm animate-pulse'
-                          : 'text-gray-400 hover:text-red-600 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/20'
-                      }`}
-                      title={confirmDelete === topic._id ? 'Click again to confirm delete' : `Delete topic: ${topic.title}`}
-                    >
-                      {confirmDelete === topic._id ? (
-                        <div className="flex items-center">
-                          <AlertCircle className="h-5 w-5 mr-1.5" />
-                          <span className="text-xs font-medium">Confirm</span>
-                        </div>
-                      ) : (
-                        <Trash2 className="h-5 w-5" />
-                      )}
-                    </button>
+                    {isPreviewMode ? (
+                      <div className="p-2 rounded-md text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-60 flex items-center">
+                        <Lock className="h-4 w-4 mr-1" />
+                        <span className="text-xs hidden sm:inline">Preview</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleDelete(topic._id)}
+                        className={`p-2 rounded-md transition-all duration-300 ${
+                          confirmDelete === topic._id
+                            ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 shadow-sm animate-pulse'
+                            : 'text-gray-400 hover:text-red-600 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/20'
+                        }`}
+                        title={confirmDelete === topic._id ? 'Click again to confirm delete' : `Delete topic: ${topic.title}`}
+                      >
+                        {confirmDelete === topic._id ? (
+                          <div className="flex items-center">
+                            <AlertCircle className="h-5 w-5 mr-1.5" />
+                            <span className="text-xs font-medium">Confirm</span>
+                          </div>
+                        ) : (
+                          <Trash2 className="h-5 w-5" />
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -369,6 +421,16 @@ const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
         )}
       </div>
       
+      {/* Added Preview Mode Reminder Note at bottom */}
+      {isPreviewMode && (
+        <div className="bg-gray-50 dark:bg-gray-700/20 rounded-lg p-3 border border-gray-200 dark:border-gray-700 text-sm text-center">
+          <div className="flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <Eye className="h-4 w-4 mr-1.5" />
+            <span>You are in preview mode. Forum interactions are view-only.</span>
+          </div>
+        </div>
+      )}
+      
       {/* CSS for animations */}
       <style jsx>{`
         @keyframes slideInBottom {
@@ -384,6 +446,15 @@ const TopicList: React.FC<TopicListProps> = ({ topics, onDeleteTopic }) => {
         
         .animate-slide-in-bottom {
           animation: slideInBottom 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
         }
       `}</style>
     </div>

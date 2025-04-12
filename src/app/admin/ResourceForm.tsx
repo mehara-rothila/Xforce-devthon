@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'; // Added useEffect
 import api from '@/utils/api';
-import { X, UploadCloud, FileText, Loader2, Tag, Book, AlertCircle, FileType, Check, DollarSign, Info, Edit } from 'lucide-react'; // Added Edit
+import { X, UploadCloud, FileText, Loader2, Tag, Book, AlertCircle, FileType, Check, DollarSign, Info, Edit, Eye } from 'lucide-react';
 
 // --- Interfaces ---
 interface Subject {
@@ -29,6 +29,7 @@ interface ResourceFormProps {
   availableSubjects: Subject[];
   onSuccess: () => void;
   onCancel: () => void;
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
 // --- Constants ---
@@ -52,7 +53,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     initialResourceData,
     availableSubjects,
     onSuccess,
-    onCancel
+    onCancel,
+    isPreviewMode = false
 }) => {
   const [formData, setFormData] = useState<Partial<ResourceFormData>>(() => {
     // Initialize form state, ensuring defaults are set
@@ -64,7 +66,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       ? (initialResourceData.subject as { _id: string })._id
       : initialResourceData?.subject || (availableSubjects && availableSubjects.length > 0 
           ? availableSubjects[0]._id 
-          : ''),      type: 'PDF', // Hardcode to PDF since only PDF upload is handled
+          : ''),      
+      type: 'PDF', // Hardcode to PDF since only PDF upload is handled
       premium: initialResourceData?.premium || false,
       filePath: initialResourceData?.filePath || '',
       size: initialResourceData?.size || '',
@@ -83,53 +86,65 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!initialResourceData?._id;
-// Effect to update form if initial data changes (e.g., opening modal again)
-useEffect(() => {
-  if (initialResourceData) {
-      setFormData({
-          title: initialResourceData.title || '',
-          description: initialResourceData.description || '',
-          category: initialResourceData.category || resourceCategories[0].value,
-          subject: typeof initialResourceData.subject === 'object' && initialResourceData.subject !== null
-            ? (initialResourceData.subject as { _id: string })._id 
-            : initialResourceData.subject || '',
-          type: 'PDF', // Keep as PDF
-          premium: initialResourceData.premium || false,
-          filePath: initialResourceData.filePath || '',
-          size: initialResourceData.size || '',
-          _id: initialResourceData._id || undefined,
-      });
-      setFilePreview(initialResourceData.filePath || null);
-      setSelectedFile(null); // Reset selected file when opening for edit
-  } else {
-       // Reset for creation
-       setFormData({ 
-         title: '', 
-         description: '', 
-         category: resourceCategories[0].value, 
-         subject: availableSubjects && availableSubjects.length > 0 ? availableSubjects[0]._id : '', 
-         type: 'PDF', 
-         premium: false, 
-         filePath: '', 
-         size: '' 
-       });
-       setFilePreview(null);
-       setSelectedFile(null);
-  }
-  setActiveStep(1); // Always start at step 1
-  setError(null);
-  setSuccess(null);
-  setFormErrors({});
-}, [initialResourceData, availableSubjects]); // Depend on initial data
+
+  // Check for preview mode on mount
+  useEffect(() => {
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+    }
+  }, [isPreviewMode]);
+  
+  // Effect to update form if initial data changes (e.g., opening modal again)
+  useEffect(() => {
+    if (initialResourceData) {
+        setFormData({
+            title: initialResourceData.title || '',
+            description: initialResourceData.description || '',
+            category: initialResourceData.category || resourceCategories[0].value,
+            subject: typeof initialResourceData.subject === 'object' && initialResourceData.subject !== null
+              ? (initialResourceData.subject as { _id: string })._id 
+              : initialResourceData.subject || '',
+            type: 'PDF', // Keep as PDF
+            premium: initialResourceData.premium || false,
+            filePath: initialResourceData.filePath || '',
+            size: initialResourceData.size || '',
+            _id: initialResourceData._id || undefined,
+        });
+        setFilePreview(initialResourceData.filePath || null);
+        setSelectedFile(null); // Reset selected file when opening for edit
+    } else {
+         // Reset for creation
+         setFormData({ 
+           title: '', 
+           description: '', 
+           category: resourceCategories[0].value, 
+           subject: availableSubjects && availableSubjects.length > 0 ? availableSubjects[0]._id : '', 
+           type: 'PDF', 
+           premium: false, 
+           filePath: '', 
+           size: '' 
+         });
+         setFilePreview(null);
+         setSelectedFile(null);
+    }
+    setActiveStep(1); // Always start at step 1
+    setError(null);
+    setSuccess(null);
+    setFormErrors({});
+  }, [initialResourceData, availableSubjects]); // Depend on initial data
 
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     const { name, value, type } = e.target;
     if (formErrors[name]) { setFormErrors(prev => { const newErrors = {...prev}; delete newErrors[name]; return newErrors; }); }
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value, }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setError(null);
     if (formErrors.file) { setFormErrors(prev => { const newErrors = {...prev}; delete newErrors.file; return newErrors; }); }
     if (e.target.files && e.target.files[0]) {
@@ -141,8 +156,48 @@ useEffect(() => {
     } else { setSelectedFile(null); setFilePreview(isEditing ? initialResourceData?.filePath || null : null); }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); e.stopPropagation(); };
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => { /* ... (keep existing drop logic) ... */ };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { 
+    e.preventDefault(); 
+    e.stopPropagation(); 
+  };
+  
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => { 
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
+    e.preventDefault(); 
+    e.stopPropagation();
+    
+    setError(null);
+    if (formErrors.file) { 
+      setFormErrors(prev => { 
+        const newErrors = {...prev}; 
+        delete newErrors.file; 
+        return newErrors; 
+      }); 
+    }
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      
+      if (file.type !== 'application/pdf') { 
+        setFormErrors(prev => ({...prev, file: 'Only PDF files are accepted'})); 
+        setSelectedFile(null); 
+        setFilePreview(isEditing ? initialResourceData?.filePath || null : null); 
+        return; 
+      }
+      
+      const maxSizeMB = 20;
+      if (file.size > maxSizeMB * 1024 * 1024) { 
+        setFormErrors(prev => ({...prev, file: `File size exceeds the ${maxSizeMB}MB limit`})); 
+        setSelectedFile(null); 
+        setFilePreview(isEditing ? initialResourceData?.filePath || null : null); 
+        return; 
+      }
+      
+      setSelectedFile(file); 
+      setFilePreview(file.name);
+    }
+  };
 
   // --- Validation ---
   const validateStep = (step: number): boolean => {
@@ -162,13 +217,34 @@ useEffect(() => {
   };
 
   // --- Navigation ---
-  const goToNextStep = () => { if (validateStep(activeStep)) { setActiveStep(prev => prev + 1); } };
-  const goToPreviousStep = () => { setActiveStep(prev => Math.max(1, prev - 1)); };
+  const goToNextStep = () => { 
+    if (isPreviewMode) {
+      // In preview mode, allow navigation without validation
+      setActiveStep(prev => prev + 1);
+      return;
+    }
+    
+    if (validateStep(activeStep)) { 
+      setActiveStep(prev => prev + 1); 
+    } 
+  };
+  
+  const goToPreviousStep = () => { 
+    setActiveStep(prev => Math.max(1, prev - 1)); 
+  };
 
   // --- Submission ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null); setSuccess(null);
+    
+    // Prevent submission in preview mode
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+      return;
+    }
+    
+    setError(null); 
+    setSuccess(null);
 
     if (!validateStep(activeStep)) { return; } // Final validation
 
@@ -249,15 +325,56 @@ useEffect(() => {
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md border border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center"> <FileText className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-500" /> Upload Resource File </h3>
-              <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${ formErrors.file ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/10' : 'border-gray-300 dark:border-gray-600 hover:border-teal-300 dark:hover:border-teal-700 bg-white dark:bg-gray-700' }`} onDragOver={handleDragOver} onDrop={handleDrop} >
+              <div className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${ formErrors.file ? 'border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-900/10' : 'border-gray-300 dark:border-gray-600 hover:border-teal-300 dark:hover:border-teal-700 bg-white dark:bg-gray-700' } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`} onDragOver={handleDragOver} onDrop={handleDrop} >
                 {selectedFile || filePreview ? (
-                  <div className="space-y-4"> <div className="mx-auto w-16 h-16 flex items-center justify-center bg-teal-100 dark:bg-teal-900/30 rounded-full text-teal-600 dark:text-teal-400"> <FileText className="h-8 w-8" /> </div> <div> <p className="font-medium text-gray-900 dark:text-white">{selectedFile?.name || filePreview}</p> <p className="text-sm text-gray-500 dark:text-gray-400 mt-1"> {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : 'Existing file'} </p> </div> <button type="button" onClick={() => { setSelectedFile(null); setFilePreview(null); if (fileInputRef.current) { fileInputRef.current.value = ''; } }} className="px-4 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors" > Replace File </button> </div>
+                  <div className="space-y-4"> <div className="mx-auto w-16 h-16 flex items-center justify-center bg-teal-100 dark:bg-teal-900/30 rounded-full text-teal-600 dark:text-teal-400"> <FileText className="h-8 w-8" /> </div> <div> <p className="font-medium text-gray-900 dark:text-white">{selectedFile?.name || filePreview}</p> <p className="text-sm text-gray-500 dark:text-gray-400 mt-1"> {selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : 'Existing file'} </p> </div> 
+                  {!isPreviewMode && (
+                    <button 
+                      type="button" 
+                      onClick={() => { 
+                        setSelectedFile(null); 
+                        setFilePreview(null); 
+                        if (fileInputRef.current) { 
+                          fileInputRef.current.value = ''; 
+                        } 
+                      }} 
+                      className="px-4 py-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors" 
+                    >
+                      Replace File
+                    </button>
+                  )}
+                  </div>
                 ) : (
-                  <div className="space-y-4"> <div className="mx-auto w-16 h-16 flex items-center justify-center bg-gray-100 dark:bg-gray-600 rounded-full text-gray-500 dark:text-gray-400"> <UploadCloud className="h-8 w-8" /> </div> <div> <p className="text-lg font-medium text-gray-900 dark:text-white">Drop your file here or click to upload</p> <p className="text-sm text-gray-500 dark:text-gray-400 mt-1"> PDF files only (Max size: 20MB) </p> </div> <div> <label className="px-4 py-2 rounded-md text-white bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 cursor-pointer inline-block shadow-sm"> Select PDF File <input ref={fileInputRef} type="file" className="hidden" accept="application/pdf" onChange={handleFileChange}/> </label> </div> </div>
+                  <div className="space-y-4"> <div className="mx-auto w-16 h-16 flex items-center justify-center bg-gray-100 dark:bg-gray-600 rounded-full text-gray-500 dark:text-gray-400"> <UploadCloud className="h-8 w-8" /> </div> <div> <p className="text-lg font-medium text-gray-900 dark:text-white">Drop your file here or click to upload</p> <p className="text-sm text-gray-500 dark:text-gray-400 mt-1"> PDF files only (Max size: 20MB) </p> </div> <div> 
+                  <label className={`px-4 py-2 rounded-md text-white bg-teal-600 hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 cursor-pointer inline-block shadow-sm ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:bg-teal-600 dark:hover:bg-teal-700' : ''}`}> 
+                    {isPreviewMode ? 'Preview Mode' : 'Select PDF File'}
+                    <input 
+                      ref={fileInputRef} 
+                      type="file" 
+                      className="hidden" 
+                      accept="application/pdf" 
+                      onChange={handleFileChange}
+                      disabled={isPreviewMode}
+                    /> 
+                  </label> 
+                  </div> </div>
                 )}
               </div>
               {formErrors.file && ( <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.file} </p> )}
               {isEditing && !selectedFile && filePreview && ( <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"> <div className="flex items-start"> <Info className="h-5 w-5 mr-3 text-blue-500 dark:text-blue-400 flex-shrink-0 mt-0.5" /> <div> <p className="text-sm text-blue-800 dark:text-blue-300 font-medium">Editing Existing Resource</p> <p className="text-sm text-blue-600 dark:text-blue-400 mt-1"> Keeping current file: <code className='text-xs bg-blue-100 dark:bg-blue-900/50 px-1 rounded'>{filePreview}</code>. Upload a new PDF to replace it. </p> </div> </div> </div> )}
+              {isPreviewMode && (
+                <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"> 
+                  <div className="flex items-start"> 
+                    <Eye className="h-5 w-5 mr-3 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" /> 
+                    <div> 
+                      <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">Preview Mode</p> 
+                      <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                        File upload functionality is disabled in preview mode.
+                      </p> 
+                    </div> 
+                  </div> 
+                </div>
+              )}
             </div>
           </div>
         );
@@ -268,20 +385,82 @@ useEffect(() => {
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4 flex items-center"> <Tag className="h-5 w-5 mr-2 text-teal-600 dark:text-teal-500" /> Resource Details </h3>
               <div className="space-y-5">
                 {/* Title */}
-                <div> <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Title <span className="text-red-500">*</span> </label> <input type="text" id="title" name="title" value={formData.title || ''} onChange={handleInputChange} className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400 bg-white dark:bg-gray-700 transition-colors ${ formErrors.title ? 'border-red-300 text-red-900 placeholder-red-300 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' }`} placeholder="e.g., Physics Unit 3 Notes" /> {formErrors.title && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.title} </p> )} </div>
+                <div> <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Title <span className="text-red-500">*</span> </label> 
+                <input 
+                  type="text" 
+                  id="title" 
+                  name="title" 
+                  value={formData.title || ''} 
+                  onChange={handleInputChange} 
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400 bg-white dark:bg-gray-700 transition-colors ${ 
+                    formErrors.title ? 'border-red-300 text-red-900 placeholder-red-300 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' 
+                  } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`} 
+                  placeholder="e.g., Physics Unit 3 Notes" 
+                  disabled={isPreviewMode}
+                /> 
+                {formErrors.title && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.title} </p> )} </div>
                 {/* Description */}
-                <div> <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Description </label> <textarea id="description" name="description" rows={3} value={formData.description || ''} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400" placeholder="Short description..." /> </div>
+                <div> <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Description </label> 
+                <textarea 
+                  id="description" 
+                  name="description" 
+                  rows={3} 
+                  value={formData.description || ''} 
+                  onChange={handleInputChange} 
+                  className={`w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400 ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`} 
+                  placeholder="Short description..." 
+                  disabled={isPreviewMode}
+                /> 
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* Subject */}
-                  <div> <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Subject <span className="text-red-500">*</span> </label> <div className="relative"> <select id="subject" name="subject" value={formData.subject || ''} onChange={handleInputChange} className={`w-full pl-10 pr-10 py-2 border rounded-lg appearance-none bg-white dark:bg-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400 ${ formErrors.subject ? 'border-red-300 text-red-900 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' }`} > <option value="">Select subject</option> {availableSubjects.map(subject => ( <option key={subject._id} value={subject._id}>{subject.name}</option> ))} </select> <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <Book className="h-5 w-5 text-gray-400 dark:text-gray-500" /> </div> <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"> <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"> <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /> </svg> </div> </div> {formErrors.subject && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.subject} </p> )} </div>
+                  <div> <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Subject <span className="text-red-500">*</span> </label> <div className="relative"> 
+                  <select 
+                    id="subject" 
+                    name="subject" 
+                    value={formData.subject || ''} 
+                    onChange={handleInputChange} 
+                    className={`w-full pl-10 pr-10 py-2 border rounded-lg appearance-none bg-white dark:bg-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400 ${ 
+                      formErrors.subject ? 'border-red-300 text-red-900 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' 
+                    } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                    disabled={isPreviewMode}
+                  > 
+                    <option value="">Select subject</option> 
+                    {availableSubjects.map(subject => ( <option key={subject._id} value={subject._id}>{subject.name}</option> ))} 
+                  </select> 
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <Book className="h-5 w-5 text-gray-400 dark:text-gray-500" /> </div> <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"> <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"> <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /> </svg> </div> </div> {formErrors.subject && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.subject} </p> )} </div>
                   {/* Category */}
-                  <div> <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Category <span className="text-red-500">*</span> </label> <div className="relative"> <select id="category" name="category" value={formData.category || ''} onChange={handleInputChange} className={`w-full pl-10 pr-10 py-2 border rounded-lg appearance-none bg-white dark:bg-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400 ${ formErrors.category ? 'border-red-300 text-red-900 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' }`} > <option value="">Select category</option> {resourceCategories.map(cat => ( <option key={cat.value} value={cat.value}>{cat.value}</option> ))} </select> <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <Tag className="h-5 w-5 text-gray-400 dark:text-gray-500" /> </div> <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"> <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"> <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /> </svg> </div> </div> {formErrors.category && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.category} </p> )} </div>
+                  <div> <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> Category <span className="text-red-500">*</span> </label> <div className="relative"> 
+                  <select 
+                    id="category" 
+                    name="category" 
+                    value={formData.category || ''} 
+                    onChange={handleInputChange} 
+                    className={`w-full pl-10 pr-10 py-2 border rounded-lg appearance-none bg-white dark:bg-gray-700 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:focus:ring-teal-400 dark:focus:border-teal-400 ${ 
+                      formErrors.category ? 'border-red-300 text-red-900 dark:border-red-700 dark:text-red-300' : 'border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100' 
+                    } ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                    disabled={isPreviewMode}
+                  > 
+                    <option value="">Select category</option> 
+                    {resourceCategories.map(cat => ( <option key={cat.value} value={cat.value}>{cat.value}</option> ))} 
+                  </select> 
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <Tag className="h-5 w-5 text-gray-400 dark:text-gray-500" /> </div> <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"> <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"> <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /> </svg> </div> </div> {formErrors.category && ( <p className="mt-1 text-sm text-red-600 dark:text-red-400 flex items-center"> <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.category} </p> )} </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
                   {/* File Type (Readonly) */}
                   <div> <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> File Type </label> <div className="relative"> <input type="text" value={formData.type || 'PDF'} className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed" readOnly /> <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"> <FileType className="h-5 w-5 text-gray-400 dark:text-gray-500" /> </div> </div> </div>
                   {/* Premium Status */}
-                  <div className="flex items-center h-full pt-6"> <div className="flex items-start"> <div className="flex items-center h-5"> <input id="premium" name="premium" type="checkbox" checked={formData.premium || false} onChange={handleInputChange} className="h-5 w-5 text-teal-600 border-gray-300 dark:border-gray-600 rounded focus:ring-teal-500 dark:focus:ring-teal-400 dark:bg-gray-700" /> </div> <div className="ml-3"> <label htmlFor="premium" className="font-medium text-gray-700 dark:text-gray-300 flex items-center"> <DollarSign className="h-4 w-4 mr-1 text-yellow-500" /> Premium Resource </label> <p className="text-xs text-gray-500 dark:text-gray-400"> Only premium subscribers can access </p> </div> </div> </div>
+                  <div className="flex items-center h-full pt-6"> <div className="flex items-start"> <div className="flex items-center h-5"> 
+                  <input 
+                    id="premium" 
+                    name="premium" 
+                    type="checkbox" 
+                    checked={formData.premium || false} 
+                    onChange={handleInputChange} 
+                    className={`h-5 w-5 text-teal-600 border-gray-300 dark:border-gray-600 rounded focus:ring-teal-500 dark:focus:ring-teal-400 dark:bg-gray-700 ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                    disabled={isPreviewMode}
+                  /> 
+                  </div> <div className="ml-3"> <label htmlFor="premium" className="font-medium text-gray-700 dark:text-gray-300 flex items-center"> <DollarSign className="h-4 w-4 mr-1 text-yellow-500" /> Premium Resource </label> <p className="text-xs text-gray-500 dark:text-gray-400"> Only premium subscribers can access </p> </div> </div> </div>
                 </div>
               </div>
             </div>
@@ -298,6 +477,20 @@ useEffect(() => {
                  {/* Resource Info */}
                  <div className="space-y-4"> <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> <div className="space-y-1"> <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Title</p> <p className="text-base text-gray-900 dark:text-white">{formData.title}</p> </div> <div className="space-y-1"> <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Subject</p> <p className="text-base text-gray-900 dark:text-white"> {formData.subject ? getSubjectName(formData.subject) : 'N/A'} </p> </div> </div> <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> <div className="space-y-1"> <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Category</p> <p className="text-base text-gray-900 dark:text-white"> {formData.category || 'N/A'} </p> </div> <div className="space-y-1"> <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Type</p> <p className="text-base text-gray-900 dark:text-white">{formData.type || 'PDF'}</p> </div> </div> <div className="space-y-1"> <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</p> <p className="text-base text-gray-900 dark:text-white"> {formData.description || <span className='italic text-gray-400'>None</span>} </p> </div> <div className="pt-2"> <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ formData.premium ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' }`}> {formData.premium ? ( <><DollarSign className="mr-1 h-3.5 w-3.5" />Premium</> ) : ( <><Check className="mr-1 h-3.5 w-3.5" />Free</> )} </span> </div> </div>
               </div>
+              
+              {isPreviewMode && (
+                <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800"> 
+                  <div className="flex items-start"> 
+                    <Eye className="h-5 w-5 mr-3 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" /> 
+                    <div> 
+                      <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">Preview Mode</p> 
+                      <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                        In preview mode, you can review the form but cannot save changes.
+                      </p> 
+                    </div> 
+                  </div> 
+                </div>
+              )}
             </div>
           </div>
         );
@@ -309,7 +502,18 @@ useEffect(() => {
     <div className="w-full max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10 pt-2 pb-4 mb-6 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white"> {isEditing ? 'Edit Resource' : 'Upload New Resource'} </h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center"> 
+          {isEditing ? (
+            <><Edit className="h-5 w-5 mr-2 text-teal-500 dark:text-teal-400" />Edit Resource</>
+          ) : (
+            <><FileText className="h-5 w-5 mr-2 text-teal-500 dark:text-teal-400" />Upload New Resource</>
+          )}
+          {isPreviewMode && (
+            <span className="ml-2 text-sm font-normal text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded-md flex items-center">
+              <Eye className="h-3.5 w-3.5 mr-1" />Preview Only
+            </span>
+          )}
+        </h2>
         <button type="button" onClick={onCancel} className="p-1.5 rounded-md text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400" aria-label="Close form"> <X className="h-6 w-6" /> </button>
       </div>
 
@@ -327,8 +531,27 @@ useEffect(() => {
         {/* Navigation Buttons */}
         <div className="flex justify-between mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
           <button type="button" onClick={goToPreviousStep} className={`px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 ${ activeStep === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }`} disabled={activeStep === 1} > Previous </button>
-          {activeStep < 3 ? ( <button type="button" onClick={goToNextStep} className="px-4 py-2 bg-teal-600 dark:bg-teal-700 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 shadow-sm" > Continue </button> )
-                         : ( <button type="submit" disabled={isLoading || isUploading} className="px-4 py-2 bg-teal-600 dark:bg-teal-700 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" > {isLoading || isUploading ? ( <><Loader2 className="inline animate-spin -ml-1 mr-2 h-4 w-4" /> {isUploading ? 'Uploading...' : 'Saving...'}</> ) : isEditing ? 'Update Resource' : 'Create Resource'} </button> )}
+          {activeStep < 3 ? ( 
+            <button 
+              type="button" 
+              onClick={goToNextStep} 
+              className="px-4 py-2 bg-teal-600 dark:bg-teal-700 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 shadow-sm" 
+            > 
+              Continue 
+            </button> 
+          ) : ( 
+            <button 
+              type="submit" 
+              disabled={isLoading || isUploading || isPreviewMode} 
+              className={`px-4 py-2 bg-teal-600 dark:bg-teal-700 text-white rounded-lg hover:bg-teal-700 dark:hover:bg-teal-600 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${isPreviewMode ? 'opacity-50 cursor-not-allowed' : ''}`} 
+            > 
+              {isLoading || isUploading ? ( 
+                <><Loader2 className="inline animate-spin -ml-1 mr-2 h-4 w-4" /> {isUploading ? 'Uploading...' : 'Saving...'}</> 
+              ) : isPreviewMode ? (
+                <><Eye className="inline -ml-1 mr-2 h-4 w-4" /> Preview Mode</>
+              ) : isEditing ? 'Update Resource' : 'Create Resource'} 
+            </button> 
+          )}
         </div>
       </form>
     </div>

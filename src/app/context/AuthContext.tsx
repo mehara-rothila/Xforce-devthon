@@ -4,13 +4,13 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import api from '@/utils/api'; // Adjust path if needed
 
-// Define the structure of the User object (ensure it matches your backend response)
+// Define the structure of the User object (ensure it matches your backend response)// Line 11: Update the User interface to include 'preview' role
 interface User {
   _id: string;
   name: string;
   email: string;
-  // *** ADD 'premium' TO THE LIST OF POSSIBLE ROLES ***
-  role: 'user' | 'admin' | 'moderator' | 'premium';
+  // *** ADD 'preview' TO THE LIST OF POSSIBLE ROLES ***
+  role: 'user' | 'admin' | 'moderator' | 'premium' | 'preview';
   // Add other relevant fields if needed
 }
 

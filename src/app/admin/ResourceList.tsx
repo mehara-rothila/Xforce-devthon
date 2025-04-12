@@ -30,9 +30,10 @@ interface ResourceListProps {
   resources: Resource[];
   onEdit: (resource: Resource) => void;
   onDelete: (resourceId: string) => void;
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
-const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete }) => {
+const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete, isPreviewMode = false }) => {
   // Helper to get subject name
   const getSubjectName = (subject: ResourceSubjectInfo | string): string => {
     if (typeof subject === 'object' && subject !== null && subject.name) {
@@ -133,6 +134,14 @@ const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+      {/* Preview Mode Banner */}
+      {isPreviewMode && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 p-3 text-amber-800 dark:text-amber-300 flex items-center">
+          <Eye className="h-4 w-4 mr-2 text-amber-500 dark:text-amber-400" />
+          <span className="text-sm">Preview Mode - You can view resources but cannot edit or delete them</span>
+        </div>
+      )}
+      
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead>
@@ -250,9 +259,7 @@ const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete
                       <div className="flex items-center justify-center">
                         <span className="relative inline-flex">
                           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
-                          // With these lines:
-<CheckCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-500" aria-label="Premium" />
-
+                            <CheckCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-500" aria-label="Premium" />
                           </span>
                           <span className="absolute top-0 right-0 block h-1.5 w-1.5 rounded-full bg-yellow-500 ring-2 ring-white dark:ring-gray-800"></span>
                         </span>
@@ -260,8 +267,8 @@ const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete
                     ) : (
                       <div className="flex items-center justify-center">
                         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-<XCircle className="h-4 w-4 text-gray-400 dark:text-gray-500" aria-label="Standard" />    
-                    </span>
+                          <XCircle className="h-4 w-4 text-gray-400 dark:text-gray-500" aria-label="Standard" />    
+                        </span>
                       </div>
                     )}
                   </td>
@@ -311,20 +318,32 @@ const ResourceList: React.FC<ResourceListProps> = ({ resources, onEdit, onDelete
                   {/* Actions */}
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="flex items-center justify-center space-x-3">
-                      <button 
-                        onClick={() => onEdit(res)} 
-                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors p-1 rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-900/30" 
-                        aria-label={`Edit ${res.title}`}
-                      >
-                        <Edit className="h-5 w-5" />
-                      </button>
-                      <button 
-                        onClick={() => onDelete(res._id)} 
-                        className="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30" 
-                        aria-label={`Delete ${res.title}`}
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
+                      {isPreviewMode ? (
+                        <button 
+                          disabled
+                          className="text-gray-400 dark:text-gray-600 transition-colors p-1 rounded-full cursor-not-allowed opacity-50" 
+                          aria-label="Preview mode - Editing disabled"
+                        >
+                          <Eye className="h-5 w-5" />
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => onEdit(res)} 
+                          className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors p-1 rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-900/30" 
+                          aria-label={`Edit ${res.title}`}
+                        >
+                          <Edit className="h-5 w-5" />
+                        </button>
+                      )}
+                      {!isPreviewMode && (
+                        <button 
+                          onClick={() => onDelete(res._id)} 
+                          className="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30" 
+                          aria-label={`Delete ${res.title}`}
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

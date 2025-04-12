@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit, Trash2, CheckCircle, XCircle, Clock, Filter, ChevronDown, Search, SortAsc, SortDesc, BookOpen, Eye, Award } from 'lucide-react';
+import { Edit, Trash2, CheckCircle, XCircle, Clock, Filter, ChevronDown, Search, SortAsc, SortDesc, BookOpen, Eye, Award, Lock } from 'lucide-react';
 
 interface Subject {
   _id: string;
@@ -25,9 +25,10 @@ interface QuizListProps {
   quizzes: Quiz[];
   onEdit: (quiz: Quiz) => void;
   onDelete: (quizId: string) => void;
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
-const QuizList: React.FC<QuizListProps> = ({ quizzes, onEdit, onDelete }) => {
+const QuizList: React.FC<QuizListProps> = ({ quizzes, onEdit, onDelete, isPreviewMode = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDifficulty, setFilterDifficulty] = useState<string | null>(null);
   const [filterPublished, setFilterPublished] = useState<boolean | null>(null);
@@ -118,6 +119,21 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, onEdit, onDelete }) => {
 
   return (
     <div className="space-y-4">
+      {/* Preview Mode Banner */}
+      {isPreviewMode && (
+        <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4 animate-fadeIn">
+          <div className="flex items-start">
+            <Eye className="h-5 w-5 text-amber-500 dark:text-amber-400 mt-0.5 mr-3 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-amber-800 dark:text-amber-300">Preview Mode - Quiz Management</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-200 mt-1">
+                You can view quizzes but cannot edit or delete them in preview mode.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Search and Filter Bar */}
       <div className="flex flex-col md:flex-row justify-between gap-4 pb-4">
         <div className="relative flex-1">
@@ -129,7 +145,7 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, onEdit, onDelete }) => {
             placeholder="Search quizzes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 admin-input"
+            className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
           />
         </div>
 
@@ -236,8 +252,17 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, onEdit, onDelete }) => {
         {filteredQuizzes.map((quiz) => (
           <div 
             key={quiz._id} 
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 relative"
           >
+            {/* Preview Mode Indicator */}
+            {isPreviewMode && (
+              <div className="absolute top-2 right-2 z-10">
+                <div className="bg-amber-100 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-800 rounded-md p-1 flex items-center shadow-sm">
+                  <Lock className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" />
+                </div>
+              </div>
+            )}
+            
             <div className="p-5">
               <div className="flex justify-between items-start">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate" title={quiz.title}>
@@ -295,20 +320,33 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, onEdit, onDelete }) => {
                 </div>
                 
                 <div className="flex space-x-1">
-                  <button
-                    onClick={() => onEdit(quiz)}
-                    className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    aria-label={`Edit ${quiz.title}`}
-                  >
-                    <Edit className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(quiz._id)}
-                    className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    aria-label={`Delete ${quiz.title}`}
-                  >
-                    <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" />
-                  </button>
+                  {isPreviewMode ? (
+                    <button
+                      disabled
+                      className="p-1 rounded-md text-gray-400 dark:text-gray-600 transition-colors cursor-not-allowed opacity-50"
+                      aria-label="Preview mode - Editing disabled"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onEdit(quiz)}
+                      className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      aria-label={`Edit ${quiz.title}`}
+                    >
+                      <Edit className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </button>
+                  )}
+                  
+                  {!isPreviewMode && (
+                    <button
+                      onClick={() => onDelete(quiz._id)}
+                      className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      aria-label={`Delete ${quiz.title}`}
+                    >
+                      <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -349,6 +387,28 @@ const QuizList: React.FC<QuizListProps> = ({ quizzes, onEdit, onDelete }) => {
           </button>
         </div>
       </div>
+      
+      {/* Preview Mode Reminder */}
+      {isPreviewMode && (
+        <div className="bg-gray-50 dark:bg-gray-700/20 rounded-lg p-3 border border-gray-200 dark:border-gray-700 text-sm text-center mt-4">
+          <div className="flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <Eye className="h-4 w-4 mr-1.5" />
+            <span>You are in preview mode. Quiz management is view-only.</span>
+          </div>
+        </div>
+      )}
+      
+      {/* CSS for animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };

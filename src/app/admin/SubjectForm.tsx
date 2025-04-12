@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '@/utils/api';
-import { Plus, Trash2, X, Info, AlertCircle, CheckCircle2, ArrowRightCircle } from 'lucide-react';
+import { Plus, Trash2, X, Info, AlertCircle, CheckCircle2, ArrowRightCircle, Eye } from 'lucide-react';
 import SubjectIcon from '@/components/icons/SubjectIcon';
 
 // --- Interfaces ---
@@ -27,6 +27,7 @@ interface SubjectFormProps {
   initialSubjectData?: Subject | null;
   onSuccess: () => void;
   onCancel: () => void;
+  isPreviewMode?: boolean; // Added preview mode prop
 }
 
 // --- Define Available Icons ---
@@ -38,7 +39,7 @@ const availableIcons = [
     { name: 'Globe (Geography/Other)', value: 'globe' },
 ];
 
-const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess, onCancel }) => {
+const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess, onCancel, isPreviewMode = false }) => {
   const [formData, setFormData] = useState<Subject>(() => {
     // Initialize form state, ensuring topics array exists
     const initialTopics = initialSubjectData?.topics || [];
@@ -60,14 +61,25 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
 
   const isEditing = !!initialSubjectData?._id;
 
+  // Check for preview mode on mount
+  useEffect(() => {
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+    }
+  }, [isPreviewMode]);
+
   // --- Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   // --- Topic Handlers ---
   const handleAddTopic = () => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setFormData(prev => ({
       ...prev,
       topics: [
@@ -78,6 +90,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
   };
 
   const handleRemoveTopic = (topicIndex: number) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setFormData(prev => ({
       ...prev,
       topics: prev.topics.filter((_, index) => index !== topicIndex)
@@ -85,6 +99,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
   };
 
   const handleTopicChange = (topicIndex: number, field: keyof Topic, value: string) => {
+    if (isPreviewMode) return; // Prevent changes in preview mode
+    
     setFormData(prev => {
       const updatedTopics = [...prev.topics];
       if (updatedTopics[topicIndex]) {
@@ -97,6 +113,13 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
   // --- Submission ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent submission in preview mode
+    if (isPreviewMode) {
+      setError("You are in preview mode. Changes cannot be saved.");
+      return;
+    }
+    
     setError(null);
     setSuccessMessage(null);
 
@@ -176,6 +199,11 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                   Create New Subject
                 </>
               )}
+              {isPreviewMode && (
+                <span className="ml-2 text-sm font-normal text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded-md flex items-center">
+                  <Eye className="h-3.5 w-3.5 mr-1" />Preview Only
+                </span>
+              )}
             </h2>
             <button type="button" onClick={onCancel} className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-full transition-all duration-200 hover:bg-gray-200 dark:hover:bg-gray-600" aria-label="Close form">
                 <X className="h-5 w-5" />
@@ -214,6 +242,21 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
             </div>
         )}
 
+        {/* Preview Mode Banner */}
+        {isPreviewMode && !error && (
+            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-lg relative mb-4 animate-fade-in shadow-md" role="alert">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Eye className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium">Preview Mode</h3>
+                  <div className="mt-1 text-sm">Form inputs are disabled in preview mode. You can view the form but cannot make any changes.</div>
+                </div>
+              </div>
+            </div>
+        )}
+
         {/* Subject Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="group">
@@ -227,8 +270,9 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                   value={formData.name} 
                   onChange={handleInputChange} 
                   required 
-                  className="w-full input-style"
+                  className={`w-full input-style ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
                   placeholder="e.g. Physics, Chemistry, Mathematics"
+                  disabled={isPreviewMode}
                 />
             </div>
 
@@ -242,7 +286,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                           name="icon"
                           value={formData.icon}
                           onChange={handleInputChange}
-                          className="w-full input-style appearance-none bg-white dark:bg-gray-800 pr-10"
+                          className={`w-full input-style appearance-none bg-white dark:bg-gray-800 pr-10 ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                          disabled={isPreviewMode}
                       >
                           {availableIcons.map(iconOption => (
                               <option key={iconOption.value} value={iconOption.value}>
@@ -274,8 +319,9 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                   value={formData.description} 
                   onChange={handleInputChange} 
                   required 
-                  className="w-full input-style" 
+                  className={`w-full input-style ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
                   placeholder="Provide a description of this subject..."
+                  disabled={isPreviewMode}
                 />
             </div>
             
@@ -288,7 +334,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                     name="color" 
                     value={formData.color} 
                     onChange={handleInputChange} 
-                    className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer p-1 bg-transparent"
+                    className={`w-full h-10 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer p-1 bg-transparent ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                    disabled={isPreviewMode}
                   />
                   <div className="absolute inset-y-0 right-3 flex items-center">
                     <span className="text-xs font-mono text-gray-500 dark:text-gray-400">{formData.color}</span>
@@ -306,7 +353,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                   name="gradientFrom" 
                   value={formData.gradientFrom} 
                   onChange={handleInputChange} 
-                  className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer p-1 bg-transparent"
+                  className={`w-full h-10 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer p-1 bg-transparent ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isPreviewMode}
                 />
               </div>
               <div className="flex-1 group">
@@ -317,7 +365,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                   name="gradientTo" 
                   value={formData.gradientTo} 
                   onChange={handleInputChange} 
-                  className="w-full h-10 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer p-1 bg-transparent"
+                  className={`w-full h-10 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer p-1 bg-transparent ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  disabled={isPreviewMode}
                 />
               </div>
             </div>
@@ -352,9 +401,14 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                 <button 
                   type="button" 
                   onClick={handleAddTopic} 
-                  className="text-sm bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-800/60 px-3 py-1.5 rounded-md inline-flex items-center shadow-sm hover:shadow transition-all duration-200 border border-indigo-200 dark:border-indigo-800"
+                  disabled={isPreviewMode}
+                  className={`text-sm bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-800/60 px-3 py-1.5 rounded-md inline-flex items-center shadow-sm hover:shadow transition-all duration-200 border border-indigo-200 dark:border-indigo-800 ${isPreviewMode ? 'opacity-50 cursor-not-allowed hover:bg-indigo-50 dark:hover:bg-indigo-900/40' : ''}`}
                 >
-                    <Plus className="h-4 w-4 mr-1" /> Add Topic
+                    {isPreviewMode ? (
+                      <><Eye className="h-4 w-4 mr-1" /> Preview Mode</>
+                    ) : (
+                      <><Plus className="h-4 w-4 mr-1" /> Add Topic</>
+                    )}
                 </button>
             </div>
             
@@ -365,9 +419,14 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                   <button 
                     type="button" 
                     onClick={handleAddTopic} 
-                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium inline-flex items-center mt-2"
+                    disabled={isPreviewMode}
+                    className={`text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium inline-flex items-center mt-2 ${isPreviewMode ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <Plus className="h-4 w-4 mr-1" /> Add your first topic
+                    {isPreviewMode ? (
+                      <><Eye className="h-4 w-4 mr-1" /> Preview Mode</>
+                    ) : (
+                      <><Plus className="h-4 w-4 mr-1" /> Add your first topic</>
+                    )}
                   </button>
                 </div>
             )}
@@ -381,14 +440,16 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                       <div className="absolute -top-2 -left-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-xs font-semibold py-0.5 px-2 rounded-full shadow-sm">
                         Topic {index + 1}
                       </div>
-                      <button 
-                        type="button" 
-                        onClick={() => handleRemoveTopic(index)} 
-                        className="absolute -top-2 -right-2 p-1 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 bg-white dark:bg-gray-800 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-200 shadow-sm border border-red-200 dark:border-red-800 opacity-0 group-hover:opacity-100 focus:opacity-100" 
-                        aria-label="Remove topic"
-                      >
-                          <Trash2 className="h-4 w-4" />
-                      </button>
+                      {!isPreviewMode && (
+                        <button 
+                          type="button" 
+                          onClick={() => handleRemoveTopic(index)} 
+                          className="absolute -top-2 -right-2 p-1 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 bg-white dark:bg-gray-800 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors duration-200 shadow-sm border border-red-200 dark:border-red-800 opacity-0 group-hover:opacity-100 focus:opacity-100" 
+                          aria-label="Remove topic"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                       <div className="group">
                           <label htmlFor={`topic-name-${index}`} className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors duration-200">
                             Topic Name <span className="text-red-500">*</span>
@@ -399,8 +460,9 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                             value={topic.name} 
                             onChange={(e) => handleTopicChange(index, 'name', e.target.value)} 
                             required 
-                            className="w-full input-style text-sm" 
+                            className={`w-full input-style text-sm ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
                             placeholder="e.g. Introduction, Advanced Concepts, etc."
+                            disabled={isPreviewMode}
                           />
                       </div>
                       <div className="group">
@@ -412,8 +474,9 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                             rows={2} 
                             value={topic.description || ''} 
                             onChange={(e) => handleTopicChange(index, 'description', e.target.value)} 
-                            className="w-full input-style text-sm" 
+                            className={`w-full input-style text-sm ${isPreviewMode ? 'opacity-75 cursor-not-allowed' : ''}`}
                             placeholder="Briefly describe what this topic covers..."
+                            disabled={isPreviewMode}
                           />
                       </div>
                   </div>
@@ -433,8 +496,8 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
             </button>
             <button 
               type="submit" 
-              disabled={isLoading} 
-              className="px-5 py-2 btn-primary flex items-center"
+              disabled={isLoading || isPreviewMode} 
+              className={`px-5 py-2 btn-primary flex items-center ${isPreviewMode ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
                 {isLoading ? (
                     <>
@@ -443,6 +506,11 @@ const SubjectForm: React.FC<SubjectFormProps> = ({ initialSubjectData, onSuccess
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Saving...
+                    </>
+                ) : isPreviewMode ? (
+                    <>
+                      <Eye className="h-4 w-4 mr-1.5" />
+                      Preview Mode
                     </>
                 ) : (
                     <>

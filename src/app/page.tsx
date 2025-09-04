@@ -342,10 +342,9 @@ export default function Home() {
              <div className="flex justify-center mb-12 animate-fadeIn" style={{ animationDuration: '1.5s' }}>
                <div className="relative inline-block">
                  <div className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-200 filter drop-shadow-xl" style={{ textShadow: '0 8px 24px rgba(0,0,0,0.3)' }}>
-                   DEV<span className="text-white">{"{thon}"}</span>
+                   Learnify
                  </div>
-                 <span className="absolute" style={{ top: '-12px', right: '-40px', fontSize: '1.8rem', fontWeight: 'bold', color: 'white' }}>2.0</span>
-                 <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-400 rounded-lg blur-lg opacity-20 animate-pulse-slow"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-purple-400 rounded-lg blur-lg opacity-20 animate-pulse-slow"></div>
                </div>
              </div>
              {/* Tagline */}
@@ -992,10 +991,10 @@ export default function Home() {
    </div>
    <div className="space-y-6">
       {/* FAQ Items (Keep as is) */}
-     <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0"><h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What is the cost of using DEV{"{thon}"}?</h3><p className="text-gray-600 dark:text-gray-300">DEV{"{thon}"} offers a free tier with access to basic features including quizzes, forums, and study materials. Premium features like personalized AI recommendations, video lessons, and expert Q&A sessions are available with a subscription.</p></div>
+     <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0"><h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">What is the cost of using Learnify?</h3><p className="text-gray-600 dark:text-gray-300">Learnify offers a free tier with access to basic features including quizzes, forums, and study materials. Premium features like personalized AI recommendations, video lessons, and expert Q&A sessions are available with a subscription.</p></div>
      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0" style={{ animationDelay: '0.1s' }}><h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">How do the gamified quizzes work?</h3><p className="text-gray-600 dark:text-gray-300">Our gamified quizzes combine learning with game elements like points, badges, leaderboards, and levels. As you answer questions correctly, you earn points and unlock achievements. This approach makes learning more engaging and motivates consistent practice.</p></div>
      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0" style={{ animationDelay: '0.2s' }}><h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">How up-to-date are the study materials?</h3><p className="text-gray-600 dark:text-gray-300">All study materials are regularly updated to align with the latest Sri Lankan A/L curriculum. Our team of educators reviews and refreshes content to ensure it remains current and relevant to your exams.</p></div>
-     <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0" style={{ animationDelay: '0.3s' }}><h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Can I access the platform on mobile devices?</h3><p className="text-gray-600 dark:text-gray-300">Yes, DEV{"{thon}"} is fully responsive and can be accessed on smartphones, tablets, and computers. We recommend using the latest version of Chrome, Firefox, Safari, or Edge for the best experience.</p></div>
+     <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0" style={{ animationDelay: '0.3s' }}><h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Can I access the platform on mobile devices?</h3><p className="text-gray-600 dark:text-gray-300">Yes, Learnify is fully responsive and can be accessed on smartphones, tablets, and computers. We recommend using the latest version of Chrome, Firefox, Safari, or Edge for the best experience.</p></div>
      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 hover:shadow-md transition-shadow duration-300 animate-on-scroll opacity-0" style={{ animationDelay: '0.4s' }}><h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">How does the AI recommendation system work?</h3><p className="text-gray-600 dark:text-gray-300">Our AI system analyzes your quiz performance, studying patterns, and learning history to identify strengths and weaknesses. Based on this analysis, it suggests specific topics to focus on, recommends relevant resources, and creates a personalized learning path to help you improve efficiently.</p></div>
    </div>
  </div>
@@ -1122,7 +1121,7 @@ export default function Home() {
          <a href="https://mehara.io" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> Mehara Rothila </a>
          &amp;
          <a href="https://dinith-edirisinghe.onrender.com/" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition-colors duration-300"> Dinith Edirisinghe </a>
-          for DEV{"{thon}"} 2.0
+          for Learnify
         </p>
      </div>
    </div>

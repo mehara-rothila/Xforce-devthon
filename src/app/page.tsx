@@ -1057,8 +1057,7 @@ export default function Home() {
        {/* Column 1 */}
        <div className="md:col-span-1">
           <div className="flex items-center mb-6">
-            <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-200">DEV<span className="text-white">{"{thon}"}</span></div>
-            <span className="text-xs align-top text-white ml-1 bg-purple-700/50 px-1.5 py-0.5 rounded">2.0</span>
+            <div className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-200">Learnify</div>
           </div>
           <p className="text-gray-400 mb-6">A gamified learning platform designed for Sri Lankan Advanced Level students.</p>
           <div className="mb-6 flex flex-wrap gap-2">
@@ -1109,7 +1108,7 @@ export default function Home() {
      {/* Copyright & Bottom Row */}
      <div className="pt-12 border-t border-gray-800 text-center text-gray-400">
        <div className="flex flex-col md:flex-row justify-between items-center">
-           <p>© {new Date().getFullYear()} Team Xforce. All rights reserved.</p>
+           <p>© {new Date().getFullYear()} Learnify. All rights reserved.</p>
            <div className="mt-4 md:mt-0">
                <Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Terms</Link>
                <Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors duration-300 mx-3">Privacy</Link>

@@ -1,4 +1,4 @@
-# ✨ XForce Learnify Learning Platform - Frontend ✨
+# ✨ Learnify Learning Platform - Frontend ✨
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-14.1.0-black?logo=next.js)](https://nextjs.org/)
@@ -22,7 +22,7 @@
 
 ## 🌟 Introduction
 
-The XForce Learnify Learning Platform provides a comprehensive educational experience, combining structured learning materials, interactive quizzes, community discussions, and gamified progress tracking. This repository contains the frontend implementation built with Next.js, React, and TypeScript, designed to deliver a responsive, accessible, and engaging user interface.
+The Learnify Learning Platform provides a comprehensive educational experience, combining structured learning materials, interactive quizzes, community discussions, and gamified progress tracking. This repository contains the frontend implementation built with Next.js, React, and TypeScript, designed to deliver a responsive, accessible, and engaging user interface.
 
 ## 🚀 Key Features
 
@@ -256,7 +256,7 @@ learning-platform/
 
 * **Node.js:** Version 18.x or 20.x (LTS).  Check with `node -v`.
 * **Package Manager:** npm 8+ (`npm -v`) or Yarn 1.22+ (`yarn -v`).
-* **Backend API:** Running instance of the [XForce Learnify Backend](https://github.com/mehara-rothila/Xforce-devthon-backend).
+* **Backend API:** Running instance of the [Learnify Backend](https://github.com/mehara-rothila/Xforce-devthon-backend).
 * **Web Browser:** Modern browser (Chrome, Firefox, Safari, Edge).
 * **Code Editor:** VS Code recommended (with ESLint and Prettier extensions).
 
@@ -511,7 +511,7 @@ The application is tested and optimized for:
 
 ## 🤝 Contributing
 
-We welcome contributions to improve the XForce Learnify Frontend! Please follow these steps:
+We welcome contributions to improve the Learnify Frontend! Please follow these steps:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -527,7 +527,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🔗 Related Projects
 
-- [XForce Learnify Backend](https://github.com/mehara-rothila/Xforce-devthon-backend) - The Node.js/Express backend API for this platform
+- [Learnify Backend](https://github.com/mehara-rothila/Xforce-devthon-backend) - The Node.js/Express backend API for this platform
 
 ---
 

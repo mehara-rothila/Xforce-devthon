@@ -202,7 +202,7 @@ export default function RootLayout({
 }>) {
   // Effect to set document title (can be done via metadata usually)
   useEffect(() => {
-    document.title = "XForce Learning Platform | Learnify";
+    document.title = "Learnify - Gamified Learning Platform";
   }, []);
 
   return (

@@ -51,8 +51,7 @@ const AppHeader = () => {
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-800 to-purple-600" onClick={handleNavigation}>
-            DEV<span className="text-purple-800 dark:text-purple-400">{"{thon}"}</span>
-            <span className="text-sm align-top text-purple-800 dark:text-purple-400">2.0</span>
+            Learnify
           </Link>
         </div>
 
@@ -203,7 +202,7 @@ export default function RootLayout({
 }>) {
   // Effect to set document title (can be done via metadata usually)
   useEffect(() => {
-    document.title = "XForce Learning Platform | DEV{thon} 2.0";
+    document.title = "XForce Learning Platform | Learnify";
   }, []);
 
   return (

@@ -22,7 +22,8 @@ api.interceptors.request.use(
           '/auth/register',
           '/auth/login',
           '/auth/forgot-password',
-          '/auth/reset-password'
+          '/auth/reset-password',
+          '/auth/google'
       ];
       const isPublicAuthRoute = publicAuthRoutes.some(route => config.url?.includes(route));
 
@@ -51,7 +52,8 @@ api.interceptors.response.use(
           '/auth/register', // A 401/400 might mean user exists
           '/auth/login', // 401 means wrong credentials
           '/auth/forgot-password', // Shouldn't typically return 401, maybe 404 or 200
-          '/auth/reset-password' // 401/400 might mean invalid/expired OTP
+          '/auth/reset-password', // 401/400 might mean invalid/expired OTP
+          '/auth/google' // OAuth route
       ];
        // Check if the request URL that failed includes any of the public auth routes
       const isPublicAuthRoute = publicAuthRoutes.some(route => error.config.url?.includes(route));
@@ -77,7 +79,8 @@ const auth = {
   login: (data) => api.post('/auth/login', data),
   forgotPassword: (data) => api.post('/auth/forgot-password', data),
   resetPassword: (data) => api.post('/auth/reset-password', data),
-  getMe: () => api.get('/auth/me')
+  getMe: () => api.get('/auth/me'),
+  googleAuth: (credential) => api.post('/auth/google', { credential })
 };
 
 const subjects = {

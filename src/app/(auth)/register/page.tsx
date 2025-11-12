@@ -505,11 +505,9 @@ export default function Register() {
             </form>
           </div>
         </div>
-      </div>
-    </GoogleOAuthProvider>
-      
-      {/* Add the enhanced animation styles */}
-      <style jsx global>{`
+
+        {/* Add the enhanced animation styles */}
+        <style jsx global>{`
         /* Original float animation */
         @keyframes float {
           0% { transform: translateY(0px); }
@@ -592,11 +590,12 @@ export default function Register() {
           to { opacity: 1; } 
         }
         
-        @keyframes fadeInUp { 
-          from { opacity: 0; transform: translateY(30px); } 
-          to { opacity: 1; transform: translateY(0); } 
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </GoogleOAuthProvider>
   );
 }

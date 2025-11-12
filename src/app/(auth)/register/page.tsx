@@ -5,7 +5,9 @@
 import Link from 'next/link';
 import { useState, FormEvent } from 'react'; // Import useState and FormEvent
 import { useRouter } from 'next/navigation'; // Import useRouter for redirection
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import api from '../../../utils/api'; // Import the API utility (adjust path if needed)
+import { useAuth } from '@/app/context/AuthContext';
 
 // Define an interface for the API response (optional but good practice)
 interface RegisterResponse {
@@ -24,6 +26,7 @@ interface RegisterResponse {
 
 export default function Register() {
   const router = useRouter(); // Initialize router for redirection
+  const auth = useAuth(); // Get the auth context methods
 
   // --- State Variables ---
   const [formData, setFormData] = useState({
@@ -61,6 +64,37 @@ export default function Register() {
       ...prev,
       [id]: checked,
     }));
+  };
+
+  // --- Google OAuth Handlers ---
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    console.log('Google OAuth credential received');
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await api.auth.googleAuth(credentialResponse.credential);
+      console.log('Google OAuth API successful:', response.data);
+
+      if (response.data.token && response.data.data?.user && typeof window !== 'undefined') {
+        await auth.login(response.data.token, response.data.data.user);
+        console.log('Auth context updated via Google OAuth');
+        router.replace('/dashboard');
+      } else {
+        setError('Google registration completed but essential data missing. Please try again.');
+        setIsLoading(false);
+      }
+    } catch (error: any) {
+      console.error('Google OAuth API failed:', error);
+      const errorMessage = error.response?.data?.message || 'Google authentication failed. Please try again.';
+      setError(errorMessage);
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    console.error('Google OAuth failed');
+    setError('Google authentication was cancelled or failed. Please try again.');
   };
 
   // --- Form Submit Handler ---
@@ -144,6 +178,7 @@ export default function Register() {
 
 
   return (
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
       {/* Enhanced background with mathematical/scientific elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0" id="register-page-background">
@@ -439,6 +474,35 @@ export default function Register() {
                   </>
                 )}
               </button>
+            </div>
+
+            {/* Divider */}
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white dark:bg-dark-card text-gray-500 dark:text-gray-400">Or continue with</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Google OAuth Button */}
+            <div className="mt-6">
+              <GoogleOAuthProvider clientId="106569360563-gfh1of2lvlaighabie59uhvcfqh7u973.apps.googleusercontent.com">
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    theme="outline"
+                    size="large"
+                    text="signup_with"
+                    shape="rectangular"
+                    logo_alignment="left"
+                  />
+                </div>
+              </GoogleOAuthProvider>
             </div>
           </form>
         </div>

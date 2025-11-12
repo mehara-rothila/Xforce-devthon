@@ -5,6 +5,7 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import api from '../../../utils/api'; // Adjust path if needed
 import { useAuth } from '@/app/context/AuthContext'; // Import useAuth
 
@@ -19,6 +20,38 @@ export default function Login() {
 
   const router = useRouter(); // Get router instance
   const auth = useAuth(); // Get the auth context methods
+
+  // Handle Google OAuth Success
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    console.log('Google OAuth credential received');
+    setLoginError(null);
+    setIsLoggingIn(true);
+
+    try {
+      const response = await api.auth.googleAuth(credentialResponse.credential);
+      console.log('Google OAuth API successful:', response.data);
+
+      if (response.data.token && response.data.data?.user && typeof window !== 'undefined') {
+        await auth.login(response.data.token, response.data.data.user);
+        console.log('Auth context updated via Google OAuth');
+        router.replace('/dashboard');
+      } else {
+        setLoginError('Google login completed but essential data missing. Please try again.');
+        setIsLoggingIn(false);
+      }
+    } catch (error: any) {
+      console.error('Google OAuth API failed:', error);
+      const errorMessage = error.response?.data?.message || 'Google authentication failed. Please try again.';
+      setLoginError(errorMessage);
+      setIsLoggingIn(false);
+    }
+  };
+
+  // Handle Google OAuth Error
+  const handleGoogleError = () => {
+    console.error('Google OAuth failed');
+    setLoginError('Google authentication was cancelled or failed. Please try again.');
+  };
 
   // Handle form submission
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -59,7 +92,8 @@ export default function Login() {
 
 
   return (
-    // --- JSX for the Login Form ---
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+    {/* --- JSX for the Login Form --- */}
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300 font-['Inter',_sans-serif]">
       {/* Enhanced background with mathematical/scientific elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0" id="login-page-background">
@@ -247,6 +281,33 @@ export default function Login() {
                   )}
                 </button>
               </div>
+
+              {/* Divider */}
+              <div className="mt-6">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white dark:bg-dark-card text-gray-500 dark:text-gray-400">Or continue with</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Google OAuth Button */}
+              <div className="mt-6">
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    theme="outline"
+                    size="large"
+                    text="signin_with"
+                    shape="rectangular"
+                    logo_alignment="left"
+                  />
+                </div>
+              </div>
             </form>
           </div>
         </div>
@@ -318,5 +379,6 @@ export default function Login() {
         }
       `}</style>
     </div>
+    </GoogleOAuthProvider>
   );
 }

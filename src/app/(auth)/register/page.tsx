@@ -490,22 +490,22 @@ export default function Register() {
 
               {/* Google OAuth Button */}
               <div className="mt-6">
-                <GoogleOAuthProvider clientId="106569360563-gfh1of2lvlaighabie59uhvcfqh7u973.apps.googleusercontent.com">
-                  <div className="flex justify-center">
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={handleGoogleError}
-                      theme="outline"
-                      size="large"
-                      text="signup_with"
-                      shape="rectangular"
-                      logo_alignment="left"
-                    />
-                  </div>
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={handleGoogleError}
+                    theme="outline"
+                    size="large"
+                    text="signup_with"
+                    shape="rectangular"
+                    logo_alignment="left"
+                  />
+                </div>
               </div>
             </form>
           </div>
         </div>
+      </div>
     </GoogleOAuthProvider>
       
       {/* Add the enhanced animation styles */}

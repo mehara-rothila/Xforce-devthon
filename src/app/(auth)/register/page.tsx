@@ -179,7 +179,7 @@ export default function Register() {
 
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden transition-colors duration-300">
       {/* Enhanced background with mathematical/scientific elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0" id="register-page-background">
         {/* Mathematical symbols - Randomly placed */}
@@ -502,11 +502,11 @@ export default function Register() {
                     logo_alignment="left"
                   />
                 </div>
-              </GoogleOAuthProvider>
             </div>
           </form>
         </div>
       </div>
+    </GoogleOAuthProvider>
       
       {/* Add the enhanced animation styles */}
       <style jsx global>{`
